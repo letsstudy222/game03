@@ -286,7 +286,7 @@ const GROUND=468;
 const HOLE={x:480,by:322,y:322};                    // floating above the yard
 const holeR=()=>Math.min(140,16+size*.25);
 const eatR=()=>holeR()*.8;
-const SLOTS=[110,235,360,600,725,850];
+const SLOTS=[110,235,360,600,725,850,42,918];
 
 /* ---------- Balance (proven numbers from v4) ---------- */
 const LV=[1,15,35,65,105,155,220,300,395,505];
@@ -332,14 +332,23 @@ const NODES=[
    fx:l=>'hút của UFO -'+(15*l)+'%'},
  {id:'zap',   tier:2,req:'delay',em:'⚡',name:'Tia trọng lực',desc:'Mở kỹ năng. Chạm THÙNG: giật 5 món hút thẳng vào hố. Lúc UFO đến chạm UFO: bắn rụng nó!',max:3,base:55,
    fx:l=>l===0?'chưa có kỹ năng':'hồi chiêu '+(15*Math.pow(.75,l-1)).toFixed(1)+'s'},
- {id:'fw',    tier:3,req:'gas', em:'🎆',name:'Thùng pháo hoa',desc:'Món bị nuốt phóng 3 quả pháo lên trời, nổ thành mưa tàn lửa rơi vào hố!',max:2,base:90,
+ {id:'fw',    tier:3,req:'gas', em:'🎆',name:'Thùng pháo hoa',desc:'Món bị nuốt phóng 3 quả pháo lên trời, nổ thành mưa tàn lửa rơi vào hố!',max:2,base:110,
    fx:l=>l+' thùng pháo hoa (giá trị 4)'},
- {id:'cap',   tier:3,req:'zap', em:'🔋',name:'Tụ điện cổ',desc:'Món bị nuốt phóng SÉT DÂY CHUYỀN: giật 5 món gần nhất, hút tất cả vào hố!',max:2,base:120,
+ {id:'cap',   tier:3,req:'zap', em:'🔋',name:'Tụ điện cổ',desc:'Món bị nuốt phóng SÉT DÂY CHUYỀN: giật 5 món gần nhất, hút tất cả vào hố!',max:2,base:150,
    fx:l=>l+' tụ điện (giá trị 9)'},
- {id:'pull',  tier:3,req:'rate',em:'🌌',name:'Trường hấp dẫn',desc:'Tăng lực hút & tầm hút của hố — đồ trên đất gần hố tự trượt vào',max:3,base:85,
+ {id:'pull',  tier:3,req:'rate',em:'🌌',name:'Trường hấp dẫn',desc:'Tăng lực hút & tầm hút của hố — đồ trên đất gần hố tự trượt vào',max:3,base:110,
    fx:l=>'lực hút ×'+(1+.4*l).toFixed(1)},
- {id:'sat',   tier:3,req:'hawk',em:'🛰️',name:'Vệ tinh đồng nát',desc:'Vệ tinh bay quanh hố — chạm món đồ nào là TÓM và ném thẳng vào hố!',max:2,base:100,
+ {id:'sat',   tier:3,req:'hawk',em:'🛰️',name:'Vệ tinh đồng nát',desc:'Vệ tinh bay quanh hố — chạm món đồ nào là TÓM và ném thẳng vào hố!',max:2,base:130,
    fx:l=>l+' vệ tinh quỹ đạo'},
+ /* ===== NG+ evolutions: unlock at higher universes ===== */
+ {id:'shield2',tier:3,req:'shield',uniReq:1,em:'🌑',name:'Lá chắn hư không',desc:'[Vũ Trụ #2+] Thêm -10% lực hút của UFO mỗi cấp — cộng dồn với Chân trời sự kiện',max:2,base:260,
+   fx:l=>'hút UFO thêm -'+(10*l)+'%'},
+ {id:'junk3', tier:4,req:'pull',uniReq:1,em:'📦',name:'Kho đồ vô tận',desc:'[Vũ Trụ #2+] Thêm 2 thùng đồ đồng nát mỗi cấp — dây chuyền sản xuất mở rộng!',max:2,base:200,
+   fx:l=>'+'+(2*l)+' thùng đồ cũ'},
+ {id:'sat2',  tier:4,req:'sat',uniReq:2,em:'🛸',name:'Trạm không gian',desc:'[Vũ Trụ #3+] +1 vệ tinh và tầm tóm của mọi vệ tinh rộng hơn',max:1,base:350,
+   fx:l=>l?'3 vệ tinh, tầm tóm +30%':'2 vệ tinh thường'},
+ {id:'zap2',  tier:4,req:'cap',uniReq:2,em:'🌩️',name:'Bão sét',desc:'[Vũ Trụ #3+] Tia trọng lực giật 9 món thay vì 5 mỗi lần chạm thùng!',max:1,base:400,
+   fx:l=>'giật '+(l?9:5)+' món/lần'},
 ];
 const NODE_BY_ID={};NODES.forEach(n=>NODE_BY_ID[n.id]=n);
 
@@ -364,7 +373,7 @@ const THEMES={
    ufo:'🚓',ufoName:'cảnh sát donut',beam:'255,130,160',
    glow:'rgba(240,150,110,.16)',voidIn:'#160b04',voidOut:'#5e3a17',rim:'rgba(230,170,90,.95)'},
  cat:{junk:['🐟','🍗','🥛','🐭','🧶'],gas:'🐡',fw:'🐦',cap:'🔌',ember:'🪶',rocket:'🐦',
-   ufo:'🚿',ufoName:'đội tắm mèo',beam:'140,190,255',
+   ufo:'🥒',ufoName:'biệt đội dưa chuột',beam:'150,230,120',
    glow:'rgba(240,150,175,.14)',voidIn:'#12060a',voidOut:'#4a1f2e',rim:'rgba(240,150,175,.95)'},
  vinyl:{junk:['🎵','🎸','🎺','🎧','📼'],gas:'📢',fw:'🎤',cap:'🎹',ember:'🎶',rocket:'🎼',
    ufo:'📡',ufoName:'đội bản quyền',beam:'175,175,255',
@@ -393,8 +402,13 @@ let save={pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin
 try{const s=localStorage.getItem(SAVE_KEY);if(s)save=Object.assign(save,JSON.parse(s));}catch(e){}
 const persist=()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}};
 const lv=id=>save.lv[id]||0;
-const cost=u=>Math.round(u.base*Math.pow(1.9,lv(u.id)));
+const TIER_GROWTH=[1.9,2.1,2.4,2.6];   // deeper tiers scale steeper
+const cost=u=>Math.round(u.base*Math.pow(TIER_GROWTH[(u.tier||1)-1],lv(u.id)));
 function nodeState(n){
+  if(n.uniReq&&(save.uni||0)<n.uniReq){
+    /* NG+ node: hiện dạng khóa vũ trụ nếu nhánh cha đã lộ */
+    return(!n.req||nodeState(NODE_BY_ID[n.req])!=='hidden')?'unilock':'hidden';
+  }
   if(!n.req)return'full';
   if(lv(n.req)>0)return'full';
   return nodeState(NODE_BY_ID[n.req])==='full'?'teaser':'hidden';
@@ -450,12 +464,12 @@ function ring(x,y,col){rings.push({x,y,r:8,t:1,col:col||'#c7a8ff'});}
 function buildBoxes(){
   boxes=[];
   const owned=['junk'];
-  for(let i=0;i<lv('junk2');i++)owned.push('junk');
+  for(let i=0;i<lv('junk2')+lv('junk3')*2;i++)owned.push('junk');
   for(let i=0;i<lv('gas');i++)owned.push('gas');
   for(let i=0;i<lv('fw');i++)owned.push('fw');
   for(let i=0;i<lv('cap');i++)owned.push('cap');
   /* alternate sides so early boxes flank the hole */
-  const order=[2,3,1,4,0,5];
+  const order=[2,3,1,4,0,5,6,7];
   owned.slice(0,SLOTS.length).forEach((type,i)=>{
     boxes.push({type,x:SLOTS[order[i]],y:GROUND-14,t:R(0,FUEL[type].itv*.6)});
   });
@@ -605,7 +619,7 @@ function update(dt){
     doomT+=dt;
     const aliveN=drones.filter(d=>d.alive).length;
     size-=DOOM_DRAIN(size)*(1+.5*(save.uni||0))*(aliveN/Math.max(1,drones.length))
-      *(1-SHIELD_PCT*lv('shield'))*dt;
+      *Math.max(.2,1-SHIELD_PCT*lv('shield')-.10*lv('shield2'))*dt;
     /* mass streaming up to drones */
     if(aliveN&&Math.random()<.7){
       const d=drones.filter(x=>x.alive)[Math.floor(Math.random()*aliveN)];
@@ -678,13 +692,14 @@ function update(dt){
   if(items.length>70)items.splice(0,items.length-70);
 
   /* satellites: orbit & grab loose items */
-  const nSat=lv('sat');
+  const nSat=lv('sat')+lv('sat2');
   if(nSat){
+    const satR=lv('sat2')?36:28;
     for(let k=0;k<nSat;k++){
       const sp=satPos(k,roundTime);
       for(const it of items){
         if(it.dead||it.state!=='loose')continue;
-        if(Math.hypot(it.x-sp.x,it.y-sp.y)<28){
+        if(Math.hypot(it.x-sp.x,it.y-sp.y)<satR){
           it.state='fly';it.fly=.0001;it.rest=0;
           arcs.push({x1:sp.x,y1:sp.y,x2:HOLE.x,y2:HOLE.y,t:.2});
           puff(sp.x,sp.y,'#9fd8ff',4,60);
@@ -713,7 +728,8 @@ function update(dt){
 }
 
 function satPos(k,t){
-  const a=t*1.15+k*Math.PI;
+  const n=Math.max(1,lv('sat')+lv('sat2'));
+  const a=t*1.15+k*2*Math.PI/n;
   const orb=holeR()+52;
   return{x:HOLE.x+Math.cos(a)*orb,y:HOLE.y+Math.sin(a)*orb*.55};
 }
@@ -746,7 +762,8 @@ cv.addEventListener('pointerdown',e=>{
       if(Math.hypot(x-b.x,y-(b.y-6))<40){
         sZap();ring(b.x,b.y-10,'#7fd3f0');
         arcs.push({x1:b.x,y1:b.y-10,x2:HOLE.x,y2:HOLE.y,t:.3});
-        for(let i=0;i<5;i++){
+        const nZap=lv('zap2')?9:5;
+        for(let i=0;i<nZap;i++){
           ejectItem(b);
           const it=items[items.length-1];
           it.state='fly';it.fly=.0001-i*.04;
@@ -981,30 +998,74 @@ function drawEntity(SK,hr,t){
     ctx.fillStyle=vg;ctx.beginPath();ctx.ellipse(X,Y,hr*.68,hr*.5,0,0,7);ctx.fill();
     cheekyEyes(hr,t,'#fff','#2a5a7a',-1.55);
   }else if(SK==='volcano'){
-    const mg=ctx.createLinearGradient(X,Y-hr*.8,X,Y+hr*1.6);
-    mg.addColorStop(0,'#5a4a42');mg.addColorStop(1,'#332822');
+    /* ---- VOLCANO v2: bezier silhouette, twin lava rivers, bubbling magma ---- */
+    const pulse=.5+Math.sin(t*2.6)*.25;
+    ctx.fillStyle='rgba(255,110,40,'+(.10+pulse*.08)+')';
+    ctx.beginPath();ctx.ellipse(X,Y-hr*.1,hr*2.2,hr*1.5,0,0,7);ctx.fill();
+    /* mountain body */
+    const mg=ctx.createLinearGradient(X,Y-hr*.7,X,Y+hr*1.6);
+    mg.addColorStop(0,'#6a5850');mg.addColorStop(.55,'#4a3b33');mg.addColorStop(1,'#2e241f');
     ctx.fillStyle=mg;
-    ctx.beginPath();ctx.moveTo(X-hr*2.2,Y+hr*1.5);
-    ctx.lineTo(X-hr*1.05,Y-hr*.5);ctx.lineTo(X+hr*1.05,Y-hr*.5);
-    ctx.lineTo(X+hr*2.2,Y+hr*1.5);ctx.closePath();ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=2;
-    for(const sg of[-1,1]){ctx.beginPath();
-      ctx.moveTo(X+sg*hr*.5,Y-hr*.3);ctx.lineTo(X+sg*hr*1.3,Y+hr*1.2);ctx.stroke();}
-    ctx.strokeStyle='rgba(255,120,50,'+(.5+Math.sin(t*3)*.25)+')';ctx.lineWidth=4;
-    for(const sg of[-1,1]){ctx.beginPath();
-      ctx.moveTo(X+sg*hr*.7,Y-hr*.35);
-      ctx.quadraticCurveTo(X+sg*hr*.95,Y+hr*.4,X+sg*hr*.8,Y+hr*1.1);ctx.stroke();}
-    ctx.strokeStyle='#ff8a4a';ctx.lineWidth=5;
-    ctx.beginPath();ctx.ellipse(X,Y-hr*.28,hr*1.08,hr*.42,0,0,7);ctx.stroke();
-    const vg=ctx.createRadialGradient(X,Y-hr*.1,hr*.1,X,Y,hr*.85);
-    vg.addColorStop(0,'#ffb15e');vg.addColorStop(.4,'#ff6a2a');vg.addColorStop(1,'#3a0d00');
+    ctx.beginPath();
+    ctx.moveTo(X-hr*2.35,Y+hr*1.55);
+    ctx.bezierCurveTo(X-hr*1.9,Y+hr*.7, X-hr*1.35,Y+hr*.15, X-hr*.92,Y-hr*.52);
+    ctx.lineTo(X+hr*.92,Y-hr*.52);
+    ctx.bezierCurveTo(X+hr*1.35,Y+hr*.15, X+hr*1.9,Y+hr*.7, X+hr*2.35,Y+hr*1.55);
+    ctx.closePath();ctx.fill();
+    /* sunlit left face */
+    ctx.fillStyle='rgba(255,200,150,.07)';
+    ctx.beginPath();
+    ctx.moveTo(X-hr*2.35,Y+hr*1.55);
+    ctx.bezierCurveTo(X-hr*1.9,Y+hr*.7, X-hr*1.35,Y+hr*.15, X-hr*.92,Y-hr*.52);
+    ctx.lineTo(X-hr*.45,Y-hr*.52);ctx.lineTo(X-hr*1.5,Y+hr*1.55);
+    ctx.closePath();ctx.fill();
+    /* rocky ledges */
+    ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=2;
+    for(const [sg,ry,l1,l2] of [[-1,.25,1.15,1.55],[1,.55,1.35,1.8],[-1,.9,1.7,2.1]]){
+      ctx.beginPath();ctx.moveTo(X+sg*hr*l1,Y+hr*ry);
+      ctx.quadraticCurveTo(X+sg*hr*(l1+l2)/2,Y+hr*(ry-.08),X+sg*hr*l2,Y+hr*ry);ctx.stroke();}
+    /* twin lava rivers: dark under-stroke + bright over-stroke, rounded caps */
+    ctx.lineCap='round';
+    for(const sg of[-1,1]){
+      const wig=Math.sin(t*2+sg)*hr*.05;
+      ctx.strokeStyle='#8a2a08';ctx.lineWidth=hr*.16;
+      ctx.beginPath();ctx.moveTo(X+sg*hr*.55,Y-hr*.42);
+      ctx.bezierCurveTo(X+sg*hr*.8+wig,Y+hr*.15, X+sg*hr*.7,Y+hr*.6, X+sg*hr*1.05,Y+hr*1.25);
+      ctx.stroke();
+      ctx.strokeStyle='rgba(255,'+(140+pulse*70)+',60,.95)';ctx.lineWidth=hr*.08;
+      ctx.beginPath();ctx.moveTo(X+sg*hr*.55,Y-hr*.42);
+      ctx.bezierCurveTo(X+sg*hr*.8+wig,Y+hr*.15, X+sg*hr*.7,Y+hr*.6, X+sg*hr*1.05,Y+hr*1.25);
+      ctx.stroke();
+      ctx.fillStyle='rgba(255,150,60,.85)';
+      ctx.beginPath();ctx.ellipse(X+sg*hr*1.05,Y+hr*1.27,hr*.14,hr*.06,0,0,7);ctx.fill();
+    }
+    ctx.lineCap='butt';
+    /* crater lip: dark back edge + bright front rim */
+    ctx.strokeStyle='#241a15';ctx.lineWidth=hr*.14;
+    ctx.beginPath();ctx.ellipse(X,Y-hr*.42,hr*1.0,hr*.3,0,Math.PI,0);ctx.stroke();
+    ctx.strokeStyle='rgba(255,'+(150+pulse*60)+',80,.95)';ctx.lineWidth=4;
+    ctx.beginPath();ctx.ellipse(X,Y-hr*.1,hr*1.02,hr*.5,0,0,Math.PI);ctx.stroke();
+    /* magma pool */
+    const vg=ctx.createRadialGradient(X,Y,hr*.08,X,Y,hr*.88);
+    vg.addColorStop(0,'#ffe08a');vg.addColorStop(.35,'#ff9d3a');
+    vg.addColorStop(.75,'#e04a10');vg.addColorStop(1,'#5a1400');
     ctx.fillStyle=vg;
-    ctx.beginPath();ctx.ellipse(X,Y,hr*.85,hr*.72,0,0,7);ctx.fill();
-    if(Math.random()<.3)parts.push({x:X+R(-hr*.6,hr*.6),y:Y-hr*.5,
-      vx:R(-25,25),vy:R(-80,-35),t:R(.3,.7),col:'#ff9d5e',r:R(1.8,3.2)});
-    if(Math.random()<.12)parts.push({x:X+R(-hr*.4,hr*.4),y:Y-hr*.7,
-      vx:R(-10,10),vy:R(-45,-25),t:R(.6,1.1),col:'rgba(150,150,150,.4)',r:R(3,6)});
-    cheekyEyes(hr,t,'#ffd76a','#3a0d00',-.05);
+    ctx.beginPath();ctx.ellipse(X,Y,hr*.88,hr*.62,0,0,7);ctx.fill();
+    /* bubbling lava */
+    for(let i=0;i<3;i++){
+      const ph=(t*1.4+i*.37)%1;
+      const bx=X+Math.sin(i*2.4+Math.floor(t*1.4+i*.37))*hr*.45;
+      ctx.strokeStyle='rgba(255,220,140,'+(1-ph)*.8+')';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(bx,Y+hr*.05,2+ph*hr*.16,0,7);ctx.stroke();}
+    if(Math.random()<.3)parts.push({x:X+R(-hr*.5,hr*.5),y:Y-hr*.15,
+      vx:R(-25,25),vy:R(-90,-40),t:R(.3,.7),col:'#ff9d5e',r:R(1.8,3.2)});
+    if(Math.random()<.1)parts.push({x:X+R(-hr*.3,hr*.3),y:Y-hr*.55,
+      vx:R(-8,8),vy:R(-40,-22),t:R(.7,1.2),col:'rgba(160,155,150,.35)',r:R(3.5,6.5)});
+    /* eyes on the rock face, with grumpy brows */
+    cheekyEyes(hr,t,'#ffe6c0','#3a0d00',.95);
+    ctx.strokeStyle='#241a15';ctx.lineWidth=2.5;
+    for(const sg of[-1,1]){ctx.beginPath();
+      ctx.moveTo(X+sg*hr*.44,Y+hr*.78);ctx.lineTo(X+sg*hr*.16,Y+hr*.86);ctx.stroke();}
   }else if(SK==='rgb'){
     const hue=(t*120)%360;
     ctx.fillStyle='hsla('+hue+',90%,60%,.12)';
@@ -1107,8 +1168,8 @@ function draw(){
   const SK=save.skin||'classic';
   drawEntity(SK,hr,t);
   /* satellites orbiting */
-  if(lv('sat')&&state!=='menu'){
-    for(let k=0;k<lv('sat');k++){
+  if((lv('sat')+lv('sat2'))&&state!=='menu'){
+    for(let k=0;k<lv('sat')+lv('sat2');k++){
       const sp=satPos(k,t);
       ctx.fillStyle='rgba(159,216,255,.25)';
       ctx.beginPath();ctx.arc(sp.x,sp.y,15,0,7);ctx.fill();
@@ -1249,15 +1310,25 @@ function showOverlay(id){OVS.forEach(o=>$(o).classList.toggle('show',o===id));up
 const ORIGIN=[330,26];
 const SIBLINGS=[['junk2','big'],['big','delay'],
   ['rate','gas'],['gas','hawk'],['hawk','start'],['start','shield'],['shield','zap'],
-  ['pull','fw'],['fw','sat'],['sat','cap']];
+  ['pull','fw'],['fw','sat'],['sat','shield2'],['shield2','cap'],
+  ['junk3','sat2'],['sat2','zap2']];
 const POS={junk2:[160,110],big:[330,110],delay:[500,110],
   rate:[70,240],gas:[210,240],hawk:[330,246],start:[430,246],shield:[510,240],zap:[600,240],
-  pull:[70,378],fw:[210,378],sat:[330,378],cap:[600,378]};
+  pull:[70,378],fw:[210,378],sat:[330,378],shield2:[470,378],cap:[600,378],
+  junk3:[70,510],sat2:[330,510],zap2:[600,510]};
 let selId=null;
 
 function svgNode(u){
   const st=nodeState(u);
   const [x,y]=POS[u.id];
+  if(st==='unilock'){
+    return `<g class="nd tease" onclick="selNode('${u.id}')">
+      <circle class="base" cx="${x}" cy="${y}" r="27"/>
+      <circle class="dash" cx="${x}" cy="${y}" r="27"/>
+      <text class="em" x="${x}" y="${y+9}" text-anchor="middle">🌌</text>
+      <rect class="badgeBg" x="${x-30}" y="${y+33}" width="60" height="17" rx="8.5"/>
+      <text class="badgeT" x="${x}" y="${y+45}" text-anchor="middle">Vũ Trụ #${u.uniReq+1}</text></g>`;
+  }
   const l=lv(u.id),maxed=l>=u.max,c=cost(u);
   const afford=st==='full'&&!maxed&&save.pts>=c;
   const cls=['nd',st==='teaser'?'tease':'',l>0?'owned':'',maxed?'maxed':'',
@@ -1325,7 +1396,7 @@ function renderShop(){
     nodes+=svgNode(u);
   }
   $('treeBox').innerHTML=
-    `<svg viewBox="0 0 660 452" xmlns="http://www.w3.org/2000/svg">${defs}${edges}${nodes}</svg>`;
+    `<svg viewBox="0 0 660 568" xmlns="http://www.w3.org/2000/svg">${defs}${edges}${nodes}</svg>`;
   renderDetail();
 }
 function selNode(id){
@@ -1333,6 +1404,7 @@ function selNode(id){
   if(!u||nodeState(u)==='hidden')return;
   selId=id;renderShop();
 }
+/* buyNode chỉ cho phép khi 'full' — unilock/teaser tự chặn qua nodeState */
 function renderDetail(){
   const u=selId?NODE_BY_ID[selId]:null;
   const bb=$('buyBtn');
@@ -1341,6 +1413,12 @@ function renderDetail(){
     $('ndFx').textContent='';
     $('ndPips').innerHTML='';bb.disabled=true;bb.textContent='Mua';return;}
   const st=nodeState(u);
+  if(st==='unilock'){
+    $('ndName').textContent='🌌 '+u.name;
+    $('ndFrom').textContent='⤷ tiến hóa NG+ đặc biệt';
+    $('ndDesc').textContent='Nuốt Mặt Trời và bước sang Vũ Trụ #'+(u.uniReq+1)+' để mở khóa sức mạnh này — độ khó tăng thì sức mạnh mới cũng xuất hiện!';
+    $('ndFx').textContent='';
+    $('ndPips').innerHTML='';bb.disabled=true;bb.textContent='🌌 Vũ Trụ #'+(u.uniReq+1);return;}
   if(st==='teaser'){
     const p=NODE_BY_ID[u.req];
     $('ndName').textContent='❓ Tiến hóa bí ẩn';
