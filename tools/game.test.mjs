@@ -297,3 +297,20 @@ test('abandoning a flight cannot consume unpaid exploration rewards or settle th
  assert.ok(g.evaluate('save.mapClaims.includes(0)'));
  g.evaluate("endRound('doom')");assert.equal(g.evaluate('save.pts'),balance);
 });
+
+test('hole growth is visible early, monotonic across regions and bounded after victory',()=>{
+ const g=createGame();g.evaluate('startRound();size=12');const small=g.evaluate('holeR()');
+ g.evaluate('size=400');const early=g.evaluate('holeR()');assert.ok(early-small>10);
+ g.evaluate('size=2400');const mid=g.evaluate('holeR()');assert.ok(mid>early);
+ g.evaluate('runStage=3');assert.equal(g.evaluate('holeR()'),mid);
+ g.evaluate('size=WIN_SIZE');assert.equal(g.evaluate('holeR()'),100);
+ g.evaluate('size=WIN_SIZE*100');assert.equal(g.evaluate('holeR()'),100);
+});
+
+test('light-column travel moves the real gravity center and pauses without losing progress',()=>{
+ const g=createGame();g.evaluate('startRound();size=currentGoal();finishMap();update(.9)');
+ assert.ok(g.evaluate('HOLE.y')<g.evaluate('HOLE.by')-60);
+ const remaining=g.evaluate('travel');g.evaluate('pauseGame();tickGame(1)');assert.equal(g.evaluate('travel'),remaining);
+ g.evaluate("state='play';for(let i=0;i<30;i++)tickGame(.05)");assert.equal(g.evaluate('travel'),0);
+ assert.ok(Math.abs(g.evaluate('HOLE.y-HOLE.by'))<=8);assert.equal(g.evaluate('runStage'),1);
+});

@@ -1,6 +1,6 @@
 # Điểm Kỳ Dị: five-region continuous flight
 
-Each run starts as a small hole in Earth orbit. Reaching an energy goal immediately moves the live game to the next region, with a 1.4-second crossfade and warp streaks. Collection, controls, sources, earnings and elapsed run time continue during flight. Reduced motion uses a short crossfade. Defeat ends the run; the next run always starts in region one. Coins, purchased ranks, cosmetics and specimen discoveries persist.
+Each run starts as a small hole in Earth orbit. Reaching an energy goal immediately moves the live game to the next region, with a 2-second light-column lift and a crossfade at the illuminated midpoint. Collection, controls, sources, earnings and elapsed run time continue during flight. Reduced motion uses a short crossfade. Defeat ends the run; the next run always starts in region one. Coins, purchased ranks, cosmetics and specimen discoveries persist.
 
 ## Route and timing
 
@@ -8,15 +8,15 @@ Each run starts as a small hole in Earth orbit. Reaching an energy goal immediat
 | --- | ---: | ---: | ---: |
 | Earth orbit | 400 | 1.00 | 1.00 |
 | Asteroid belt | 2,400 | 1.25 | 1.12 |
-| Blue ice region | 8,500 | 1.60 | 1.25 |
-| Nebula sea | 24,000 | 2.10 | 1.40 |
-| Stellar core | 42,000 to absorb the Sun | 2.70 | Solar field |
+| Ice-ocean region | 8,500 | 1.60 | 1.25 |
+| Carbon region | 24,000 | 2.10 | 1.40 |
+| Solar corona | 42,000 to absorb the Sun | 2.70 | Solar field |
 
 Energy carries between regions. Every nonfinal region allows up to 58 seconds; the Sun allows 32 seconds. Each early region schedules UFO arrival after 24–36 seconds, depending on delay ranks. A survived attack schedules another after 18 seconds plus delay; survival alone does not advance the route. Reaching a goal cancels the local fleet and begins the next region immediately.
 
 UFO drain is `(48 + energy × 0.18) × region multiplier × remaining armor fraction × defense multiplier`. Basic beams remove one of three armor points, immediately weakening the drain. The final solar field drains `(24 + energy × 0.019) × solarResistance`; radiation protection reduces it 12% per rank. Later NG+ universes increase drain. The HUD explains current target, solar drain and remaining time. Reaching a target before the next update wins over the following frame's drain.
 
-Hole radius follows total energy, `20 + 84 × min(1, energy/42000)^0.5`, so it does not shrink when changing regions. The Sun has a 95-unit radius; the hole reaches 104 at victory. Absorption pulses are bounded so rare specimens cannot inflate the hole's apparent size disproportionately.
+Hole radius follows total energy, `18 + 82 × min(1, energy/42000)^0.34`, so it does not shrink when changing regions. The Sun has a 95-unit radius; the hole reaches 100 at victory (visual pulses capped at 104). Absorption pulses are bounded so rare specimens cannot inflate the hole's apparent size disproportionately.
 
 ## Prices, ranks and rewards
 
@@ -39,7 +39,7 @@ Run reward is `floor(collectionCoins) + 20 + min(16, round) + round(peakEnergy �
 
 Twelve rare specimens pass every nine seconds, live for twelve seconds and must be dragged into the hole while held. They ignore ambient gravity, collectors, satellites, capacitor chains and blast pushes. They have custom irregular SVG silhouettes and a small “KÉO TAY” label, with no circular frame. Three species appear in each of the first two regions, and two in each later region. Existing discovery IDs retain their counts. The collection shows black silhouettes until capture; discovered cards show names, counts and base rewards.
 
-Thirteen custom SVG material drawings replace collectible emoji, with metallic, glass and faceted shading. Images load once and are reused. Backgrounds use cached lighting, textured planets, atmospheric limbs, occluded rings, layered nebula noise and foreground parallax. Nebula noise never consumes gameplay RNG. Rendering honors reduced motion. Firework particles remain bounded and separate from collectible embers; hit pulses do not freeze physics.
+Thirteen custom SVG material drawings replace collectible emoji, with metallic, glass and faceted shading. Images load once and are reused. Five original illustrated WebP backgrounds use distinct geography and materials, with Earth orbit, metallic rubble, fractured ice/ocean terrain, carbon/crystalline rock and coronal plasma. Their combined download is about 1.3 MiB. Cached scene surfaces, modest camera drift and region-specific foreground layers preserve depth without rebuilding planetary textures each frame. Background loading and decorative motion do not consume gameplay RNG. See ENVIRONMENTS.md for scientific inspiration and artistic limits. Rendering honors reduced motion. Firework particles remain bounded and separate from collectible embers; hit pulses do not freeze physics.
 
 `holeGameV5` remains the save key. Schema 9 treats stored region as a best-route record, never a starting checkpoint. Existing coins, ranks, skins, records and discoveries remain intact. Legacy milestone claims migrate to the matching new categories; completed legacy runs cannot claim the final milestone again. Schema 9 claims are filtered directly, so claiming region four cannot silently claim victory on reload.
 
@@ -53,14 +53,16 @@ node tools/balance.mjs 2
 python3 tools/smoke.py
 ```
 
-The browser test requires Python Playwright and `/usr/bin/chromium`, and starts its own temporary HTTP server. It checks all 25 SVG images, mouse/touch collection, rare capture, collection silhouettes, pause, purchases, preview toggling, graph navigation, small-screen scrolling, all five scenes, warp continuity and restarting from Earth.
+The browser test requires Python Playwright and `/usr/bin/chromium`, and starts its own temporary HTTP server. It checks all 25 SVG images and five WebP backgrounds, mouse/touch collection, rare capture, collection silhouettes, pause, purchases, preview toggling, graph navigation, small-screen scrolling, all five scenes, warp continuity and restarting from Earth.
 
-The seeded harness executes the actual game at 60 steps/s. Bots substitute instantaneous manual gestures at 1.7, 1.1 or 0.7-second intervals and shop for 25, 20 or 14 seconds per run. Two seeds per profile, normal money:
+The seeded harness executes the actual game at 60 steps/s. Bots substitute instantaneous manual gestures at 1.7, 1.1 or 0.7-second intervals and shop for 25, 20 or 14 seconds per run. Current visual/growth update, one seed per profile, normal money:
 
 | Profile | Completion | Runs | Rank purchases |
 | --- | ---: | ---: | ---: |
-| Casual | 54.8–55.8 min | 32–33 | 89–90 |
-| Steady | 43.0–44.7 min | 27–28 | 82–83 |
-| Skilled | 35.9–37.2 min | 24–25 | 78–80 |
+| Casual | 54.7 min | 32 | 90 |
+| Steady | 44.1 min | 27 | 84 |
+| Skilled | 37.5 min | 25 | 80 |
 
 The target is roughly one hour for casual play, with faster completion for optimized builds. These are simulation estimates, not measured human times. Reading, planning and missed gestures can extend them; infinite money intentionally removes the economy's pacing.
+
+The light-column journey moves the actual attraction center up by at most 82 world units and back down over two seconds; the input and update loop continue. Pausing also pauses the journey. Reduced motion keeps the center stable, omits the light effects and uses a 0.3-second crossfade. Old and new foreground layers follow the same crossfade as their backgrounds.
