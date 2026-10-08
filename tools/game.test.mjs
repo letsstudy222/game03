@@ -5,7 +5,7 @@ import { createGame } from './game-harness.mjs';
 test('33 reachable evolutions, unique locations, no first-campaign universe locks', () => {
   const g=createGame();
   assert.equal(g.evaluate('NODES.length'),33);
-  assert.equal(g.evaluate("NODES.filter(n=>!n.req).length"),4);
+  assert.equal(g.evaluate("NODES.filter(n=>!n.req).length"),5);
   assert.equal(g.evaluate('new Set(Object.values(POS).map(p=>p.join(","))).size'),33);
   assert.equal(g.evaluate(`NODES.every(n=>{
     const visited=new Set();let current=n;
@@ -23,7 +23,7 @@ test('old saves retain currency, skins, owned upgrades and remain usable after b
   assert.equal(g.evaluate('nodeState(NODE_BY_ID.junk3)'), 'full');
   assert.equal(g.evaluate('save.skin'), 'cat');
   assert.equal(g.evaluate('save.playSeconds'),0);
-  assert.equal(g.evaluate('save.version'),7);
+  assert.equal(g.evaluate('save.version'),8);
   g.evaluate('persist()');
   assert.equal(JSON.parse(g.storage.get('holeGameV5')).pts,321);
 });
@@ -232,4 +232,29 @@ test('locked future cards explain their prerequisite without spending credits', 
  assert.equal(g.evaluate('selId'),'core');assert.equal(g.evaluate("$('buyBtn').disabled"),true);
  assert.ok(g.evaluate("$('ndFrom').textContent.includes(NODE_BY_ID[NODE_BY_ID.core.req].name)"));
  assert.equal(g.evaluate('save.pts'),5000);
+});
+
+test('preview purchases bypass money but preserve wallet, prerequisites and rank limits',()=>{
+ const g=createGame();g.evaluate('previewMoney=true;save.pts=13');
+ assert.equal(g.evaluate("buyNode('core')"),false);
+ assert.equal(g.evaluate("buyNode('research')"),true);
+ assert.equal(g.evaluate('save.pts'),13);
+ g.evaluate("while(buyNode('research')){};previewMoney=false");
+ assert.equal(g.evaluate("lv('research')"),4);
+ assert.equal(g.evaluate("buyNode('junk2')"),false);
+ assert.equal(g.evaluate('save.pts'),13);
+});
+test('early discount reaches 60 percent while successive ranks still become more expensive',()=>{
+ const g=createGame();const original=g.evaluate('cost(NODE_BY_ID.junk2)');
+ assert.equal(g.evaluate('nodeState(NODE_BY_ID.research)'), 'full');
+ g.evaluate('save.lv.research=4');assert.equal(g.evaluate('cost(NODE_BY_ID.junk2)'),Math.round(original*.4));
+ g.evaluate('save.lv.junk2=1');assert.ok(g.evaluate('cost(NODE_BY_ID.junk2)')>original);
+});
+test('rare objects ignore automatic capture, require held consumption and persist discoveries once',()=>{
+ const g=createGame();g.evaluate("startRound();save.lv={collector:3,sat:3,cap:1};spawnSpaceObject('meteor');const rare=items.at(-1);rare.x=HOLE.x;rare.y=HOLE.y;rare.vx=0;rare.vy=0;collectorClock=5;tickGame(.1);consume(rare)");
+ assert.equal(g.evaluate('rare.state'),'loose');assert.equal(g.evaluate('save.discoveries.meteor'),undefined);
+ g.evaluate("rare.state='held';consume(rare);consume(rare)");
+ assert.equal(g.evaluate('save.discoveries.meteor'),1);assert.ok(g.evaluate('holePulse')<=.85);assert.ok(g.evaluate('runMoney')>=24);
+ assert.equal(JSON.parse(g.storage.get('holeGameV5')).discoveries.meteor,1);
+ g.evaluate('renderCollection()');assert.ok(g.evaluate("$('collectionGrid').innerHTML.includes('undiscovered')"));
 });

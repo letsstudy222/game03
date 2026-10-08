@@ -33,6 +33,12 @@ try:
         page.click('#menuSkinBtn')
         assert page.locator('#skinGrid .skCard').count() == 8
         page.click('#skinBackBtn')
+        assert page.evaluate('previewMoney === true')
+        page.click('#menuCollectionBtn')
+        assert page.locator('.collectionCard.undiscovered').count() == 6
+        page.click('#collectionBackBtn')
+        page.click('#previewMenuBtn')
+        assert page.evaluate('previewMoney === false')
         page.click('#startBtn')
         page.clock.run_for(3000)
         assert page.evaluate("state === 'play' && __lastErr === null")
@@ -62,8 +68,17 @@ try:
         assert page.locator('#treeBox .nd[role=button]').count() >= 12
         page.evaluate('save.pts=1000;renderShop()')
         page.locator('#branchNav [data-branch=junk2]').click()
-        assert page.locator('.upgradeCard').count()==9
+        assert page.locator('.upgradeCard').count()==8
         assert page.locator('.cardBuy[data-buy=junk2]').is_enabled()
+        assert page.locator('[data-path=junk2]').count() >= 1
+        page.click('#previewShopBtn')
+        credits=page.evaluate('save.pts')
+        page.locator('#branchNav [data-branch=research]').click()
+        page.locator('.cardBuy[data-buy=research]').click()
+        assert page.evaluate('save.pts') == credits
+        assert page.evaluate('lv("research")') == 1
+        page.click('#previewShopBtn')
+        page.locator('#branchNav [data-branch=junk2]').click()
         credits=page.evaluate('save.pts')
         page.locator('.cardBuy[data-buy=junk2]').click()
         assert page.evaluate('save.pts')<credits
@@ -132,6 +147,20 @@ try:
         assert 'Mặt Trời rút' in page.locator('#solarHint').inner_text()
         assert page.evaluate('fireworks.length')>0
         page.screenshot(path='/tmp/game03-solar-fireworks.png',animations='disabled')
+        page.evaluate("phase='grow';doomAt=999;spawnSpaceObject('relic');window.museumItem=items.at(-1);museumItem.x=190;museumItem.y=235;museumItem.vx=0;museumItem.vy=0")
+        rect=page.locator('#cv').bounding_box()
+        page.mouse.move(*xy(190,235));page.mouse.down()
+        assert page.evaluate('grabbed === museumItem')
+        page.mouse.move(*xy(480,322),steps=8);page.mouse.up()
+        assert page.evaluate('save.discoveries.relic') == 1
+        page.keyboard.press('Escape');page.click('#pauseCollectionBtn')
+        assert page.locator('.collectionCard:not(.undiscovered)').count() == 1
+        assert page.locator('.collectionCard.undiscovered').count() == 5
+        page.screenshot(path='/tmp/game03-space-collection.png',animations='disabled')
+        page.click('#collectionBackBtn');page.click('#resumeBtn')
+        page.evaluate("phase='doom';drones=[{x:420,y:96,alive:true,hp:3,wob:0},{x:540,y:96,alive:true,hp:2,wob:1}]")
+        page.clock.run_for(100)
+        page.screenshot(path='/tmp/game03-realistic-ufo.png',animations='disabled')
         page.set_viewport_size({'width':390,'height':844})
         page.clock.run_for(100)
         assert page.locator('#rotate').is_visible()

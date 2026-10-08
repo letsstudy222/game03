@@ -43,6 +43,6 @@ export function createGame(seed = 1, initialSave = null) {
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   runInContext(script, context);
-  runInContext('muted=true;', context);
+  runInContext('muted=true;previewMoney=false;', context);
   return { evaluate: code => runInContext(code, context), storage };
 }

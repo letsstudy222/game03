@@ -3,9 +3,9 @@ import { createGame } from './game-harness.mjs';
 // Run the game's real spawning, gravity, damage, skills, rewards, and shop logic.
 // Bots substitute bounded manual collection, not passive physics or upgrade effects.
 const profiles = {
-  casual: { interval: 1.7, throwRate: .25, shopping: 25, bias: [1.2, .8, 1, 1.15] },
-  steady: { interval: 1.1, throwRate: .5, shopping: 20, bias: [1.15, 1.1, 1, 1] },
-  skilled: { interval: .7, throwRate: .85, shopping: 14, bias: [1, 1.25, .9, 1.1] },
+  casual: { interval: 1.7, throwRate: .25, shopping: 25, bias: [1.2, .8, 1, 1.15, 1.2] },
+  steady: { interval: 1.1, throwRate: .5, shopping: 20, bias: [1.15, 1.1, 1, 1, 1.2] },
+  skilled: { interval: .7, throwRate: .85, shopping: 14, bias: [1, 1.25, .9, 1.1, 1.2] },
 };
 const baseWeight = {
   junk2: 1.8, rate: 1.45, trade: 1.5, gas: 1.45, fw: 1.6, salvage: .8, junk3: 1.3, research: .85, luck: .7,
@@ -28,7 +28,7 @@ export function simulate(profileName, seed = 1, maxRounds = 180) {
           manualClock=0;
           const target=items.filter(i=>!i.dead&&i.state==='loose'&&i.type!=='ember')
             .sort((a,b)=>itemVal(b)-itemVal(a))[0];
-          if(target){target.thrown=Math.random()<botProfile.throwRate;target.x=HOLE.x;target.y=HOLE.y;consume(target);}
+          if(target){if(target.manualOnly)target.state='held';target.thrown=Math.random()<botProfile.throwRate;target.x=HOLE.x;target.y=HOLE.y;consume(target);}
         }
         if(lv('zap')&&skill.cd<=0){
           const drone=phase==='doom'?drones.find(d=>d.alive):null;

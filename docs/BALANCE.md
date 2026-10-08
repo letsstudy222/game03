@@ -18,9 +18,9 @@ The black-hole radius is `18 + 86 × min(1, mass/mapGoal)^0.58`. It no longer sa
 
 ## Economy and upgrades
 
-33 evolutions split into independent branches. Purchases require their parent; already owned legacy nodes remain accessible. The default shop uses branch-specific cards with current/next effects, required parents, missing money, and direct purchase buttons. Recommendations favor defenses after UFO defeat and radiation protection after solar defeat. An optional graph preserves the overall tree.
+33 evolutions split into five branches, including an immediately available discount branch. Purchases require their parent; already owned legacy nodes remain accessible. The default shop uses branch-specific cards with current/next effects, required parents, missing money, and direct purchase buttons. Recommendations favor defenses after UFO defeat and radiation protection after solar defeat. An optional graph preserves the overall tree.
 
-Upgrade price is `round(base × (1 + 0.75 × (tier − 1)) × 3 ^ currentRank × (1 − 0.04 × researchRank))`. Roots cost 90–105 credits; subsequent ranks cost three times the previous base amount. For example, a gravity beam costs 90, 270, 810, and 2,430 credits before research discounts.
+Upgrade price is `round(base × (1 + 0.75 × (tier − 1)) × 5 ^ currentRank × (1 − 0.15 × researchRank))`. Roots cost 80–105 coins. Subsequent ranks multiply the base price by five; the discount branch costs 80 initially and reduces prices by 15% per rank, up to 60%. A gravity beam costs 90, 450, 2,250 and 11,250 before discounts.
 
 | Material | Mass | Credits | Interval/source |
 | --- | ---: | ---: | ---: |
@@ -39,7 +39,7 @@ Click the gravity button or press Q to cast immediately; no targeting click is n
 
 Firework rockets have bright launch trails; their bursts use colored radial sparks, white cores, drag, gravity, fading, and a bounded 420-spark budget. Decorative sparks are separate from collectible embers, so cosmetic density does not create extra money or fuel. Particle/ring/arc/text budgets and cached backgrounds limit rendering work. Hit pulses never stop physics or the game clock. Reduced-motion preferences suppress shake, flashes, and reduce burst density.
 
-`holeGameV5` remains the storage key. Schema 7 adds the highest opened map and one-time exploration rewards. Old currency, ranks, skins, records, and time are preserved; completed legacy universes start in the solar area. Old final milestone claims migrate by category to avoid duplicate payout. Historical elapsed play time cannot be reconstructed.
+`holeGameV5` remains the storage key. Schema 8 retains map unlocks and adds counts for six manually collected space specimens. Old currency, ranks, skins, records, and time are preserved; completed legacy universes start in the solar area. Old final milestone claims migrate by category to avoid duplicate payout. Historical elapsed play time cannot be reconstructed.
 
 ## Validation
 
@@ -53,12 +53,20 @@ The browser check needs Python Playwright and `/usr/bin/chromium`. It starts and
 
 The seeded harness runs the actual inline game logic at 60 steps/s, including damage, spawning, physics, map transitions, skills, rewards, and prices. Bots manually collect at 1.7, 1.1, or 0.7-second intervals, with different throw rates and branch preferences. Their collection gestures are instantaneous; they allow 25, 20, or 14 seconds of shopping per run, respectively.
 
-Final tuning, two seeds per profile:
+Current tuning, one seed per profile, preview money disabled:
 
 | Profile | Victory | Runs | Rank purchases |
 | --- | ---: | ---: | ---: |
-| Casual | 56.6–56.7 min | 42 | 84–85 |
-| Steady | 48.9–50.2 min | 39–40 | 80 |
-| Skilled | 45.6–46.1 min | 40 | 79 |
+| Casual | 53.4 min | 39 | 83 |
+| Steady | 49.7 min | 39 | 81 |
+| Skilled | 41.4 min | 35 | 79 |
 
-Actual reading, planning, missed throws, and different builds can extend those estimates toward an hour or beyond; optimized play can be faster. These are simulations, not measured human completion times.
+Bots include rare-object manual captures using held state and a fifth shop preference for discounts. Actual reading, planning, missed throws and different builds can extend these estimates toward an hour or beyond. Infinite-money preview intentionally removes the economy's pacing. These are simulations, not measured human completion times.
+
+## Preview money and manual specimens
+
+Infinite upgrade money is on by default for the requested preview. Menu and shop buttons can disable it. Its setting is stored separately in `holePreviewMoney`; the real coin wallet still accumulates rewards and preview purchases never subtract it. Prerequisites and rank limits apply in both modes. Harness tests and balance simulations disable preview money.
+
+Rare objects pass across the upper playfield every nine seconds, live for up to twelve seconds, and use a gold rim and manual-drag label. They ignore gravity, collectors, satellites, capacitor chains and blast pushes. Consumption requires the held state, so throwing them or letting them pass through the hole cannot collect them. The six specimens unlock across maps (two per map). The collection page shows undiscovered specimens as black silhouettes, reveals names only after capture, and records persistent counts without duplicate settlement. Accessible from menu, shop and pause.
+
+Player text uses “tiền” for upgrade currency and “sức mạnh” for the growing resource drained by enemies. Menu and shop explain their purposes. Upgrade cards show a clickable required parent, current/next effect, and child unlock names; the graph includes the separate discount root. UFOs use canvas metal gradients, a glass dome, underside lighting and animated tractor beams.
