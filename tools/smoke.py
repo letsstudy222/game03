@@ -29,13 +29,14 @@ try:
         page.clock.run_for(400)
         assert page.title() == 'Điểm Kỳ Dị — Trò chơi trọng lực'
         assert page.locator('#menu').is_visible()
+        assert page.evaluate('Object.values(artImages).every(img=>img.complete && img.naturalWidth>0)')
         assert page.evaluate("getComputedStyle(document.querySelector('.title')).backgroundClip === 'text'")
         page.click('#menuSkinBtn')
         assert page.locator('#skinGrid .skCard').count() == 8
         page.click('#skinBackBtn')
         assert page.evaluate('previewMoney === true')
         page.click('#menuCollectionBtn')
-        assert page.locator('.collectionCard.undiscovered').count() == 6
+        assert page.locator('.collectionCard.undiscovered').count() == 12
         page.click('#collectionBackBtn')
         page.click('#previewMenuBtn')
         assert page.evaluate('previewMoney === false')
@@ -136,12 +137,12 @@ try:
         page.clock.run_for(400)
         page.screenshot(path='/tmp/game03-campaign-shop.png', animations='disabled')
         page.set_viewport_size({'width':960,'height':540})
-        for stage in range(3):
-            page.evaluate(f"save.stage={stage};startRound();muted=true")
+        for stage in range(5):
+            page.evaluate(f"startRound();runStage={stage};regionTime=0;backdrop=null;size=currentGoal()*.35;phase=runStage===4?'sun':'grow';muted=true;updateHud()")
             page.clock.run_for(500)
             assert page.evaluate('runStage')==stage
             page.screenshot(path=f'/tmp/game03-map-{stage}.png',animations='disabled')
-        page.evaluate("phase='sun';size=5000;burstFirework(260,170,330);burstFirework(700,180,150);updateHud()")
+        page.evaluate("runStage=4;phase='sun';size=5000;burstFirework(260,170,330);burstFirework(700,180,150);updateHud()")
         page.clock.run_for(200)
         assert page.locator('#solarHint').is_visible()
         assert 'Mặt Trời rút' in page.locator('#solarHint').inner_text()
@@ -155,12 +156,22 @@ try:
         assert page.evaluate('save.discoveries.relic') == 1
         page.keyboard.press('Escape');page.click('#pauseCollectionBtn')
         assert page.locator('.collectionCard:not(.undiscovered)').count() == 1
-        assert page.locator('.collectionCard.undiscovered').count() == 5
+        assert page.locator('.collectionCard.undiscovered').count() == 11
         page.screenshot(path='/tmp/game03-space-collection.png',animations='disabled')
         page.click('#collectionBackBtn');page.click('#resumeBtn')
         page.evaluate("phase='doom';drones=[{x:420,y:96,alive:true,hp:3,wob:0},{x:540,y:96,alive:true,hp:2,wob:1}]")
         page.clock.run_for(100)
         page.screenshot(path='/tmp/game03-realistic-ufo.png',animations='disabled')
+        # Crossing a real goal keeps the game running and carries earnings forward.
+        page.evaluate("startRound();muted=true;window.travelRound=save.round;size=currentGoal()-1;runMoney=73;const pathItem={type:'junk',em:'can',state:'loose',x:480,y:322};consume(pathItem)")
+        assert page.evaluate("runStage===1 && state==='play' && save.round===travelRound && runMoney>73")
+        page.clock.run_for(550)
+        page.screenshot(path='/tmp/game03-warp.png',animations='disabled')
+        page.clock.run_for(1200)
+        assert page.locator('#roundEnd').is_hidden()
+        assert page.evaluate('travel===0 && __lastErr===null')
+        page.evaluate("endRound('doom');startRound()")
+        assert page.evaluate('runStage===0 && size===startingMass()')
         page.set_viewport_size({'width':390,'height':844})
         page.clock.run_for(100)
         assert page.locator('#rotate').is_visible()

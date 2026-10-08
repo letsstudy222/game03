@@ -1,47 +1,51 @@
-# Điểm Kỳ Dị: three-map campaign
+# Điểm Kỳ Dị: five-region continuous flight
 
-The campaign targets about one hour for an active player, including selecting upgrades. Each run remains short; progression comes from repeated purchases and permanent map unlocks. Timing is a tuning estimate, not a mandatory wait.
+Each run starts as a small hole in Earth orbit. Reaching an energy goal immediately moves the live game to the next region, with a 1.4-second crossfade and warp streaks. Collection, controls, sources, earnings and elapsed run time continue during flight. Reduced motion uses a short crossfade. Defeat ends the run; the next run always starts in region one. Coins, purchased ranks, cosmetics and specimen discoveries persist.
 
-## Maps
+## Route and timing
 
-| Map | Objective | Encounter |
-| --- | --- | --- |
-| Earth | Survive the recovery fleet | UFO arrives after 24–36 s; survival permanently opens orbit |
-| Asteroid belt | Survive UFO and gather 3,500 mass | Stronger fleet, followed by up to 22 s to charge the next journey |
-| Heliosphere | Survive UFO and absorb the Sun at 11,500 mass | Strongest fleet; solar gravity drains mass for up to 22 s |
+| Region | Energy needed to leave | Source speed | UFO multiplier |
+| --- | ---: | ---: | ---: |
+| Earth orbit | 400 | 1.00 | 1.00 |
+| Asteroid belt | 2,400 | 1.25 | 1.12 |
+| Blue ice region | 8,500 | 1.60 | 1.25 |
+| Nebula sea | 24,000 | 2.10 | 1.40 |
+| Stellar core | 42,000 to absorb the Sun | 2.70 | Solar field |
 
-UFO drain is `(48 + mass × 0.18) × map multiplier × armor fraction × defense multiplier`. Map multipliers are 1, 1.2, and 1.4. Basic beams remove one of three armor points; every hit lowers the drain. Radiation shields reduce the Sun's separate drain `(18 + mass × 0.026)`. The HUD reports the actual solar drain and missing mass.
+Energy carries between regions. Every nonfinal region allows up to 58 seconds; the Sun allows 32 seconds. Each early region schedules UFO arrival after 24–36 seconds, depending on delay ranks. A survived attack schedules another after 18 seconds plus delay; survival alone does not advance the route. Reaching a goal cancels the local fleet and begins the next region immediately.
 
-Map-unlock rewards are 300 and 700 credits and are paid once. A transition banks the current run and opens the next map before the next run starts. Defeat never locks a previously opened map. Earth, the belt, and the solar area have distinct cached backgrounds, materials, and docks. The Sun appears only in the final area.
+UFO drain is `(48 + energy × 0.18) × region multiplier × remaining armor fraction × defense multiplier`. Basic beams remove one of three armor points, immediately weakening the drain. The final solar field drains `(24 + energy × 0.019) × solarResistance`; radiation protection reduces it 12% per rank. Later NG+ universes increase drain. The HUD explains current target, solar drain and remaining time. Reaching a target before the next update wins over the following frame's drain.
 
-The black-hole radius is `18 + 86 × min(1, mass/mapGoal)^0.58`. It no longer saturates at low mass. In the final area, an underpowered hole remains smaller than the Sun; at the target it grows larger and the absorption animation starts.
+Hole radius follows total energy, `20 + 84 × min(1, energy/42000)^0.5`, so it does not shrink when changing regions. The Sun has a 95-unit radius; the hole reaches 104 at victory. Absorption pulses are bounded so rare specimens cannot inflate the hole's apparent size disproportionately.
 
-## Economy and upgrades
+## Prices, ranks and rewards
 
-33 evolutions split into five branches, including an immediately available discount branch. Purchases require their parent; already owned legacy nodes remain accessible. The default shop uses branch-specific cards with current/next effects, required parents, missing money, and direct purchase buttons. Recommendations favor defenses after UFO defeat and radiation protection after solar defeat. An optional graph preserves the overall tree.
+33 upgrades use five branches. The discount branch is available immediately at 80 coins and reduces prices 15% per rank, up to 60%. Price is `round(base × (1 + 0.75 × (tier − 1)) × 6 ^ currentRank × (1 − 0.15 × discountRank))`. A gravity beam costs 90, 540, 3,240 and 19,440 before discounts. Cards show the clickable parent prerequisite, current/next effect and upgrades unlocked by purchase; a complete graph remains available.
 
-Upgrade price is `round(base × (1 + 0.75 × (tier − 1)) × 5 ^ currentRank × (1 − 0.15 × researchRank))`. Roots cost 80–105 coins. Subsequent ranks multiply the base price by five; the discount branch costs 80 initially and reduces prices by 15% per rank, up to 60%. A gravity beam costs 90, 450, 2,250 and 11,250 before discounts.
+Mass gain ranks grant 20% per rank. Starting energy is `12 + 10 × startingRank`, regardless of past records. The former carry upgrade now grants 2.5% of the passed region's goal per rank during each transition; it does not enlarge the initial hole. Special-fuel ranks grant 14% extra energy per rank for fuel, fireworks and batteries, excluding rare specimens.
 
-| Material | Mass | Credits | Interval/source |
+| Regular item | Energy | Coins | Interval per source |
 | --- | ---: | ---: | ---: |
 | Salvage | 4 | 3 | 1.2 s |
 | Reactor fuel | 10 | 6 | 3.0 s |
 | Fireworks | 8 | 5 | 3.6 s |
-| Capacitor | 14 | 8 | 4.4 s |
+| Battery | 14 | 8 | 4.4 s |
 
-Intervals scale by `0.9 ^ conveyorRank / sourceCount`, with a minimum of 0.18 s. Solar generation is 1.8 times faster. External generation pauses at 160 active objects rather than deleting held items. All purchased sources contribute.
+Intervals scale by `0.9 ^ conveyorRank / sourceCount / regionSupply`, with a minimum of 0.18 s. Solar generation receives an extra factor of 1.3. All purchased sources contribute. Generation pauses at 160 active objects without deleting held items.
 
-Run reward: `floor(collectionCredits) + 20 + min(16, round) + round(peakMass × 0.04) + 35 if UFO survived`. Milestones at 100, 400, 1,000, 2,400, and 11,500 mass grant one-time rewards of 60, 100, 160, 240, and 360. The winning run also banks earnings. Cosmetics use separate crystals.
+Run reward is `floor(collectionCoins) + 20 + min(16, round) + round(peakEnergy × 0.04) + 35 if UFO survived or a region was crossed`. Milestones at 100, 400, 2,400, 8,500, 24,000 and 42,000 grant 60, 100, 180, 280, 420 and 650 coins once. The four first-exploration rewards are 90, 170, 300 and 480; they join the live run's earnings and are marked claimed only when that run settles. Abandoning a flight cannot lose an unpaid exploration reward. Victory settles the final run once and adds 600 plus 300 per NG+ universe.
 
-Click the gravity button or press Q to cast immediately; no targeting click is needed. Base cooldown is six seconds and improves with ranks. Entering the UFO phase caps remaining cooldown at one second.
+## Specimens, art and saves
 
-## Graphics and persistence
+Twelve rare specimens pass every nine seconds, live for twelve seconds and must be dragged into the hole while held. They ignore ambient gravity, collectors, satellites, capacitor chains and blast pushes. They have custom irregular SVG silhouettes and a small “KÉO TAY” label, with no circular frame. Three species appear in each of the first two regions, and two in each later region. Existing discovery IDs retain their counts. The collection shows black silhouettes until capture; discovered cards show names, counts and base rewards.
 
-Firework rockets have bright launch trails; their bursts use colored radial sparks, white cores, drag, gravity, fading, and a bounded 420-spark budget. Decorative sparks are separate from collectible embers, so cosmetic density does not create extra money or fuel. Particle/ring/arc/text budgets and cached backgrounds limit rendering work. Hit pulses never stop physics or the game clock. Reduced-motion preferences suppress shake, flashes, and reduce burst density.
+Thirteen custom SVG material drawings replace collectible emoji, with metallic, glass and faceted shading. Images load once and are reused. Backgrounds use cached lighting, textured planets, atmospheric limbs, occluded rings, layered nebula noise and foreground parallax. Nebula noise never consumes gameplay RNG. Rendering honors reduced motion. Firework particles remain bounded and separate from collectible embers; hit pulses do not freeze physics.
 
-`holeGameV5` remains the storage key. Schema 8 retains map unlocks and adds counts for six manually collected space specimens. Old currency, ranks, skins, records, and time are preserved; completed legacy universes start in the solar area. Old final milestone claims migrate by category to avoid duplicate payout. Historical elapsed play time cannot be reconstructed.
+`holeGameV5` remains the save key. Schema 9 treats stored region as a best-route record, never a starting checkpoint. Existing coins, ranks, skins, records and discoveries remain intact. Legacy milestone claims migrate to the matching new categories; completed legacy runs cannot claim the final milestone again. Schema 9 claims are filtered directly, so claiming region four cannot silently claim victory on reload.
 
-## Validation
+Infinite upgrade money remains on by default for the requested preview. Menu and shop buttons toggle it. The separate `holePreviewMoney` setting preserves the real wallet; preview purchases do not subtract coins. Prerequisites and rank limits still apply. Simulations and logic tests disable preview money.
+
+## Validation and pacing
 
 ```sh
 node --test tools/game.test.mjs
@@ -49,24 +53,14 @@ node tools/balance.mjs 2
 python3 tools/smoke.py
 ```
 
-The browser check needs Python Playwright and `/usr/bin/chromium`. It starts and stops its own temporary HTTP server. Checks cover pointer/touch input, pause, settlement, card purchases, optional graph navigation, small screens, all three backgrounds, solar guidance, and fireworks.
+The browser test requires Python Playwright and `/usr/bin/chromium`, and starts its own temporary HTTP server. It checks all 25 SVG images, mouse/touch collection, rare capture, collection silhouettes, pause, purchases, preview toggling, graph navigation, small-screen scrolling, all five scenes, warp continuity and restarting from Earth.
 
-The seeded harness runs the actual inline game logic at 60 steps/s, including damage, spawning, physics, map transitions, skills, rewards, and prices. Bots manually collect at 1.7, 1.1, or 0.7-second intervals, with different throw rates and branch preferences. Their collection gestures are instantaneous; they allow 25, 20, or 14 seconds of shopping per run, respectively.
+The seeded harness executes the actual game at 60 steps/s. Bots substitute instantaneous manual gestures at 1.7, 1.1 or 0.7-second intervals and shop for 25, 20 or 14 seconds per run. Two seeds per profile, normal money:
 
-Current tuning, one seed per profile, preview money disabled:
-
-| Profile | Victory | Runs | Rank purchases |
+| Profile | Completion | Runs | Rank purchases |
 | --- | ---: | ---: | ---: |
-| Casual | 53.4 min | 39 | 83 |
-| Steady | 49.7 min | 39 | 81 |
-| Skilled | 41.4 min | 35 | 79 |
+| Casual | 54.8–55.8 min | 32–33 | 89–90 |
+| Steady | 43.0–44.7 min | 27–28 | 82–83 |
+| Skilled | 35.9–37.2 min | 24–25 | 78–80 |
 
-Bots include rare-object manual captures using held state and a fifth shop preference for discounts. Actual reading, planning, missed throws and different builds can extend these estimates toward an hour or beyond. Infinite-money preview intentionally removes the economy's pacing. These are simulations, not measured human completion times.
-
-## Preview money and manual specimens
-
-Infinite upgrade money is on by default for the requested preview. Menu and shop buttons can disable it. Its setting is stored separately in `holePreviewMoney`; the real coin wallet still accumulates rewards and preview purchases never subtract it. Prerequisites and rank limits apply in both modes. Harness tests and balance simulations disable preview money.
-
-Rare objects pass across the upper playfield every nine seconds, live for up to twelve seconds, and use a gold rim and manual-drag label. They ignore gravity, collectors, satellites, capacitor chains and blast pushes. Consumption requires the held state, so throwing them or letting them pass through the hole cannot collect them. The six specimens unlock across maps (two per map). The collection page shows undiscovered specimens as black silhouettes, reveals names only after capture, and records persistent counts without duplicate settlement. Accessible from menu, shop and pause.
-
-Player text uses “tiền” for upgrade currency and “sức mạnh” for the growing resource drained by enemies. Menu and shop explain their purposes. Upgrade cards show a clickable required parent, current/next effect, and child unlock names; the graph includes the separate discount root. UFOs use canvas metal gradients, a glass dome, underside lighting and animated tractor beams.
+The target is roughly one hour for casual play, with faster completion for optimized builds. These are simulation estimates, not measured human times. Reading, planning and missed gestures can extend them; infinite money intentionally removes the economy's pacing.

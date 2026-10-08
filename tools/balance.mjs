@@ -22,7 +22,7 @@ export function simulate(profileName, seed = 1, maxRounds = 180) {
     let seconds=0, purchases=0, history=[];
     for(let round=1;round<=${maxRounds};round++){
       startRound();let manualClock=0, elapsed=0;
-      while(state==='play'&&elapsed<180){
+      while(state==='play'&&elapsed<360){
         const dt=1/60;elapsed+=dt;manualClock+=dt;
         if(manualClock>=botProfile.interval){
           manualClock=0;
@@ -38,7 +38,7 @@ export function simulate(profileName, seed = 1, maxRounds = 180) {
         tickGame(dt);
       }
       seconds+=elapsed;
-      history.push({round,seconds:Math.round(seconds),peak:Math.round(peak),credits:Math.floor(save.pts),collected:runCollected,stage:save.stage,phase,state});
+      history.push({round,seconds:Math.round(seconds),peak:Math.round(peak),credits:Math.floor(save.pts),collected:runCollected,stage:runStage,phase,state});
       if(state==='win')return {profile:${JSON.stringify(profileName)},seed:${seed},won:true,rounds:round,minutes:+(seconds/60).toFixed(1),purchases,upgrades:{...save.lv},history};
       if(state==='play')throw Error('Round did not terminate');
       seconds+=botProfile.shopping;

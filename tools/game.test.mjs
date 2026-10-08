@@ -23,7 +23,7 @@ test('old saves retain currency, skins, owned upgrades and remain usable after b
   assert.equal(g.evaluate('nodeState(NODE_BY_ID.junk3)'), 'full');
   assert.equal(g.evaluate('save.skin'), 'cat');
   assert.equal(g.evaluate('save.playSeconds'),0);
-  assert.equal(g.evaluate('save.version'),8);
+  assert.equal(g.evaluate('save.version'),9);
   g.evaluate('persist()');
   assert.equal(JSON.parse(g.storage.get('holeGameV5')).pts,321);
 });
@@ -84,24 +84,24 @@ test('final round banks earnings, milestones pay only once and win settlement ca
   const g=createGame();
   g.evaluate('startRound();runMoney=123.7;peak=WIN_SIZE;survivedDoom=true;winGame()');
   const pts=g.evaluate('save.pts');
-  assert.equal(pts,123+21+460+35+60+100+160+240+360+600);
-  assert.equal(g.evaluate('save.claims.length'),5);
+  assert.equal(pts,123+21+1680+35+60+100+180+280+420+650+600);
+  assert.equal(g.evaluate('save.claims.length'),6);
   assert.equal(g.evaluate('save.wins'),1);
   g.evaluate('winGame()');
   assert.equal(g.evaluate('save.pts'),pts);
   g.evaluate('peak=WIN_SIZE;runMoney=0;settleRun()');
-  assert.equal(g.evaluate('save.claims.length'),5);
-  assert.equal(g.evaluate('save.pts')-pts,22+460+35);
+  assert.equal(g.evaluate('save.claims.length'),6);
+  assert.equal(g.evaluate('save.pts')-pts,22+1680+35);
 });
 
 test('solar phase has a time limit and crossing the goal without another item still wins', () => {
   const g=createGame();
-  g.evaluate("startRound();phase='sun';size=WIN_SIZE+100;boxes=[];items=[];update(.05)");
+  g.evaluate("startRound();runStage=4;phase='sun';size=WIN_SIZE;boxes=[];items=[];update(.05)");
   assert.ok(g.evaluate('sunSwallow')>0);
   g.evaluate('for(let i=0;i<40;i++)tickGame(.05)');
   assert.equal(g.evaluate('state'),'win');
   const other=createGame();
-  other.evaluate("startRound();phase='sun';size=300;sunT=SUN_LIMIT;update(.05)");
+  other.evaluate("startRound();runStage=4;phase='sun';size=300;sunT=SUN_LIMIT;update(.05)");
   assert.equal(other.evaluate('state'),'roundEnd');
 });
 
@@ -169,10 +169,10 @@ test('damaging UFO armor immediately weakens its drain', () => {
   assert.ok(damaged.evaluate('size')>healthy.evaluate('size'));
 });
 
-test('rounds remain short while repeated early purchases get more expensive', () => {
+test('early runs have quick encounters while repeated upgrades get more expensive', () => {
   const g=createGame();
   assert.equal(g.evaluate('DOOM_BASE'),24);
-  assert.ok(g.evaluate('DOOM_BASE+DOOM_DELAY*NODE_BY_ID.delay.max+DOOM_DUR+SUN_LIMIT')<=66);
+  assert.ok(g.evaluate('DOOM_BASE+DOOM_DELAY*NODE_BY_ID.delay.max')<=36);
   g.evaluate("startRound();for(let i=0;i<12;i++)consume({state:'loose',type:'junk',x:480,y:322});endRound('doom')");
   assert.equal(g.evaluate('buyNode("zap")'),false);
   g.evaluate('save.pts=1000;buyNode("zap")');
@@ -182,28 +182,45 @@ test('rounds remain short while repeated early purchases get more expensive', ()
 
 test('completed legacy goal remains claimed when campaign target changes', () => {
   const g=createGame(1,{claims:[100,400,1000,2400,6500],best:6500,pts:100});
-  assert.equal(g.evaluate('save.claims.length'),5);
+  assert.equal(g.evaluate('save.claims.length'),6);
   assert.ok(g.evaluate('save.claims.includes(WIN_SIZE)'));
   g.evaluate('peak=WIN_SIZE;runMoney=0;survivedDoom=false');
   assert.equal(g.evaluate('settleRun().milestoneBonus'),0);
 });
 
 
-test('surviving Earth unlocks orbit once, and orbital travel requires enough mass', () => {
- const g=createGame();
- g.evaluate("startRound();phase='doom';doomT=doomDuration();size=500;drones=[];update(.01)");
- assert.equal(g.evaluate('save.stage'),1);assert.equal(g.evaluate('state'),'roundEnd');
- const before=g.evaluate('save.pts');g.evaluate('finishMap()');
- assert.ok(g.evaluate('save.pts')-before<300);
- g.evaluate("startRound();phase='doom';doomT=doomDuration();size=1000;drones=[];update(.01)");
- assert.equal(g.evaluate('phase'),'crossing');assert.equal(g.evaluate('save.stage'),1);
- g.evaluate('size=4000;update(.01)');assert.equal(g.evaluate('save.stage'),2);
+test('energy goals travel through five regions without stopping or settling the live run',()=>{
+ const g=createGame();g.evaluate("startRound();runMoney=51;const carried={state:'loose',type:'junk',x:20,y:400,vx:0,vy:0,t:0,rest:0};items=[carried]");
+ for(let stage=1;stage<5;stage++){
+   g.evaluate('travel=0;size=currentGoal();finishMap()');
+   assert.equal(g.evaluate('runStage'),stage);assert.equal(g.evaluate('state'),'play');
+   assert.equal(g.evaluate('save.round'),1);assert.equal(g.evaluate('save.pts'),0);
+   assert.equal(g.evaluate('items[0]===carried'),true);
+ }
+ assert.equal(g.evaluate('phase'),'sun');assert.equal(g.evaluate('runMoney'),51+90+170+300+480);
+ g.evaluate("endRound('sun');startRound()");
+ assert.equal(g.evaluate('runStage'),0);assert.equal(g.evaluate('save.stage'),4);assert.equal(g.evaluate('size'),12);
+ assert.equal(g.evaluate('phase'),'grow');
+});
+
+test('a passed UFO never travels without enough energy, and region timeout ends a run',()=>{
+ const g=createGame();g.evaluate("startRound();phase='doom';doomT=doomDuration();size=120;drones=[];update(.01)");
+ assert.equal(g.evaluate('runStage'),0);assert.equal(g.evaluate('phase'),'grow');
+ g.evaluate('regionTime=REGION_LIMIT;update(.01)');assert.equal(g.evaluate('state'),'roundEnd');
+});
+
+test('travel during a hand capture preserves another held item and only pays exploration once',()=>{
+ const g=createGame();g.evaluate("save.lv.carry=2;startRound();size=currentGoal();grabbed={type:'junk',state:'held',x:20,y:150};items=[grabbed];finishMap()");
+ assert.equal(g.evaluate('grabbed===items[0]'),true);assert.equal(g.evaluate('items[0].state'),'held');
+ assert.equal(g.evaluate('size'),420);assert.equal(g.evaluate('finishMap()'),false);
+ assert.equal(g.evaluate('runMoney'),90);
+ g.evaluate("endRound('doom');startRound();size=currentGoal();finishMap()");assert.equal(g.evaluate('runMoney'),0);
 });
 
 test('black-hole radius reflects progress instead of saturating at low mass', () => {
- const g=createGame();g.evaluate('save.stage=2;startRound();size=500');const small=g.evaluate('holeR()');
+ const g=createGame();g.evaluate('startRound();runStage=4;size=500');const small=g.evaluate('holeR()');
  g.evaluate('size=5000');const medium=g.evaluate('holeR()');g.evaluate('size=WIN_SIZE');const ready=g.evaluate('holeR()');
- assert.ok(small<medium&&medium<ready);assert.ok(medium<82&&ready>82);assert.ok(ready<=104);
+ assert.ok(small<medium&&medium<ready);assert.ok(medium<95&&ready>95);assert.ok(ready<=104);
 });
 
 test('fireworks have bounded colored trails, drag, gravity and finite lifetime', () => {
@@ -215,7 +232,7 @@ test('fireworks have bounded colored trails, drag, gravity and finite lifetime',
 });
 
 test('solar warning reports real drain and upgrades reduce it', () => {
- const g=createGame();g.evaluate("save.stage=2;startRound();phase='sun';size=2000;updateHud()");
+ const g=createGame();g.evaluate("startRound();runStage=4;phase='sun';size=2000;updateHud()");
  assert.ok(g.evaluate("$('solarHint').textContent.includes('Mặt Trời rút')"));
  const before=g.evaluate('solarDrain()');g.evaluate('save.lv.solar=3');assert.ok(g.evaluate('solarDrain()')<before);
 });
@@ -257,4 +274,26 @@ test('rare objects ignore automatic capture, require held consumption and persis
  assert.equal(g.evaluate('save.discoveries.meteor'),1);assert.ok(g.evaluate('holePulse')<=.85);assert.ok(g.evaluate('runMoney')>=24);
  assert.equal(JSON.parse(g.storage.get('holeGameV5')).discoveries.meteor,1);
  g.evaluate('renderCollection()');assert.ok(g.evaluate("$('collectionGrid').innerHTML.includes('undiscovered')"));
+});
+
+test('twelve specimens are distributed across all five regions and existing discoveries survive',()=>{
+ const g=createGame(1,{version:8,discoveries:{meteor:2,relic:1},stage:2,lv:{start:4,carry:3},best:20000});
+ assert.equal(g.evaluate('SPACE_OBJECTS.length'),12);assert.equal(g.evaluate('new Set(SPACE_OBJECTS.map(o=>o.id)).size'),12);
+ assert.equal(g.evaluate('new Set(SPACE_OBJECTS.map(o=>o.stage)).size'),5);
+ g.evaluate('startRound()');assert.equal(g.evaluate('runStage'),0);assert.equal(g.evaluate('size'),52);
+ assert.equal(g.evaluate('save.discoveries.meteor'),2);assert.equal(g.evaluate('save.discoveries.relic'),1);
+});
+
+test('schema nine claims survive reload without turning the penultimate milestone into victory',()=>{
+ const g=createGame(1,{version:9,claims:[100,400,2400,8500,24000],stage:3});
+ assert.equal(g.evaluate('save.claims.includes(WIN_SIZE)'),false);assert.equal(g.evaluate('save.claims.includes(24000)'),true);
+ g.evaluate('peak=WIN_SIZE;runMoney=0;survivedDoom=false');assert.equal(g.evaluate('settleRun().milestoneBonus'),650);
+});
+
+test('abandoning a flight cannot consume unpaid exploration rewards or settle the run twice',()=>{
+ const g=createGame();g.evaluate('startRound();size=currentGoal();finishMap();startRound();size=currentGoal();finishMap()');
+ assert.equal(g.evaluate('runMoney'),90);assert.equal(g.evaluate('save.mapClaims.length'),0);
+ g.evaluate("endRound('doom')");const balance=g.evaluate('save.pts');
+ assert.ok(g.evaluate('save.mapClaims.includes(0)'));
+ g.evaluate("endRound('doom')");assert.equal(g.evaluate('save.pts'),balance);
 });

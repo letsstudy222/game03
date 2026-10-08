@@ -248,7 +248,7 @@
 #shop[data-view="cards"] #nodeDetail{display:none}.upgradeCard.selected{border-color:#d5cbff;}
 .shopLegend{font-size:10px;color:#d5e3f5;text-align:center}.shopLegend button{font-size:10px;padding:4px 8px;color:#ffe38b}
 .cardPath{font-size:10px;color:#b9cbff;border-bottom:1px solid #7189bd44;padding-bottom:7px}.cardPath button{background:#2a3a63;color:#dbe9ff;border:1px solid #789cc4;border-radius:6px;padding:4px;cursor:pointer;font:inherit}.cardNext{font-size:10px;color:#83e6d6;line-height:1.5}
-#collectionGrid{width:min(780px,95%);overflow:auto;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.collectionCard{background:#182945;border:1px solid #6b8ba7;border-radius:14px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px;gap:8px}.specimen{font-size:42px}.collectionCard small{font-size:10px;color:#bccfe3}.undiscovered .specimen{filter:brightness(0);opacity:.65}.undiscovered{border-style:dashed;background:#101d32}
+#collectionGrid{width:min(780px,95%);overflow:auto;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}.collectionCard{background:#182945;border:1px solid #6b8ba7;border-radius:14px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px;gap:8px}.specimen{height:64px;width:90px;display:grid;place-items:center}.specimen img{width:90px;height:64px;object-fit:contain}.collectionCard small{font-size:10px;color:#bccfe3}.undiscovered .specimen{filter:brightness(0);opacity:.65}.undiscovered{border-style:dashed;background:#101d32}
 </style>
 </head>
 <body>
@@ -286,7 +286,7 @@
       <div class="guideCards">
         <div><b>01 / Thu hút</b><p>Kéo vật vào hố đen hoặc búng để ném. Mỗi vật giúp bạn lớn hơn.</p></div>
         <div><b>02 / Vượt giới hạn</b><p>Tiền ⭐ mua nâng cấp và được giữ qua các lượt. Sức mạnh giúp hố đen lớn lên, chống UFO và nuốt Mặt Trời.</p></div>
-        <div><b>03 / Chạm tới Mặt Trời</b><p>Rời Trái Đất, vượt vành đai thiên thạch và chinh phục Mặt Trời.</p></div>
+        <div><b>03 / Chạm tới Mặt Trời</b><p>Đủ sức mạnh sẽ tự du hành qua 5 vùng. Khi thua, trở về Trái Đất; tiền và nâng cấp vẫn giữ.</p></div>
       </div>
       <button class="bigBtn" id="startBtn">Bắt đầu <span aria-hidden="true">›</span></button>
       <div class="menuLinks"><button class="ghostBtn" id="menuSkinBtn">Diện mạo</button>
@@ -331,7 +331,7 @@
 
     <div class="overlay" id="spaceCollection">
       <div class="title">HỒ SƠ VŨ TRỤ</div><div class="sub" id="collectionCount"></div>
-      <div class="sub">Vật thể có viền vàng phải kéo thẳng vào hố đen. Máy thu và tia điện không bắt được.</div>
+      <div class="sub">Vật thể hiếm phải kéo thẳng vào hố đen. Máy thu và tia điện không bắt được.</div>
       <div id="collectionGrid"></div><button class="bigBtn" id="collectionBackBtn">← Quay lại</button>
     </div>
     <!-- SKIN SHOP -->
@@ -396,38 +396,58 @@ resizeCanvas();
 let hovered=null,activePointer=null;
 
 
+const materialArt=['crate','can','bolt','radio','pipe','rock','shard','panel','ore','lens','gas','fw','cap'];
+const specimenArt=['meteor','probe','sail','ice','crystal','moon','relic','jelly','ribbon','ark','prism','comet'];
+const artImages={};
+for(const folder of ['materials','specimens'])for(const id of folder==='materials'?materialArt:specimenArt){
+ const img=document.createElement('img');img.src='assets/'+folder+'/'+id+'.svg';artImages[id]=img;
+}
+function materialKey(it){
+ if(it.artId)return it.artId;
+ if(it.type!=='junk')return it.type;
+ const pool=junkPool(),variant=Math.max(0,pool.indexOf(it.em));
+ return (runStage===0?materialArt.slice(0,5):materialArt.slice(5,10))[variant%5];
+}
+function drawObject(it,x,y,width){
+ const image=artImages[it.manualOnly?it.spaceId:materialKey(it)];
+ if(image?.complete&&image.naturalWidth)ctx.drawImage(image,x-width/2,y-width/2,width,width);
+ else {ctx.fillStyle='#b1c9da';ctx.beginPath();ctx.moveTo(x,y-width*.35);ctx.lineTo(x+width*.3,y);ctx.lineTo(x,y+width*.35);ctx.lineTo(x-width*.3,y);ctx.closePath();ctx.fill();}
+}
 /* ---------- World ---------- */
 const GROUND=468;
 const HOLE={x:480,by:322,y:322};                    // floating above the yard
-const holeR=()=>18+86*Math.pow(Math.min(1,Math.max(0,size)/currentGoal()),.58);
+const holeR=()=>20+84*Math.pow(Math.min(1,Math.max(0,size)/WIN_SIZE),.5);
 const eatR=()=>holeR()*.8;
 const SLOTS=[110,235,360,600,725,850,42,918];
 
 /* ---------- Campaign balance ---------- */
-const LV=[1,50,120,280,600,1200,2300,4200,7500,11500];
-const WIN_SIZE=11500;
+const LV=[1,80,240,600,1600,4200,11000,24000,33000,42000];
+const WIN_SIZE=42000;
 const GROW_DECAY=s=>Math.max(.12,s*.006);
 const DOOM_BASE=24, DOOM_DELAY=3, DOOM_DUR=8;
 const DOOM_DRAIN=s=>48+s*.18;
 const SHIELD_PCT=.10;
-const SUN_DRAIN=s=>18+s*.026;
-const SUN_LIMIT=22;
+const SUN_DRAIN=s=>24+s*.019;
+const SUN_LIMIT=32;
+const REGION_LIMIT=58;
 const ITEM_LIFE=16;
 const campaignMilestones=[
-  {mass:100,reward:60},{mass:400,reward:100},{mass:1000,reward:160},
-  {mass:2400,reward:240},{mass:11500,reward:360},
+  {mass:100,reward:60},{mass:400,reward:100},{mass:2400,reward:180},
+  {mass:8500,reward:280},{mass:24000,reward:420},{mass:WIN_SIZE,reward:650},
 ];
 const doomDuration=()=>DOOM_DUR-.5*lv('chrono');
 const satelliteCount=()=>lv('sat')+2*lv('sat2');
-const massMultiplier=()=>1+.18*lv('big');
-const startingMass=()=>12+10*lv('start')+Math.min(180,save.best*.025*lv('carry'));
+const massMultiplier=()=>1+.20*lv('big');
+const startingMass=()=>12+10*lv('start');
 const solarResistance=()=>1-.12*lv('solar');
 const defenseMultiplier=()=>Math.max(.22,1-SHIELD_PCT*lv('shield')-.08*lv('shield2'))*(1-.06*lv('resonance'));
 
 const MAPS=[
-  {name:'Trái Đất',goal:900,enemy:1,sky:['#102350','#294869'],ground:['#285249','#0d292d'],accent:'#53f0ca',intro:'Vượt đợt thu hồi của UFO để mở quỹ đạo.'},
-  {name:'Vành đai thiên thạch',goal:3500,enemy:1.2,sky:['#160d3c','#3a2469'],ground:['#493574','#1a1236'],accent:'#b197ff',intro:'Thu đủ 3.500 sức mạnh sau UFO để mở đường tới ngôi sao.'},
-  {name:'Nhật quyển',goal:WIN_SIZE,enemy:1.4,sky:['#26113b','#713239'],ground:['#67334d','#271327'],accent:'#ffba58',intro:'Vượt UFO, chống lực hút Mặt Trời và đạt 11.500 sức mạnh.'},
+ {name:'Quỹ đạo Trái Đất',goal:400,enemy:1,supply:1,sky:['#041329','#163b60'],accent:'#62dcff',intro:'Thu 400 sức mạnh để rời quỹ đạo.'},
+ {name:'Vành đai đá',goal:2400,enemy:1.12,supply:1.25,sky:['#050a1e','#233044'],accent:'#f4ba72',intro:'Thu 2.400 sức mạnh để vượt vành đai.'},
+ {name:'Vùng băng lam',goal:8500,enemy:1.25,supply:1.6,sky:['#041323','#163e5d'],accent:'#74edff',intro:'Thu 8.500 sức mạnh để xuyên qua vùng băng.'},
+ {name:'Biển tinh vân',goal:24000,enemy:1.4,supply:2.1,sky:['#130820','#392448'],accent:'#efa0e9',intro:'Thu 24.000 sức mạnh để mở đường tới ngôi sao.'},
+ {name:'Lõi sao',goal:WIN_SIZE,enemy:1.55,supply:2.7,sky:['#160d17','#542231'],accent:'#ffd18a',intro:'Chống lực hút Mặt Trời và đạt 42.000 sức mạnh.'},
 ];
 const currentMap=()=>MAPS[runStage];
 const currentGoal=()=>currentMap().goal;
@@ -457,13 +477,13 @@ const NODES=[
  {id:'junk3',lane:0,tier:4,em:'🏭',name:'Kho liên hoàn',desc:'Thêm hai máy nhả đồ mỗi cấp, không giới hạn số ô.',max:3,base:600,req:'gas',fx:l=>'+'+2*l+' máy nhả đồ'},
  {id:'research',lane:4,tier:1,em:'🏷️',name:'Ưu đãi nâng cấp',desc:'Mua được ngay. Mỗi cấp giảm 15% giá mọi nâng cấp, tối đa 60%. Giá các cấp sau vẫn tăng để tránh mua hết quá sớm.',max:4,base:80,fx:l=>'giảm giá '+15*l+'%'},
  {id:'luck',lane:0,tier:5,em:'💎',name:'Phân tích tinh thể',desc:'Mỗi cấp thêm 5% cơ hội hấp thụ mạnh gấp 1,6 lần và tìm tinh thể.',max:3,base:950,req:'trade',fx:l=>'hấp thụ vượt trội '+5*l+'%'},
- {id:'big',lane:1,tier:1,em:'🧲',name:'Hấp thụ mạnh hơn',desc:'Tăng 18% sức mạnh nhận được mỗi cấp.',max:5,base:105,fx:l=>'sức mạnh ×'+(1+.18*l).toFixed(2)},
+ {id:'big',lane:1,tier:1,em:'🧲',name:'Hấp thụ mạnh hơn',desc:'Tăng 20% sức mạnh nhận từ vật mỗi cấp.',max:5,base:105,fx:l=>'sức mạnh ×'+(1+.20*l).toFixed(2)},
  {id:'start',lane:1,tier:1,em:'🌑',name:'Sức mạnh ban đầu',desc:'Thêm 10 sức mạnh khi bắt đầu lượt mỗi cấp.',max:4,base:130,req:'big',fx:l=>'khởi đầu '+(12+10*l)+' sức mạnh'},
  {id:'precision',lane:1,tier:2,em:'🎯',name:'Thưởng khi ném',desc:'Vật được búng nhận thêm 10% sức mạnh và tiền mỗi cấp.',max:3,base:180,req:'big',fx:l=>'cú ném +'+10*l+'%'},
  {id:'combo',lane:1,tier:2,em:'🔗',name:'Thưởng liên tiếp',desc:'Hấp thụ liên tiếp trong 2,5 giây tăng thưởng, tối đa năm nhịp.',max:3,base:245,req:'precision',fx:l=>'mỗi nhịp +'+3*l+'% · tối đa '+15*l+'%'},
  {id:'pull',lane:1,tier:3,em:'🌌',name:'Trường hấp dẫn',desc:'Tăng 30% lực hút và mở rộng tầm hút mỗi cấp.',max:4,base:330,req:'big',fx:l=>'lực hút ×'+(1+.3*l).toFixed(1)},
- {id:'carry',lane:1,tier:3,em:'🧬',name:'Giữ sức mạnh kỷ lục',desc:'Khởi đầu với thêm 2,5% kỷ lục mỗi cấp, tối đa 180 sức mạnh.',max:3,base:450,req:'start',fx:l=>'giữ lại '+(2.5*l)+'% kỷ lục'},
- {id:'fusion',lane:1,tier:4,em:'☀️',name:'Tăng sức mạnh nhiên liệu',desc:'Nhiên liệu đặc biệt nhận thêm 10% sức mạnh mỗi cấp.',max:3,base:650,req:'pull',fx:l=>'nhiên liệu +'+10*l+'%'},
+ {id:'carry',lane:1,tier:3,em:'🧬',name:'Dự trữ hành trình',desc:'Mỗi lần du hành nhận thêm 2,5% mốc sức mạnh vừa vượt mỗi cấp. Không tăng kích thước khởi đầu.',max:3,base:450,req:'start',fx:l=>'du hành thêm '+(2.5*l)+'% sức mạnh'},
+ {id:'fusion',lane:1,tier:4,em:'☀️',name:'Tăng sức mạnh nhiên liệu',desc:'Nhiên liệu đặc biệt nhận thêm 14% sức mạnh mỗi cấp.',max:3,base:650,req:'pull',fx:l=>'nhiên liệu +'+14*l+'%'},
  {id:'core',lane:1,tier:4,em:'⚛️',name:'Thêm sức mạnh mỗi vật',desc:'Mỗi vật thể nhận thêm 2 sức mạnh mỗi cấp.',max:3,base:900,req:'combo',fx:l=>'+'+2*l+' sức mạnh/vật'},
  {id:'delay',lane:2,tier:1,em:'📡',name:'Nhiễu tín hiệu',desc:'Trì hoãn UFO thêm 3 giây mỗi cấp.',max:4,base:95,fx:l=>'UFO sau '+(24+3*l)+' giây'},
  {id:'hawk',lane:2,tier:1,em:'🌀',name:'Giảm hao hụt',desc:'Giảm 12% hao hụt sức mạnh tự nhiên mỗi cấp.',max:5,base:135,req:'delay',fx:l=>'hao hụt −'+12*l+'%'},
@@ -476,7 +496,7 @@ const NODES=[
  {id:'zap',lane:3,tier:1,em:'⚡',name:'Tia trọng lực',desc:'Bấm nút ⚡ hoặc Q để hút ngay 5 vật. Khi UFO xuất hiện, tia tự phá giáp và giảm lực hút.',max:4,base:90,fx:l=>l?'hồi chiêu '+(6*Math.pow(.85,l-1)).toFixed(1)+' giây':'chưa mở kỹ năng'},
  {id:'cap',lane:3,tier:1,em:'🔋',name:'Tụ điện',desc:'Thêm máy nhả pin. Hút pin để tự thu năm vật thường gần nhất; không thu vật hiếm.',max:3,base:145,req:'zap',fx:l=>l+' nguồn · 14 sức mạnh/vật'},
  {id:'sat',lane:3,tier:2,em:'🛰️',name:'Vệ tinh thu gom',desc:'Thêm một vệ tinh bắt vật thể trên quỹ đạo mỗi cấp.',max:3,base:205,req:'zap',fx:l=>l+' vệ tinh'},
- {id:'collector',lane:3,tier:2,em:'🧭',name:'Máy thu tự động',desc:'Tự kéo vật thường gần nhất vào hố đen. Nâng cấp thu nhanh hơn; vật viền vàng vẫn phải kéo tay.',max:3,base:285,req:'sat',fx:l=>l?'thu một vật mỗi '+(5/(1+.35*l)).toFixed(1)+' giây':'chưa có máy thu'},
+ {id:'collector',lane:3,tier:2,em:'🧭',name:'Máy thu tự động',desc:'Tự kéo vật thường gần nhất vào hố đen. Nâng cấp thu nhanh hơn; vật hiếm vẫn phải kéo tay.',max:3,base:285,req:'sat',fx:l=>l?'thu một vật mỗi '+(5/(1+.35*l)).toFixed(1)+' giây':'chưa có máy thu'},
  {id:'magnet',lane:3,tier:3,em:'🧲',name:'Vành hút',desc:'Mở rộng tầm hút vật nằm trên mặt đất thêm 30 mỗi cấp.',max:3,base:390,req:'collector',fx:l=>'tầm hút +'+30*l},
  {id:'chain',lane:3,tier:3,em:'🌩️',name:'Mạng dẫn điện',desc:'Tụ điện hút thêm hai vật mỗi cấp.',max:3,base:530,req:'cap',fx:l=>'chuỗi hút '+(5+2*l)+' vật'},
  {id:'sat2',lane:3,tier:4,em:'🛸',name:'Trạm quỹ đạo',desc:'Thêm hai vệ tinh mỗi cấp; tăng tầm bắt của mọi vệ tinh.',max:2,base:730,req:'sat',fx:l=>'+'+2*l+' vệ tinh · tầm bắt '+(28+8*l)},
@@ -530,29 +550,34 @@ const boxEm=type=>type==='junk'?junkPool()[0]:TH()[type];
 
 /* ---------- Save ---------- */
 const SAVE_KEY='holeGameV5';
-const freshSave=()=>({version:8,discoveries:{},pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin:'classic',playSeconds:0,claims:[],wins:0,stage:0,lastFailure:'',mapClaims:[]});
-let save=freshSave();
+const freshSave=()=>({version:9,discoveries:{},pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin:'classic',playSeconds:0,claims:[],wins:0,stage:0,lastFailure:'',mapClaims:[]});
+let save=freshSave(),previousSaveVersion=9;
 try{
   const raw=localStorage.getItem(SAVE_KEY);
-  if(raw){const data=JSON.parse(raw);if(data&&typeof data==='object'&&!Array.isArray(data))save={...freshSave(),...data,stage:Number.isFinite(data.stage)?data.stage:(data.wins>0||data.uni>0?2:0)};}
+  if(raw){const data=JSON.parse(raw);if(data&&typeof data==='object'&&!Array.isArray(data)){previousSaveVersion=Number(data.version)||0;save={...freshSave(),...data,stage:Number.isFinite(data.stage)?data.stage:0};}}
 }catch(e){}
 // Keep the existing save key so updating the game never resets progress.
 for(const key of ['pts','gems','best','uni','playSeconds','wins'])save[key]=Number.isFinite(save[key])?Math.max(0,save[key]):0;
 save.round=Number.isFinite(save.round)?Math.max(1,Math.floor(save.round)):1;
 for(const key of ['lv','seen','skins','discoveries'])if(!save[key]||typeof save[key]!=='object'||Array.isArray(save[key]))save[key]={};
-save.claims=Array.isArray(save.claims)?[...new Set(save.claims.filter(Number.isFinite).map(m=>m>=5000?WIN_SIZE:m))]:[];
+const oldClaims=Array.isArray(save.claims)?save.claims.filter(Number.isFinite):[];
+if(previousSaveVersion<9){
+ save.claims=[...new Set(oldClaims.map(m=>m>=5000?WIN_SIZE:m===1000?2400:m===2400?8500:m))];
+ if(save.claims.includes(WIN_SIZE))save.claims=campaignMilestones.map(m=>m.mass);
+}else save.claims=[...new Set(oldClaims.filter(m=>campaignMilestones.some(c=>c.mass===m)))];
+
 for(const n of NODES)save.lv[n.id]=Math.min(n.max,Math.max(0,Math.floor(Number(save.lv[n.id])||0)));
 if(!SKIN_BY_ID[save.skin])save.skin='classic';
-save.skins.classic=1;save.version=8;
+save.skins.classic=1;save.version=9;
 if(!Number.isFinite(save.stage))save.stage=save.wins>0?2:0;
-save.stage=Math.max(0,Math.min(2,Math.floor(save.stage)));
+save.stage=Math.max(0,Math.min(4,Math.floor(save.stage)));
 save.mapClaims=Array.isArray(save.mapClaims)?save.mapClaims:[];
 const persist=()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}};
 const lv=id=>save.lv[id]||0;
 let previewMoney=true;
 try{previewMoney=localStorage.getItem('holePreviewMoney')!=='off';}catch(e){}
 const canAfford=u=>previewMoney||save.pts>=cost(u);
-const COST_GROWTH=5.0;
+const COST_GROWTH=6.0;
 const cost=u=>Math.max(1,Math.round(u.base*(1+.75*(u.tier-1))*Math.pow(COST_GROWTH,lv(u.id))*(1-.15*lv('research'))));
 function nodeState(n){
   if(lv(n.id)>0)return'full';
@@ -567,10 +592,10 @@ function nodeState(n){
 
 /* ---------- Round state ---------- */
 let state='menu';
-let runStage=save.stage,fireworks=[],shopLane=0,shopView='cards';
+let runStage=0,regionTime=0,travel=0,travelFrom=0,fireworks=[],shopLane=0,shopView='cards';
 let phase='grow';                        // grow | doom | sun
 let size=12,peak=12,runMoney=0,roundTime=0;
-let runCollected=0,runRecycled=0,comboCount=0,lastConsume=-10,collectorClock=0,saveClock=0;
+let runMapClaims=[],runCollected=0,runRecycled=0,comboCount=0,lastConsume=-10,collectorClock=0,saveClock=0;
 let doomAt=DOOM_BASE,doomT=0,survivedDoom=false,sunT=0;
 let drones=[];                           // {x,y,alive,wob}
 let items=[],parts=[],texts=[],rings=[],arcs=[],boxes=[];
@@ -624,12 +649,13 @@ function buildBoxes(){
   boxes=sources.filter(b=>b.count>0).map(b=>({...b,y:GROUND-14,t:0}));
   for(const b of boxes)b.t=R(0,boxItv(b)*.6);
 }
-const boxItv=b=>Math.max(.18,FUEL[b.type].itv*Math.pow(.9,lv('rate'))/b.count/(phase==='sun'?1.8:1));
+const boxItv=b=>Math.max(.18,FUEL[b.type].itv*Math.pow(.9,lv('rate'))/b.count/currentMap().supply/(phase==='sun'?1.3:1));
 function ejectItem(b){
   const ems=b.type==='junk'?junkPool():[TH()[b.type]];
   items.push({x:b.x+R(-6,6),y:b.y-20,vx:R(-60,60),vy:R(-240,-140),
     type:b.type,em:ems[Math.floor(Math.random()*ems.length)],
     t:0,rest:0,state:'loose',fly:0,rot:R(-.5,.5)});
+  const spawned=items[items.length-1];spawned.artId=materialKey(spawned);
 }
 function spawnEmber(x,y){
   items.push({x,y,vx:R(-140,140),vy:R(-60,40),type:'ember',em:TH().ember,
@@ -650,19 +676,25 @@ function spawnRocket(x,y){
   sRocket();
 }
 const SPACE_OBJECTS=[
- {id:'meteor',name:'Thiên thạch sắt',em:'☄️',stage:0,val:35,money:24},
- {id:'probe',name:'Tàu thăm dò',em:'🛰️',stage:0,val:50,money:32},
- {id:'ice',name:'Mảnh băng sao chổi',em:'🧊',stage:1,val:85,money:48},
- {id:'crystal',name:'Tinh thể thiên hà',em:'💎',stage:1,val:120,money:64},
- {id:'moon',name:'Mảnh vệ tinh',em:'🌑',stage:2,val:180,money:90},
- {id:'relic',name:'Di vật ngoài hành tinh',em:'⚙️',stage:2,val:240,money:120},
+ {id:'meteor',name:'Thiên thạch sắt',stage:0,val:35,money:24},
+ {id:'probe',name:'Tàu thăm dò',stage:0,val:50,money:32},
+ {id:'sail',name:'Cánh buồm Mặt Trời',stage:0,val:65,money:42},
+ {id:'ice',name:'Mũi băng sao chổi',stage:1,val:100,money:55},
+ {id:'crystal',name:'Tinh thể phân nhánh',stage:1,val:140,money:70},
+ {id:'moon',name:'Mảnh vỏ vệ tinh',stage:1,val:180,money:85},
+ {id:'relic',name:'Di vật ngoài hành tinh',stage:2,val:260,money:110},
+ {id:'jelly',name:'Sứa ánh sáng',stage:2,val:330,money:135},
+ {id:'ribbon',name:'Dải không gian',stage:3,val:440,money:170},
+ {id:'ark',name:'Phi thuyền cổ',stage:3,val:580,money:210},
+ {id:'prism',name:'Lăng kính sao',stage:4,val:800,money:280},
+ {id:'comet',name:'Sao chổi hai đuôi',stage:4,val:1100,money:360},
 ];
 let spaceClock=0,collectionBack='menu';
 function spawnSpaceObject(id){
- const pool=SPACE_OBJECTS.filter(o=>o.stage<=runStage),o=SPACE_OBJECTS.find(o=>o.id===id)||pool[Math.floor(Math.random()*pool.length)];
+ const pool=SPACE_OBJECTS.filter(o=>o.stage===runStage),o=SPACE_OBJECTS.find(o=>o.id===id)||pool[Math.floor(Math.random()*pool.length)];
  const right=Math.random()<.5;
- items.push({x:right?W+24:-24,y:R(172,252),vx:right?-105:105,vy:R(-8,8),type:'space',spaceId:o.id,manualOnly:true,em:o.em,t:0,rest:0,state:'loose',rot:0,fly:0});
- toast('Vật thể hiếm bay qua! Kéo vật có viền vàng vào hố đen.');
+ items.push({x:right?W+24:-24,y:R(172,252),vx:right?-105:105,vy:R(-8,8),type:'space',spaceId:o.id,manualOnly:true,t:0,rest:0,state:'loose',rot:0,fly:0});
+ toast('Vật thể hiếm bay qua! Kéo vật có chữ KÉO TAY vào hố đen.');
 }
 const spaceDefinition=it=>SPACE_OBJECTS.find(o=>o.id===it.spaceId);
 const itemVal=it=>it.manualOnly?spaceDefinition(it).val:it.type==='ember'?1:FUEL[it.type].val;
@@ -670,8 +702,8 @@ const itemMoney=it=>it.manualOnly?spaceDefinition(it).money:it.type==='ember'?0:
 
 /* ---------- Round lifecycle ---------- */
 function startRound(){
-  release();spaceClock=0;runStage=save.stage;backdrop=null;fireworks=[];size=startingMass();peak=size;runMoney=0;roundTime=0;
-  runCollected=0;runRecycled=0;comboCount=0;lastConsume=-10;collectorClock=0;
+  release();spaceClock=0;runStage=0;regionTime=0;travel=0;backdrop=null;fireworks=[];size=startingMass();peak=size;runMoney=0;roundTime=0;
+  runMapClaims=[];runCollected=0;runRecycled=0;comboCount=0;lastConsume=-10;collectorClock=0;
   phase='grow';doomAt=DOOM_BASE+DOOM_DELAY*lv('delay');
   doomT=0;survivedDoom=false;sunT=0;sunSwallow=0;
   drones=[];items=[];parts=[];texts=[];rings=[];arcs=[];
@@ -689,17 +721,20 @@ function settleRun(){
     if(peak>=m.mass&&!save.claims.includes(m.mass)){save.claims.push(m.mass);milestoneBonus+=m.reward;}
   }
   const earned=Math.floor(runMoney)+bonus+milestoneBonus;
+  save.mapClaims=[...new Set([...save.mapClaims,...runMapClaims])];runMapClaims=[];
   save.pts+=earned;save.round++;save.best=Math.max(save.best,Math.round(peak));
   return {bonus,milestoneBonus,earned};
 }
 function endRound(reason){
+  if(state!=='play')return;
   sDie();save.lastFailure=reason;ptrTrail=[];release();
   const reward=settleRun();persist();
   $('endEmoji').textContent=reason==='doom'?'🛸':(reason==='sun'?'☀️':'🌀');
   $('endTitle').textContent=reason==='doom'?'UFO đã hút cạn năng lượng'
-    :(reason==='sun'?'Chưa vượt qua Mặt Trời':reason==='route'?'Quỹ đạo chưa đủ mạnh':'Năng lượng đã cạn');
+    :(reason==='sun'?'Chưa vượt qua Mặt Trời':reason==='route'?'Chưa đủ sức mạnh để du hành':'Năng lượng đã cạn');
   $('endStats').innerHTML=
     `Sức mạnh đỉnh: <b>${Math.round(peak)}</b> · ${Math.round(roundTime)} giây<br>`+
+    `Vùng đạt được: <b>${runStage+1}/5 · ${currentMap().name}</b><br>`+
     `Vật thể hấp thụ: <b>${runCollected}</b><br>`+
     `Tiền từ vật thể: <b>+${Math.floor(runMoney)} ⭐</b>`+
     (runRecycled>=1?` · tái chế ${Math.floor(runRecycled)}`:'')+`<br>`+
@@ -709,16 +744,20 @@ function endRound(reason){
   state='roundEnd';showOverlay('roundEnd');
 }
 function finishMap(){
-  if(state!=='play'||runStage>=2)return false;
-  const completed=runStage;
-  endRound('route');
-  save.stage=Math.min(2,completed+1);
-  let reward=0;
-  if(!save.mapClaims.includes(completed)){save.mapClaims.push(completed);reward=completed===0?300:700;save.pts+=reward;}
-  $('endEmoji').textContent=completed===0?'🌍':'🪐';
-  $('endTitle').textContent=completed===0?'Quỹ đạo đã mở':'Đường tới Mặt Trời';
-  $('endStats').innerHTML+=`<br><b>Chặng mới: ${MAPS[save.stage].name}</b><br>Thưởng khám phá: +${reward} ⭐`;
-  save.lastFailure='';persist();
+ if(state!=='play'||travel>0||runStage>=MAPS.length-1||size<currentGoal())return false;
+ const completed=runStage;
+ travelFrom=backdrop;travel=reducedMotion?.25:1.4;runStage++;regionTime=0;
+ save.stage=Math.max(save.stage,runStage);backdrop=null;
+ drones=[];doomT=0;survivedDoom=true;phase=runStage===MAPS.length-1?'sun':'grow';sunT=0;
+ doomAt=roundTime+DOOM_BASE+DOOM_DELAY*lv('delay');
+ // Keep the same live run, earnings, input, timers and active objects.
+ size+=MAPS[completed].goal*.025*lv('carry');peak=Math.max(peak,size);
+ if(!save.mapClaims.includes(completed)&&!runMapClaims.includes(completed)){
+   runMapClaims.push(completed);runMoney+=[90,170,300,480][completed];
+ }
+ sSurvive();renderNotches();updateHud();persist();
+ toast('Du hành tới '+currentMap().name+' · Tiếp tục thu vật thể!');
+ return true;
 }
 
 function winGame(){
@@ -743,7 +782,7 @@ function consume(it){
   const comboBonus=material?.03*lv('combo')*Math.max(0,comboCount-1):0;
   const throwBonus=it.thrown?.10*lv('precision'):0;
   const critical=material&&Math.random()<.05*lv('luck');
-  const fuelBonus=material&&it.type!=='junk'?.10*lv('fusion'):0;
+  const fuelBonus=material&&['gas','fw','cap'].includes(it.type)?.14*lv('fusion'):0;
   const gain=(itemVal(it)*massMultiplier()*(1+comboBonus+throwBonus+fuelBonus)+(material?2*lv('core'):0))*(critical?1.6:1);
   const oldLv=level(size);
   size+=gain;peak=Math.max(peak,size);
@@ -785,6 +824,7 @@ function consume(it){
     }
     if(chained)flash=Math.max(flash,.16);
   }
+  if(runStage<MAPS.length-1&&size>=currentGoal())finishMap();
   if(phase==='sun'&&size>=WIN_SIZE&&sunSwallow<=0)sunSwallow=.001;
 }
 
@@ -805,12 +845,16 @@ function tryGem(x,y){
 
 /* ---------- Update ---------- */
 function update(dt){
-  roundTime+=dt;
+  roundTime+=dt;regionTime+=dt;travel=Math.max(0,travel-dt);
   HOLE.y=HOLE.by+Math.sin(roundTime*1.15)*8;        // gentle hover bob
   if(shake>0)shake-=dt*3;
   if(flash>0)flash-=dt*1.6;
   if(holePulse>0)holePulse-=dt*2.2;
 
+  // Check progress before drains so a crossed goal is never lost to the next frame.
+  if(size>=currentGoal()&&runStage<MAPS.length-1)finishMap();
+  if(runStage===MAPS.length-1&&phase==='sun'&&size>=WIN_SIZE&&sunSwallow<=0)sunSwallow=.001;
+  if(phase!=='sun'&&regionTime>=REGION_LIMIT){endRound('route');return;}
   /* phase machine */
   if(phase==='grow'){
     size-=GROW_DECAY(size)*(1-.12*lv('hawk'))*dt;
@@ -836,15 +880,9 @@ function update(dt){
     }
     if(doomT>=doomDuration()){
       survivedDoom=true;drones=[];sSurvive();flash=.35;
-      if(runStage===0){finishMap();return;}
-      sunT=0;
-      if(runStage===1){phase='crossing';toast('Quỹ đạo đã an toàn. Thu đủ 3.500 sức mạnh để vượt vành đai.');}
-      else{phase='sun';toast('Mặt Trời đang hút sức mạnh. Cần 11.500 để đảo ngược lực hút; nâng Lá chắn bức xạ để trụ lâu hơn.');}
+      phase='grow';doomAt=roundTime+18+DOOM_DELAY*lv('delay');
+      toast('Đã vượt UFO · Tiếp tục thu đủ '+currentGoal().toLocaleString('vi-VN')+' sức mạnh để du hành.');
     }
-  }else if(phase==='crossing'){
-    sunT+=dt;size-=GROW_DECAY(size)*dt;
-    if(size>=currentGoal()){finishMap();return;}
-    if(sunT>=SUN_LIMIT){endRound('route');return;}
   }else if(phase==='sun'){
     sunT+=dt;
     if(sunSwallow>0){sunSwallow+=dt;shake=.6;
@@ -1092,7 +1130,7 @@ function renderNotches(){
 renderNotches();
 function updateHud(){
   const l=level(size);
-  $('missionHud').textContent=(runStage+1)+'/3 · '+currentMap().name+' · '+(runStage===0?'Vượt UFO':currentGoal().toLocaleString('vi-VN')+' sức mạnh');
+  $('missionHud').textContent=(runStage+1)+'/5 · '+currentMap().name+' · '+currentGoal().toLocaleString('vi-VN')+' sức mạnh'+(state==='play'&&phase!=='sun'?' · '+Math.max(0,Math.ceil(REGION_LIMIT-regionTime))+'s để du hành':'');
   const solar=$('solarHint');solar.style.display=state==='play'&&phase==='sun'?'block':'none';
   if(phase==='sun')solar.textContent=sunSwallow>0?'Đã đảo ngược lực hút — đang hấp thụ Mặt Trời':
     '☀ Mặt Trời rút '+Math.ceil(solarDrain())+'/giây · Còn '+Math.max(0,Math.ceil(WIN_SIZE-size)).toLocaleString('vi-VN')+' sức mạnh · Nâng Lá chắn bức xạ';
@@ -1110,7 +1148,7 @@ function updateHud(){
   if(state!=='play'){dp.textContent=(DOOM_BASE+DOOM_DELAY*lv('delay'))+'s';}
   else if(phase==='grow'){dp.textContent=Math.max(0,Math.ceil(doomAt-roundTime))+'s';}
   else if(phase==='doom'){dp.textContent='Trụ vững '+Math.max(0,Math.ceil(doomDuration()-doomT))+'s';}
-  else{dp.textContent=(phase==='crossing'?'Vượt vành đai ':'☀ ')+Math.max(0,Math.ceil(SUN_LIMIT-sunT))+'s';}
+  else{dp.textContent='☀ '+Math.max(0,Math.ceil(SUN_LIMIT-sunT))+'s';}
   $('doomPill').classList.toggle('urgent',
     state==='play'&&((phase==='grow'&&doomAt-roundTime<6)||phase==='doom'));
   const sb=$('skillBtn');
@@ -1376,67 +1414,94 @@ function drawEntity(SK,hr,t){
   }
 }
 
+function nebulaTexture(){
+ const layer=document.createElement('canvas');layer.width=256;layer.height=144;
+ const c=layer.getContext('2d'),pixels=c.createImageData(256,144);
+ const hash=(x,y)=>{let h=Math.imul(x+runStage*73,374761393)+Math.imul(y,668265263);h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967295;};
+ const noise=(x,y)=>{const ix=Math.floor(x),iy=Math.floor(y);let u=x-ix,v=y-iy;u=u*u*(3-2*u);v=v*v*(3-2*v);return(hash(ix,iy)*(1-u)+hash(ix+1,iy)*u)*(1-v)+(hash(ix,iy+1)*(1-u)+hash(ix+1,iy+1)*u)*v;};
+ for(let y=0;y<144;y++)for(let x=0;x<256;x++){
+   let n=0,scale=.025,amp=.56;
+   for(let k=0;k<4;k++){n+=noise(x*scale,y*scale)*amp;scale*=2.15;amp*=.52;}
+   const ridge=76+Math.sin(x*.019)*30,band=Math.exp(-Math.pow((y-ridge)/(18+noise(x*.03,8)*28),2));
+   const density=Math.max(0,Math.min(1,(n-.32)*2.2))*band;
+   const blue=noise(x*.018+48,y*.018+24),offset=(y*256+x)*4;
+   pixels.data[offset]=runStage===3?90+155*(1-blue):runStage===4?190:55;
+   pixels.data[offset+1]=runStage===3?65+65*blue:runStage===4?85+85*n:110+90*n;
+   pixels.data[offset+2]=runStage===4?80:150+85*blue;
+   pixels.data[offset+3]=density*(runStage===3?190:runStage===4?100:60);
+ }c.putImageData(pixels,0,0);return layer;
+}
+
 function buildBackdrop(){
-  const image=document.createElement('canvas');image.width=cv.width;image.height=cv.height;
-  const ctx=image.getContext('2d'),t=0;
-  ctx.setTransform(renderScale,0,0,renderScale,0,0);
-  /* sky */
-  const sky=ctx.createLinearGradient(0,0,0,GROUND);
-  sky.addColorStop(0,currentMap().sky[0]);sky.addColorStop(.7,currentMap().sky[1]);sky.addColorStop(1,currentMap().sky[1]);
-  ctx.fillStyle=sky;ctx.fillRect(-12,-12,W+24,GROUND+12);
-  /* Atmospheric light and deterministic star field. */
-  const nebula=ctx.createRadialGradient(420,180,0,420,180,460);
-  nebula.addColorStop(0,'rgba(124,91,208,.16)');nebula.addColorStop(.5,'rgba(63,112,161,.08)');nebula.addColorStop(1,'rgba(63,112,161,0)');
-  ctx.fillStyle=nebula;ctx.fillRect(0,0,W,GROUND);
-  for(let i=0;i<90;i++){
-    const sx=(i*197.3+31)%W,sy=(i*83.7+19)%(GROUND*.78);
-    ctx.fillStyle=i%4===0?'#a5dce9':'#dad5f4';
-    ctx.globalAlpha=.18+(Math.sin(t*.65+i)*.5+.5)*.45;
-    ctx.beginPath();ctx.arc(sx,sy,i%7===0?1.3:.65,0,Math.PI*2);ctx.fill();
-  }
-  ctx.globalAlpha=1;
-  if(runStage===0){
-    ctx.fillStyle='#eff9ff';ctx.beginPath();ctx.arc(852,88,24,0,7);ctx.fill();
-    ctx.fillStyle=currentMap().sky[0];ctx.beginPath();ctx.arc(862,81,21,0,7);ctx.fill();
-  }else if(runStage===1){
-    ctx.fillStyle='#3655c9';ctx.beginPath();ctx.arc(820,190,78,0,7);ctx.fill();
-    ctx.strokeStyle='#9d8bff';ctx.lineWidth=7;ctx.beginPath();ctx.ellipse(820,190,123,27,-.3,0,7);ctx.stroke();
-    for(let i=0;i<15;i++){ctx.fillStyle=['#a997cc','#e0ac91','#767fae'][i%3];ctx.beginPath();ctx.ellipse((i*173+34)%W,90+(i*93)%240,6+i%9,4+i%6,i,0,7);ctx.fill();}
-  }else{
-    const glow=ctx.createRadialGradient(480,90,5,480,90,280);
-    glow.addColorStop(0,'#ffaf4c66');glow.addColorStop(1,'#ff6b3500');ctx.fillStyle=glow;ctx.fillRect(0,0,W,GROUND);
-  }
-  if(runStage===0){
-  /* hills */
-  ctx.fillStyle='#161226';
-  ctx.beginPath();ctx.moveTo(-12,GROUND);
-  ctx.quadraticCurveTo(180,GROUND-90,420,GROUND-30);
-  ctx.quadraticCurveTo(680,GROUND-110,W+12,GROUND-40);
-  ctx.lineTo(W+12,GROUND);ctx.closePath();ctx.fill();
-  /* fence / orbital dock */
-  ctx.strokeStyle='rgba(120,100,140,.35)';ctx.lineWidth=3;
-  for(let fx=30;fx<W;fx+=runStage===0?48:120){ctx.beginPath();ctx.moveTo(fx,GROUND-2);ctx.lineTo(fx,GROUND-34);ctx.stroke();}
-  ctx.beginPath();ctx.moveTo(0,GROUND-26);ctx.lineTo(W,GROUND-26);ctx.stroke();
-  /* ground */
-  const gg=ctx.createLinearGradient(0,GROUND,0,H);
-  gg.addColorStop(0,currentMap().ground[0]);gg.addColorStop(1,currentMap().ground[1]);
-  ctx.fillStyle=gg;ctx.fillRect(-12,GROUND,W+24,H-GROUND+12);
-  ctx.strokeStyle='rgba(141,229,231,.22)';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();
+ const image=document.createElement('canvas');image.width=cv.width;image.height=cv.height;
+ const c=image.getContext('2d');c.setTransform(renderScale,0,0,renderScale,0,0);
+ const map=currentMap(),sky=c.createLinearGradient(0,0,W,H);
+ sky.addColorStop(0,map.sky[0]);sky.addColorStop(.55,map.sky[1]);sky.addColorStop(1,'#01050f');c.fillStyle=sky;c.fillRect(0,0,W,H);
+ const glow=(x,y,r,color,alpha)=>{const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color+alpha);g.addColorStop(1,color+'00');c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);};
+ // Distant dust: deterministic, layered, cached; never consumes gameplay RNG.
+ for(let layer=0;layer<3;layer++)for(let i=0;i<16;i++){
+   const x=(i*173+runStage*89+layer*67)%W,y=(i*79+layer*103)%H;
+   glow(x,y,55+layer*45,runStage===3?(i%2?'#ce529c':'#388dca'):runStage===4?'#f78446':'#3377a2',layer===2?'09':'05');
+ }
+ for(let i=0;i<260;i++){
+   const x=(i*197.37+31)%W,y=(i*83.79+19)%H;
+   c.globalAlpha=.18+(i%7)/10;c.fillStyle=i%5===0?'#97caff':'#edebff';c.beginPath();c.arc(x,y,i%19===0?1.35:.45+(i%3)*.22,0,7);c.fill();
+   if(i%43===0){c.strokeStyle='#c4e9ff88';c.lineWidth=.5;c.beginPath();c.moveTo(x-4,y);c.lineTo(x+4,y);c.moveTo(x,y-4);c.lineTo(x,y+4);c.stroke();}
+ }c.globalAlpha=1;
+ function planet(x,y,r,colors,kind){
+   glow(x,y,r*1.16,colors[1],'3a');
+   c.save();c.beginPath();c.arc(x,y,r,0,7);c.clip();
+   const g=c.createRadialGradient(x-r*.42,y-r*.42,2,x+r*.38,y+r*.28,r*1.32);g.addColorStop(0,colors[0]);g.addColorStop(.5,colors[1]);g.addColorStop(1,colors[2]);c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);
+   for(let i=0;i<85;i++){
+     const u=Math.sin(i*4.37),v=Math.cos(i*7.13),xx=x+u*r,yy=y+v*r;
+     c.globalAlpha=.08+(i%3)*.04;
+     if(kind==='earth'){
+       c.fillStyle=i%3?'#69bca7':'#dfeeff';c.beginPath();c.ellipse(xx,yy,10+(i%8)*7,3+(i%6)*6,i*.63,0,7);c.fill();
+     }else if(kind==='gas'){
+       c.strokeStyle=i%3?'#eebc9688':'#395c9188';c.lineWidth=2+i%9;c.beginPath();c.ellipse(x, y-r+i*r/42,r*1.2,7+i%4,.06,0,7);c.stroke();
+     }else{
+       c.strokeStyle=i%2?'#b4f1ffff':'#214c7bff';c.lineWidth=1+i%3;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx+Math.sin(i)*r*.4,yy+15);c.lineTo(xx+Math.cos(i)*r*.25,yy+45);c.stroke();
+     }
+   }c.globalAlpha=1;
+   const shade=c.createLinearGradient(x-r,y-r,x+r,y+r);shade.addColorStop(0,'#00000000');shade.addColorStop(.45,'#00000000');shade.addColorStop(1,'#010611ee');c.fillStyle=shade;c.fillRect(x-r,y-r,r*2,r*2);
+   c.restore();c.strokeStyle=colors[0]+'66';c.lineWidth=2;c.beginPath();c.arc(x,y,r,-Math.PI*.9,-Math.PI*.15);c.stroke();
+ }
+ c.drawImage(nebulaTexture(),0,0,W,H);
+ if(runStage===0){
+   planet(885,345,225,['#c8f0ff','#26769b','#061726'],'earth');
+   planet(120,120,22,['#dfdee2','#8c9ba6','#263441'],'ice');
+   c.save();c.translate(40,510);c.rotate(-.16);
+   c.fillStyle='#080e1c';c.strokeStyle='#5b8ca388';c.lineWidth=2;
+   c.fillRect(-60,-30,310,90);c.strokeRect(-60,-30,310,90);
+   for(let i=0;i<6;i++){c.fillStyle='#163047';c.fillRect(i*43,-20,35,44);c.fillStyle='#69cde5';c.fillRect(i*43+4,-15,26,2);}c.restore();
+ }else if(runStage===1){
+   // Back half of the ring, sphere, then front half: clear depth and occlusion.
+   c.save();c.translate(817,132);c.rotate(-.3);for(let k=0;k<9;k++){c.strokeStyle=['#bba78266','#8494b366','#c4af9677'][k%3];c.lineWidth=2.5;c.beginPath();c.ellipse(0,0,147+k*4,34+k,0,Math.PI,Math.PI*2);c.stroke();}c.restore();
+   planet(817,132,96,['#edddc4','#876f8b','#14223e'],'gas');
+   c.save();c.translate(817,132);c.rotate(-.3);for(let k=0;k<9;k++){c.strokeStyle=['#d7cbb9aa','#9fa5b888','#e4c6a788'][k%3];c.lineWidth=2.5;c.beginPath();c.ellipse(0,0,147+k*4,34+k,0,0,Math.PI);c.stroke();}c.restore();
+   for(let i=0;i<32;i++){const x=(i*157+42)%W,y=135+(i*79)%355,r=4+i%10;c.save();c.translate(x,y);c.rotate(i);c.fillStyle=['#77828e','#465366','#9f8c80'][i%3];c.beginPath();for(let j=0;j<7;j++){const a=j*Math.PI*2/7,rr=r*(.7+.3*Math.sin(i+j*3));if(j)c.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);else c.moveTo(Math.cos(a)*rr,Math.sin(a)*rr);}c.closePath();c.fill();c.strokeStyle='#e7ded144';c.lineWidth=1;c.stroke();c.restore();}
+ }else if(runStage===2){
+   planet(844,315,210,['#d4fcff','#4395ae','#062947'],'ice');
+   planet(131,135,45,['#e4edfa','#809fc0','#142844'],'ice');
+   for(let i=0;i<15;i++){const x=(i*231+32)%W,y=100+(i*67)%400;glow(x,y,12+(i%4)*5,'#5bb9e8','28');c.fillStyle='#a4e9f533';c.beginPath();c.moveTo(x,y-14);c.lineTo(x+8,y+6);c.lineTo(x,y+13);c.lineTo(x-5,y);c.closePath();c.fill();}
+ }else if(runStage===3){
+   c.save();c.globalCompositeOperation='screen';
+   for(let i=0;i<50;i++){const x=-30+i*23,y=300+Math.sin(i*.1)*120,r=70+(i%5)*20;glow(x,y,r,i%3?'#9e3f8e':'#447abd','18');}
+   for(let i=0;i<25;i++)glow(160+i*27,240+Math.sin(i*.19)*120,28+i%6*7,'#c979a3','18');c.restore();
+   planet(890,128,64,['#f6d1eb','#84688b','#251a35'],'gas');
 
-
-  }else{
-    const lower=ctx.createLinearGradient(0,GROUND,0,H);lower.addColorStop(0,currentMap().sky[1]);lower.addColorStop(1,currentMap().sky[0]);
-    ctx.fillStyle=lower;ctx.fillRect(0,GROUND,W,H-GROUND);
-    for(const x of [235,360,600,725]){
-      const glow=ctx.createRadialGradient(x,GROUND+10,2,x,GROUND+10,65);
-      glow.addColorStop(0,currentMap().accent+'44');glow.addColorStop(1,currentMap().accent+'00');
-      ctx.fillStyle=glow;ctx.fillRect(x-65,GROUND-35,130,85);
-      ctx.fillStyle='#182345';ctx.strokeStyle=currentMap().accent;ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.moveTo(x-42,GROUND+4);ctx.lineTo(x+42,GROUND+4);ctx.lineTo(x+34,GROUND+17);ctx.lineTo(x-34,GROUND+17);ctx.closePath();ctx.fill();ctx.stroke();
-    }
-  }
-  return image;
+ }else{
+   for(let i=0;i<20;i++)glow(480+Math.cos(i*2.3)*320,130+Math.sin(i*3)*110,100+i%4*30,i%2?'#c65224':'#a93b56','12');
+   planet(875,400,145,['#ffc899','#80534c','#160f24'],'gas');
+   c.strokeStyle='#ffcc8a33';c.lineWidth=1;
+   for(let i=0;i<4;i++){c.beginPath();c.ellipse(480,128,250+i*52,82+i*27,-.18,0,7);c.stroke();}
+ }
+ // Minimal collection rails hover in the foreground; no opaque ground band.
+ for(const x of [235,360,600,725]){
+   const glowColor=currentMap().accent;glow(x,GROUND+10,60,glowColor,'19');
+   const metal=c.createLinearGradient(x,GROUND,x,GROUND+13);metal.addColorStop(0,'#647b94');metal.addColorStop(.35,'#24394f');metal.addColorStop(1,'#0a1628');
+   c.fillStyle=metal;c.strokeStyle=glowColor+'66';c.lineWidth=1;c.beginPath();c.moveTo(x-37,GROUND+3);c.lineTo(x+37,GROUND+3);c.lineTo(x+25,GROUND+13);c.lineTo(x-25,GROUND+13);c.closePath();c.fill();c.stroke();
+ }return image;
 }
 
 function draw(){
@@ -1448,6 +1513,12 @@ function draw(){
   if(!backdrop)backdrop=buildBackdrop();
   ctx.fillStyle='#080e1c';ctx.fillRect(-12,-12,W+24,H+24);
   ctx.drawImage(backdrop,0,0,W,H);
+  if(travel>0&&travelFrom){ctx.save();ctx.globalAlpha=Math.min(1,travel/(reducedMotion?.25:1.4));ctx.drawImage(travelFrom,0,0,W,H);ctx.restore();}
+  // Foreground parallax gives each static distant scene a moving near layer.
+  if(state==='play'&&runStage>0&&!reducedMotion){
+   for(let i=0;i<10;i++){const depth=1+i%3,x=((i*143-roundTime*(4+depth*4))%(W+100)+W+100)%(W+100)-50,y=90+(i*137)%410;
+     ctx.save();ctx.translate(x,y);ctx.rotate(i+roundTime*.04);ctx.globalAlpha=.12+depth*.05;ctx.fillStyle=runStage===2?'#9bd7e8':runStage===3?'#e5b9ff':runStage===4?'#ffc18b':'#a49aae';ctx.beginPath();if(runStage>=3)ctx.arc(0,0,depth*.8,0,7);else{ctx.moveTo(-7*depth,-2*depth);ctx.lineTo(-2*depth,-6*depth);ctx.lineTo(7*depth,0);ctx.lineTo(3*depth,5*depth);ctx.closePath();}ctx.fill();ctx.restore();}
+  }
   if(!reducedMotion){
     for(let i=0;i<9;i++){
       ctx.globalAlpha=(Math.sin(t*.65+i)*.5+.5)*.35;
@@ -1464,8 +1535,7 @@ function draw(){
     rr(b.x-27,b.y-16,54,9,[7,7,0,0],'#3c5870');
     ctx.strokeStyle='#91b8cf55';ctx.lineWidth=1;ctx.stroke();
     rr(b.x-20,b.y+9,40,2,1,'#8de5e755');
-    ctx.font='20px serif';ctx.textAlign='center';
-    ctx.fillText(boxEm(b.type),b.x,b.y+6);
+    drawObject({type:b.type,em:junkPool()[0]},b.x,b.y-1,26);ctx.textAlign='center';
     ctx.font='600 10px system-ui';ctx.fillStyle='#b7cadb';
     ctx.fillText('×'+b.count,b.x,b.y+28);
     const p=Math.min(1,b.t/boxItv(b));
@@ -1497,8 +1567,7 @@ function draw(){
       const sp=satPos(k,roundTime);
       ctx.fillStyle='rgba(159,216,255,.25)';
       ctx.beginPath();ctx.arc(sp.x,sp.y,15,0,7);ctx.fill();
-      ctx.font='19px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('🛰️',sp.x,sp.y);
+      drawObject({manualOnly:true,spaceId:'probe'},sp.x,sp.y,34);ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.textBaseline='alphabetic';
       parts.length<70&&Math.random()<.3&&parts.push({x:sp.x,y:sp.y,
         vx:R(-8,8),vy:R(-8,8),t:.4,col:'rgba(159,216,255,.5)',r:1.6});
@@ -1527,8 +1596,8 @@ function draw(){
     if(it.state!=='rocket'&&it.y>GROUND-40){
       ctx.fillStyle='rgba(0,0,0,.3)';
       ctx.beginPath();ctx.ellipse(it.x,GROUND-4,12,3.5,0,0,7);ctx.fill();}
-    if(it.manualOnly){ctx.strokeStyle='#ffdc75';ctx.lineWidth=2;ctx.beginPath();ctx.arc(it.x,it.y,23,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff0b8';ctx.font='700 9px system-ui';ctx.textAlign='center';ctx.fillText('KÉO BẰNG TAY',it.x,it.y+34);}
-    if(it===hovered||it===grabbed){
+    if(it.manualOnly){ctx.fillStyle='#ffe5ad';ctx.font='700 9px system-ui';ctx.textAlign='center';ctx.fillText('KÉO TAY',it.x,it.y+34);}
+    if(!it.manualOnly&&(it===hovered||it===grabbed)){
       ctx.strokeStyle=it===grabbed?'#bcaaff':'#8de5e7';ctx.lineWidth=1.5;
       ctx.fillStyle='rgba(141,229,231,.08)';ctx.beginPath();ctx.arc(it.x,it.y,22,0,Math.PI*2);ctx.fill();ctx.stroke();
     }
@@ -1537,11 +1606,12 @@ function draw(){
       ctx.beginPath();ctx.moveTo(it.x,it.y);ctx.lineTo(it.x-it.vx*.035,it.y-it.vy*.035);ctx.stroke();
     }
     ctx.save();ctx.translate(it.x,it.y);
-    ctx.rotate(it.rot+(it.state==='loose'?Math.sin(t*2+it.rot*9)*.1:t*4));
+    ctx.rotate(it.rot+(it.manualOnly?Math.sin(t*.6)*.12:it.state==='held'?0:Math.sin(t*2+it.rot*9)*.1));
     if(it.state==='rocket'){
       ctx.rotate(-it.rot);ctx.strokeStyle=`hsl(${it.hue},100%,72%)`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-it.vx*.06,-it.vy*.06);ctx.stroke();
       ctx.fillStyle='#fff4ae';ctx.beginPath();ctx.arc(0,0,2.5,0,7);ctx.fill();
-    }else{ctx.font=(it.state==='held'?'30px':'25px')+' serif';ctx.textAlign='center';ctx.fillText(it.em,0,0);}
+    }else if(it.type==='ember'){ctx.fillStyle='#ffd689';ctx.shadowColor='#ffaf45';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(0,0,3.5,0,7);ctx.fill();}
+    else{drawObject(it,0,0,it.manualOnly?60:it.state==='held'?40:34);}
     ctx.restore();
     ctx.globalAlpha=1;
   }
@@ -1604,7 +1674,7 @@ function draw(){
   /* Solar field: larger than an underpowered black hole, with visible outward transfer. */
   if(phase==='sun'){
     const pull=sunSwallow>0?Math.min(1,sunSwallow/1.4):0;
-    const sx=480,sy=128+(HOLE.y-128)*pull,srad=82*(1-pull*.88);
+    const sx=480,sy=128+(HOLE.y-128)*pull,srad=95*(1-pull*.88);
     const glow=ctx.createRadialGradient(sx,sy,srad*.4,sx,sy,srad*1.8);
     glow.addColorStop(0,'#fff2a9');glow.addColorStop(.5,'#ffb52c88');glow.addColorStop(1,'#ff572200');
     ctx.fillStyle=glow;ctx.beginPath();ctx.arc(sx,sy,srad*1.8,0,7);ctx.fill();
@@ -1649,6 +1719,12 @@ function draw(){
     ctx.font='800 '+(tx.sz||16)+'px system-ui';
     ctx.fillText(tx.str,tx.x,tx.y);}
   ctx.globalAlpha=1;
+  if(travel>0){
+    const f=1-travel/(reducedMotion?.25:1.4),alpha=Math.sin(f*Math.PI);
+    if(!reducedMotion){ctx.save();ctx.globalCompositeOperation='screen';ctx.strokeStyle='#b5eaff';ctx.globalAlpha=alpha*.65;
+      for(let i=0;i<70;i++){const a=i*2.3999,start=60+(i%9)*23+f*160,end=start+40+f*210;ctx.lineWidth=.6+i%3*.4;ctx.beginPath();ctx.moveTo(W/2+Math.cos(a)*start,H/2+Math.sin(a)*start*.65);ctx.lineTo(W/2+Math.cos(a)*end,H/2+Math.sin(a)*end*.65);ctx.stroke();}ctx.restore();}
+    ctx.globalAlpha=alpha;ctx.fillStyle='#08172dd9';ctx.fillRect(290,113,380,46);ctx.fillStyle='#e4f7ff';ctx.font='800 18px system-ui';ctx.textAlign='center';ctx.fillText('DU HÀNH · '+currentMap().name,480,143);ctx.globalAlpha=1;
+  }
   ctx.restore();
 }
 
@@ -1689,7 +1765,7 @@ function recommendedUpgrade(){
 function renderCards(){
   $('shop').setAttribute('data-view',shopView);
   const recommended=recommendedUpgrade();
-  $('shopTip').textContent=recommended?'Gợi ý: '+recommended.name+' · Bấm tên trước mũi tên để xem nâng cấp cần mở':MAPS[save.stage].intro;
+  $('shopTip').textContent=recommended?'Gợi ý: '+recommended.name+' · Bấm tên trước mũi tên để xem nâng cấp cần mở':MAPS[0].intro;
   $('upgradeCards').style.display=shopView==='cards'?'grid':'none';
   $('treeBox').style.display=shopView==='graph'?'block':'none';
   $('viewToggle').textContent=shopView==='cards'?'Xem sơ đồ':'Xem thẻ';
@@ -1754,7 +1830,7 @@ function renderShop(){
 
   const affordable=NODES.filter(n=>nodeState(n)==='full'&&lv(n.id)<n.max&&canAfford(n)).length;
   $('shopPts').textContent='⭐ '+(previewMoney?'∞ · Chơi thử':Math.floor(save.pts))+' · '+(affordable?affordable+' nâng cấp có thể mua':'Tích thêm cho lượt tới');
-  $('shopProgress').textContent='CHẶNG '+(save.stage+1)+'/3 · '+MAPS[save.stage].name+' · '+MAPS[save.stage].intro;
+  $('shopProgress').textContent='Hành trình 5 vùng · Mỗi lượt xuất phát từ Trái Đất · Kỷ lục vùng '+(save.stage+1)+'/5';
   const defs=`<defs>
     <radialGradient id="gBase" cx="35%" cy="30%"><stop offset="0%" stop-color="#232a44"/><stop offset="100%" stop-color="#10141f"/></radialGradient>
     <radialGradient id="gOwn" cx="35%" cy="30%"><stop offset="0%" stop-color="#5a44a8"/><stop offset="100%" stop-color="#231a4a"/></radialGradient>
@@ -1906,7 +1982,7 @@ function togglePreview(){previewMoney=!previewMoney;try{localStorage.setItem('ho
 $('previewMenuBtn').onclick=togglePreview;$('previewShopBtn').onclick=togglePreview;renderPreviewButtons();
 function renderCollection(){
  const found=SPACE_OBJECTS.filter(o=>save.discoveries[o.id]);$('collectionCount').textContent=found.length+'/'+SPACE_OBJECTS.length+' loại đã thu · Chỉ ghi nhận khi kéo bằng tay';
- $('collectionGrid').innerHTML=SPACE_OBJECTS.map(o=>{const count=save.discoveries[o.id]||0;return `<article class="collectionCard ${count?'':'undiscovered'}"><span class="specimen">${o.em}</span><b>${count?o.name:'Chưa khám phá'}</b><small>${count?'Đã thu '+count+' · +'+o.val+' sức mạnh / +'+o.money+' ⭐':'Bắt gặp từ chặng '+(o.stage+1)}</small></article>`;}).join('');
+ $('collectionGrid').innerHTML=SPACE_OBJECTS.map(o=>{const count=save.discoveries[o.id]||0;return `<article class="collectionCard ${count?'':'undiscovered'}"><span class="specimen"><img src="assets/specimens/${o.id}.svg" alt="${count?o.name:'Vật thể chưa khám phá'}"></span><b>${count?o.name:'Chưa khám phá'}</b><small>${count?'Đã thu '+count+' · +'+o.val+' sức mạnh / +'+o.money+' ⭐':'Bắt gặp từ chặng '+(o.stage+1)}</small></article>`;}).join('');
 }
 function openCollection(back){collectionBack=back;state='collection';renderCollection();showOverlay('spaceCollection');}
 $('pauseCollectionBtn').onclick=()=>openCollection('pause');
