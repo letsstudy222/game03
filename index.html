@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Hố Đen Nhà Tôi To Hơn — My Black Hole Is Bigger Than Yours</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<title>Điểm Kỳ Dị — Trò chơi trọng lực</title>
+<meta name="theme-color" content="#080e1c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2712%27 fill=%27%23080e1c%27 stroke=%27%23bba9ff%27 stroke-width=%273%27/%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#0b0d16; --panel:rgba(10,12,20,.82); --line:rgba(255,255,255,.13);
@@ -14,7 +13,7 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden;background:var(--bg);
-    font-family:'Baloo 2',system-ui,sans-serif;color:#fff;user-select:none;}
+    font-family:'Segoe UI',system-ui,sans-serif;color:#fff;user-select:none;}
   #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     background:radial-gradient(120% 120% at 50% 0%, #141a2e 0%, #0b0d16 70%);}
   #wrap{position:relative;width:100%;aspect-ratio:960/540;max-height:100vh;
@@ -109,7 +108,7 @@
   .nd.tease .base{fill:#0d111c;stroke:#44526600;stroke-width:0;}
   .nd.tease .dash{fill:none;stroke:#4a586b;stroke-width:2;stroke-dasharray:5 6;}
   .nd.sel .base{stroke:#ffd76a !important;stroke-width:3.5 !important;}
-  .nd text{font-family:'Baloo 2';pointer-events:none;}
+  .nd text{font-family:system-ui;pointer-events:none;}
   .nd .em{font-size:24px;}
   .nd .badgeBg{fill:rgba(8,10,18,.75);stroke:rgba(255,255,255,.18);stroke-width:1;}
   .nd.afford .badgeBg{stroke:rgba(255,215,106,.6);}
@@ -154,27 +153,90 @@
     font-size:17px;font-weight:800;text-align:center;padding:20px;}
   #rotate .ph{font-size:52px;animation:rot 1.6s infinite;}
   @keyframes rot{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(90deg)}}
+
+  :root{--bg:#080e1c;--panel:rgba(13,23,43,.86);--line:rgba(167,191,232,.16);--void:#987aff;--zap:#8de5e7;}
+  body{font-weight:500;letter-spacing:.01em;}
+  #stage{background:radial-gradient(ellipse at 50% 15%,#1a2543,#060b15 75%);}
+  #wrap{overflow:hidden;box-shadow:0 0 100px #0008;}
+  #hud{padding:14px 18px;gap:8px;align-items:center;}
+  .pill{padding:7px 12px;font-size:11px;box-shadow:0 4px 20px #0002;}
+  #sizeWrap{height:32px;min-width:120px;}
+  #sizeTxt{font-size:11px;letter-spacing:.04em;}
+  #sizeBar{background:linear-gradient(90deg,#7154d6,#a48aff,#8de5e7);}
+  .iconBtn{width:36px;height:36px;}
+  button{transition:background .18s,transform .18s,box-shadow .18s,border-color .18s;}
+  button:focus-visible,.nd:focus-visible{outline:2px solid #8de5e7;outline-offset:5px;}
+  .bigBtn{font-size:15px;padding:14px 32px;border-radius:12px;background:linear-gradient(120deg,#b8a3ff,#8be3e6);color:#111a30;box-shadow:0 8px 30px #9985f526;min-width:220px;}
+  .bigBtn:hover{transform:translateY(-2px);box-shadow:0 12px 32px #9985f54a;}
+  .bigBtn:active{transform:translateY(1px);box-shadow:0 3px 12px #9985f526;}
+  .ghostBtn{font-size:12px;text-decoration:none;color:#a9b8d0;padding:8px;border-radius:7px;}
+  .ghostBtn:hover{color:#fff;background:#ffffff09;}
+  .overlay{background:linear-gradient(150deg,#080f20ed,#10172ee8);backdrop-filter:blur(12px);padding:24px 20px;}
+  .overlay.show{animation:panelIn .25s ease-out;}
+  @keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .title{font-size:clamp(24px,4vw,40px);letter-spacing:-.04em;filter:none;background:linear-gradient(120deg,#f3f0ff,#bba9ff);-webkit-background-clip:text;background-clip:text;line-height:1.2;}
+  #menu .title{font-size:clamp(34px,5.4vw,58px);font-weight:750;}
+  .eyebrow{color:#90b8ce;font-size:10px;letter-spacing:.25em;font-weight:650;}
+  .heroSub{color:#9facc6;font-size:14px;margin-top:6px;}
+  .heroOrbit{width:84px;height:84px;position:relative;margin:15px 0 13px;}
+  .heroOrbit span{position:absolute;inset:20px;border-radius:50%;background:#050913;box-shadow:0 0 0 2px #c1adff,0 0 20px #9c7bff,0 0 55px #6d59bc70;}
+  .heroOrbit i{position:absolute;inset:4px;border:1px solid #9c80ff60;border-radius:50%;transform:rotate(-25deg) scaleY(.45);}
+  .heroOrbit i:nth-child(2){inset:-6px;border-color:#88dfe940;transform:rotate(30deg) scaleY(.5);}
+  .guideCards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:min(660px,100%);margin:22px 0 2px;text-align:left;}
+  .guideCards>div{background:linear-gradient(135deg,#ffffff07,#ffffff02);border:1px solid var(--line);border-radius:12px;padding:15px;}
+  .guideCards b{font-size:12px;color:#bfc6ed;}
+  .guideCards p{font-size:11px;line-height:1.65;color:#96a5bf;margin-top:7px;}
+  .menuLinks{display:flex;gap:18px;}
+  #resetBtn{color:#7c8ca6;}
+  #treeBox{background:radial-gradient(ellipse at top,#24213e,#0d172a);}
+  #nodeDetail{border-color:#a891ff40;background:linear-gradient(110deg,#a891ff0d,#8de5e705);}
+  .buy{border-radius:8px;background:linear-gradient(120deg,#e8d9a0,#b7dcca);color:#16252c;}
+  .buy:not(:disabled):hover{filter:brightness(1.12);transform:translateY(-1px);}
+  .skCard{padding:16px 10px;gap:7px;transition:border-color .2s,background .2s;}
+  .skCard:hover{border-color:#bba9ff70;background:#ffffff09;}
+  .statBox{font-size:13px;border-radius:12px;color:#a8b9d1;line-height:1.9;}
+  #toast{bottom:20px;white-space:normal;text-align:center;font-size:12px;line-height:1.5;border-color:#8de5e740;box-shadow:0 6px 30px #0006;}
+  #playHint{position:absolute;bottom:22px;left:20px;pointer-events:none;font-size:10px;letter-spacing:.04em;color:#92abc2;display:none;}
+  @media(max-height:520px){.heroOrbit{width:56px;height:56px;margin:8px 0}.heroOrbit span{inset:13px}.guideCards{margin:12px 0 0}.guideCards>div{padding:10px}.overlay{padding:16px}.bigBtn{margin-top:12px;padding:11px 24px}#menu .title{font-size:36px}}
+  @media(max-width:700px){#hud{padding:8px;gap:4px}.pill{padding:6px;font-size:9px}#sizeTxt{font-size:9px}.guideCards{gap:7px}.guideCards>div{padding:10px}.guideCards b{font-size:10px}.guideCards p{font-size:10px}}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;}}
+
+  #shop{padding:16px 20px;gap:6px;overflow:hidden;}
+  #shop .title{font-size:24px;flex-shrink:0;}
+  #shopPts{font-size:13px;margin-top:0;flex-shrink:0;}
+  #shopProgress{font-size:10px;color:#8c9db8;flex-shrink:0;}
+  #treeBox{max-width:780px;min-height:100px;flex:1;overflow:auto;overscroll-behavior:contain;margin-top:2px;scrollbar-width:thin;scrollbar-color:#665389 #121b2d;}
+  #treeBox svg{min-width:520px;}
+  #nodeDetail{max-width:780px;min-height:90px;flex-shrink:0;padding:8px 12px;margin-top:0;}
+  #nodeDetail h4{font-size:13px;}#nodeDetail p{font-size:11px;}
+  #shop .bigBtn{margin-top:0;font-size:13px;padding:10px 24px;flex-shrink:0;}
+  #shop>.ghostBtn{margin-top:0;padding:3px;flex-shrink:0;}
+  #endStats{min-width:290px;}
+  .nEdge{stroke:#a993ff38;}
+  .nd:focus-visible .base{stroke:#8de5e7;stroke-width:3;}
+  @media(max-height:440px){#shop{padding:10px;gap:4px}#shop .title{font-size:19px}#nodeDetail{min-height:72px;gap:2px}#nodeDetail .from{display:none}#nodeDetail p{font-size:10px}#shopProgress{font-size:9px}#shop .bigBtn{padding:8px 24px}#treeBox{min-height:75px}}
 </style>
 </head>
 <body>
-<div id="rotate"><div class="ph">📱</div>Xoay ngang màn hình<br>để chơi nhé!</div>
+<div id="rotate"><div class="ph">📱</div>Xoay ngang để chơi<br><small>Không gian rộng hơn cho mỗi cú ném.</small></div>
 <div id="stage">
   <div id="wrap">
-    <canvas id="cv" width="960" height="540"></canvas>
+    <canvas id="cv" width="960" height="540" aria-label="Sân chơi trọng lực: kéo và thả vật thể vào hố đen"></canvas>
+    <div id="playHint">KÉO & THẢ · BÚNG ĐỂ NÉM · ESC TẠM DỪNG</div>
 
     <div id="hud">
       <div class="pill">⭐ <span id="ptsTxt">0</span></div>
       <div class="pill">💰 <span id="runPtsTxt">0</span></div>
       <div id="sizeWrap">
         <div id="sizeBar"></div><div id="notches"></div>
-        <div id="sizeTxt">🕳️ <span id="lvlTxt">Lv 1</span> • <span id="szTxt">3</span></div>
+        <div id="sizeTxt">🕳️ <span id="lvlTxt">Cấp 1</span> • <span id="szTxt">12</span></div>
       </div>
       <div class="pill" id="doomPill">🛸 <span id="doomTxt">28s</span></div>
-      <div class="pill">🔁 <span id="roundTxt">1</span></div>
+      <div class="pill">LƯỢT <span id="roundTxt">1</span></div>
       <div class="pill" id="uniPill" style="display:none">🌌 <span id="uniTxt">1</span></div>
       <div class="pill" style="border-color:rgba(127,211,240,.4)">💎 <span id="gemTxt">0</span></div>
-      <button class="iconBtn" id="muteBtn">🔊</button>
-      <button class="iconBtn" id="menuBtn">⏸</button>
+      <button class="iconBtn" id="muteBtn" aria-label="Bật hoặc tắt âm thanh" title="Âm thanh">🔊</button>
+      <button class="iconBtn" id="menuBtn" aria-label="Tạm dừng" title="Tạm dừng (Esc)">⏸</button>
     </div>
 
     <button id="skillBtn"><span class="em">⚡</span>TIA<br>TRỌNG LỰC</button>
@@ -183,18 +245,18 @@
     <!-- MENU -->
     <div class="overlay show" id="menu">
       <div class="spacer"></div>
-      <div style="font-size:52px">🕳️</div>
-      <div class="title">HỐ ĐEN NHÀ TÔI TO HƠN</div>
-      <div class="sub"><b style="color:#c7a8ff">Một hố đen tí hon vừa xuất hiện sau vườn. Cho nó ăn!</b><br><br>
-      🖱️ <b>Kéo và BÚNG</b> đồ đồng nát vào hố — hố càng to, lực hút càng mạnh, đồ bay
-      dở sẽ bị cuốn theo quỹ đạo xoáy vào trong. Mỗi món nuốt = 💰.<br><br>
-      🛸 Khi đồng hồ điểm, <b>UFO NGOÀI HÀNH TINH</b> sẽ đến "thu hồi tài sản vũ trụ" — tia kéo xanh lè rút cạn hố của bạn —
-      round đầu chết là chắc chắn! Chết = ⭐ để <b>tiến hóa</b>: bình ga nổ văng,
-      pháo hoa rải lửa, tụ điện giật SÉT dây chuyền...<br><br>
-      Một ngày, hố của bạn sẽ sống sót qua Đội Thu Hồi... và <b>nuốt cả Mặt Trời</b> ☀️</div>
-      <button class="bigBtn" id="startBtn">Mở hố đen 🕳️</button>
-      <button class="ghostBtn" id="menuSkinBtn">🎨 Cửa hàng Skin (💎)</button>
-      <button class="ghostBtn" id="resetBtn">Xóa dữ liệu, chơi lại từ đầu</button>
+      <div class="eyebrow">TRÒ CHƠI TRỌNG LỰC</div>
+      <div class="heroOrbit" aria-hidden="true"><i></i><i></i><span></span></div>
+      <h1 class="title">Điểm Kỳ Dị</h1>
+      <div class="sub heroSub">Từ một hạt tối. Đến cả một vì sao.</div>
+      <div class="guideCards">
+        <div><b>01 / Thu hút</b><p>Kéo vật vào hố đen hoặc búng để ném. Mỗi vật giúp bạn lớn hơn.</p></div>
+        <div><b>02 / Vượt giới hạn</b><p>Thu tín dụng sau mỗi lượt. Chọn trong 33 tiến hóa để xây lối chơi riêng.</p></div>
+        <div><b>03 / Chạm tới Mặt Trời</b><p>Đạt 6.500 khối lượng, vượt UFO và hấp thụ Mặt Trời.</p></div>
+      </div>
+      <button class="bigBtn" id="startBtn">Bắt đầu <span aria-hidden="true">›</span></button>
+      <div class="menuLinks"><button class="ghostBtn" id="menuSkinBtn">Bộ sưu tập</button>
+      <button class="ghostBtn" id="resetBtn">Đặt lại tiến trình</button></div>
       <div class="spacer"></div>
     </div>
 
@@ -204,50 +266,48 @@
       <div style="font-size:46px" id="endEmoji">🛸</div>
       <div class="title" id="endTitle">Bị hút cạn!</div>
       <div class="statBox" id="endStats"></div>
-      <button class="bigBtn" id="toShopBtn">Tiến hóa hố đen 🧬</button>
+      <button class="bigBtn" id="toShopBtn">Nâng cấp</button>
       <div class="spacer"></div>
     </div>
 
     <!-- SHOP -->
     <div class="overlay" id="shop">
-      <div class="title">CÂY TIẾN HÓA</div>
+      <div class="title">NÂNG CẤP</div>
       <div id="shopPts">⭐ 0</div>
+      <div id="shopProgress"></div>
       <div id="treeBox"></div>
       <div id="nodeDetail">
-        <h4 id="ndName">Chọn một nút trên cây</h4>
+        <h4 id="ndName">Chọn nâng cấp</h4>
         <div class="from" id="ndFrom"></div>
-        <p id="ndDesc">Nhấp vào các vòng tròn để xem chi tiết và mua tiến hóa.</p>
+        <p id="ndDesc">Chọn một nút để xem và nâng cấp.</p>
         <p id="ndFx" style="font-weight:800;color:#a5e07f;font-size:13px;"></p>
         <div id="ndRow">
           <div class="pips" id="ndPips"></div>
           <button class="buy" id="buyBtn" disabled>Mua</button>
         </div>
       </div>
-      <button class="bigBtn" id="nextRoundBtn">Round tiếp theo ▶</button>
-      <button class="ghostBtn" id="toSkinBtn">🎨 Cửa hàng Skin (💎)</button>
+      <button class="bigBtn" id="nextRoundBtn">Lượt tiếp theo →</button>
+      <button class="ghostBtn" id="toSkinBtn">Bộ sưu tập</button>
     </div>
 
     <!-- SKIN SHOP -->
     <div class="overlay" id="skinShop">
-      <div class="title" style="background:linear-gradient(180deg,#bfefff,#5fb8e0);-webkit-background-clip:text;background-clip:text;">CỬA HÀNG SKIN</div>
+      <div class="title" style="background:linear-gradient(180deg,#bfefff,#5fb8e0);-webkit-background-clip:text;background-clip:text;">BỘ SƯU TẬP</div>
       <div id="skinGems" style="margin-top:4px;font-size:16px;font-weight:800;color:#8fe8ff;">💎 0</div>
-      <div class="sub" style="margin-top:2px;font-size:11.5px;">💎 rơi ngẫu nhiên khi hố nuốt đồ — 💠 kim cương lớn = 3💎, may mắn thì vài round là đủ!</div>
+      <div class="sub" style="margin-top:2px;font-size:11.5px;">Thu thập tinh thể khi hấp thụ vật thể để mở diện mạo mới.</div>
       <div id="skinGrid"></div>
-      <button class="bigBtn" id="skinBackBtn">Quay lại ◀</button>
+      <button class="bigBtn" id="skinBackBtn">← Quay lại</button>
     </div>
 
     <!-- WIN -->
     <div class="overlay" id="win">
       <div class="spacer"></div>
       <div style="font-size:52px">🕳️☀️</div>
-      <div class="title">BẠN ĐÃ NUỐT MẶT TRỜI!</div>
-      <div class="sub">Hố đen sân sau chính thức to hơn Mặt Trời. Hàng xóm ghen tị.
-      Các nhà thiên văn bối rối. Mèo của bạn không quan tâm.<br><br>
-      <b style="color:#c7a8ff">Vũ Trụ Mới:</b> giữ nguyên cây tiến hóa — nhưng UFO đông hơn,
-      hút mạnh hơn, và đồ đồng nát... không còn là đồ đồng nát 👀</div>
+      <div class="title">MẶT TRỜI ĐÃ THUỘC VỀ BẠN</div>
+      <div class="sub">Bạn đã vượt qua giới hạn của một vì sao.<br>Vũ trụ tiếp theo giữ lại nâng cấp, với thử thách lớn hơn.</div>
       <div class="statBox" id="winStats"></div>
-      <button class="bigBtn" id="winBtn">Vũ Trụ Mới 🌌 (NG+)</button>
-      <button class="ghostBtn" id="winResetBtn">Chơi lại từ đầu</button>
+      <button class="bigBtn" id="winBtn">Khám phá vũ trụ tiếp theo</button>
+      <button class="ghostBtn" id="winResetBtn">Đặt lại tiến trình</button>
       <div class="spacer"></div>
     </div>
 
@@ -255,8 +315,8 @@
     <div class="overlay" id="pause">
       <div class="spacer"></div>
       <div class="title" style="background:linear-gradient(180deg,#fff,#9db2c9);-webkit-background-clip:text;background-clip:text;">TẠM DỪNG</div>
-      <button class="bigBtn" id="resumeBtn">Chơi tiếp ▶</button>
-      <button class="ghostBtn" id="quitBtn">Về menu chính</button>
+      <button class="bigBtn" id="resumeBtn">Tiếp tục</button>
+      <button class="ghostBtn" id="quitBtn">Về màn hình chính</button>
       <div class="spacer"></div>
     </div>
   </div>
@@ -265,7 +325,7 @@
 <script>
 'use strict';
 /* ============================================================
-   HỐ ĐEN NHÀ TÔI TO HƠN (v5)
+   ĐIỂM KỲ DỊ
    Landscape physics sandbox faithful to the fire game:
    • Drag & FLING junk into a hungry central black hole
    • Gravity assist: airborne items spiral inward (scales w/ size)
@@ -280,6 +340,17 @@ const W=960,H=540;
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const $=id=>document.getElementById(id);
 const R=(a,b)=>a+Math.random()*(b-a);
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let renderScale=1,backdrop=null;
+function resizeCanvas(){
+  const rect=cv.getBoundingClientRect();
+  renderScale=Math.min(2,window.devicePixelRatio||1)*Math.max(.5,rect.width/W);
+  cv.width=Math.round(W*renderScale);cv.height=Math.round(H*renderScale);backdrop=null;
+}
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+let hovered=null,activePointer=null;
+
 
 /* ---------- World ---------- */
 const GROUND=468;
@@ -288,15 +359,26 @@ const holeR=()=>Math.min(140,16+size*.25);
 const eatR=()=>holeR()*.8;
 const SLOTS=[110,235,360,600,725,850,42,918];
 
-/* ---------- Balance (proven numbers from v4) ---------- */
-const LV=[1,15,35,65,105,155,220,300,395,505];
-const WIN_SIZE=505;
-const GROW_DECAY=s=>Math.max(.1,s*.008);            // Hawking leak
-const DOOM_BASE=28, DOOM_DELAY=10, DOOM_DUR=10;
-const DOOM_DRAIN=s=>30+s*.35;
-const SHIELD_PCT=.15;
-const SUN_DRAIN=s=>8+s*.02;
-const ITEM_LIFE=12;
+/* ---------- Campaign balance ---------- */
+const LV=[1,45,100,250,500,950,1600,2700,4300,6500];
+const WIN_SIZE=6500;
+const GROW_DECAY=s=>Math.max(.12,s*.006);
+const DOOM_BASE=42, DOOM_DELAY=6, DOOM_DUR=12;
+const DOOM_DRAIN=s=>24+s*.095;
+const SHIELD_PCT=.10;
+const SUN_DRAIN=s=>18+s*.026;
+const SUN_LIMIT=48;
+const ITEM_LIFE=16;
+const campaignMilestones=[
+  {mass:100,reward:60},{mass:400,reward:100},{mass:1000,reward:160},
+  {mass:2400,reward:240},{mass:6500,reward:360},
+];
+const doomDuration=()=>DOOM_DUR-.8*lv('chrono');
+const satelliteCount=()=>lv('sat')+2*lv('sat2');
+const massMultiplier=()=>1+.18*lv('big');
+const startingMass=()=>12+10*lv('start')+Math.min(180,save.best*.025*lv('carry'));
+const solarResistance=()=>1-.12*lv('solar');
+const defenseMultiplier=()=>Math.max(.22,1-SHIELD_PCT*lv('shield')-.08*lv('shield2'))*(1-.06*lv('resonance'));
 
 const JUNK_SKINS=[
   ['🧸','🥫','👟','📻','🧦'],            // Vũ trụ #1: đồ đồng nát
@@ -306,62 +388,60 @@ const JUNK_SKINS=[
 ];
 const getJunkEms=()=>JUNK_SKINS[Math.min(save.uni||0,JUNK_SKINS.length-1)];
 const FUEL={
-  junk:{ems:['🧸','🥫','👟','📻','🧦'],val:2,money:1,itv:1.8},
-  gas:{ems:['⛽'],val:6,money:3,itv:4.0,blast:true},
-  fw:{ems:['🎆'],val:4,money:2,itv:3.2,rocket:true},
-  cap:{ems:['🔋'],val:9,money:5,itv:6.0,zapChain:true},
+  junk:{ems:['🧸','🥫','👟','📻','🧦'],val:4,money:3,itv:1.6},
+  gas:{ems:['⛽'],val:10,money:6,itv:3.8,blast:true},
+  fw:{ems:['🎆'],val:8,money:5,itv:4.5,rocket:true},
+  cap:{ems:['🔋'],val:14,money:8,itv:5.5,zapChain:true},
 };
 
 /* ---------- Evolution tree ---------- */
 const NODES=[
- {id:'junk2', tier:1,em:'🧸',name:'Thêm thùng đồ cũ',desc:'Thêm 1 nguồn đồ đồng nát (giá trị 2)',max:2,base:15,
-   fx:l=>(1+l)+' thùng đồ cũ'},
- {id:'big',   tier:1,em:'🧲',name:'Đậm đặc',desc:'+25% khối lượng nhận từ mỗi món, mỗi cấp',max:3,base:25,
-   fx:l=>'khối lượng ×'+(1+.25*l).toFixed(2)},
- {id:'delay', tier:1,em:'📋',name:'Giấy phép giả',desc:'UFO đến trễ +10 giây, mỗi cấp. Thêm thời gian = to hơn = giàu hơn!',max:3,base:40,
-   fx:l=>'UFO đến sau '+(28+10*l)+'s'},
- {id:'rate',  tier:2,req:'junk2',em:'⏩',name:'Băng chuyền',desc:'-15% thời gian chờ giữa các món, mỗi cấp',max:3,base:45,
-   fx:l=>'thời gian chờ -'+Math.round((1-Math.pow(.85,l))*100)+'%'},
- {id:'gas',   tier:2,req:'junk2',em:'⛽',name:'Bình ga cũ',desc:'Khi bị nuốt sẽ NỔ, hất tung đồ xung quanh bay lên — trọng lực lo phần còn lại!',max:2,base:55,
-   fx:l=>l+' bình ga (giá trị 6)'},
- {id:'hawk',  tier:2,req:'big',  em:'🌀',name:'Ổn định lượng tử',desc:'-15% rò rỉ Hawking (teo tự nhiên), mỗi cấp',max:3,base:30,
-   fx:l=>'rò rỉ -'+(15*l)+'%'},
- {id:'start', tier:2,req:'big',  em:'🕳️',name:'Khởi đầu lớn',desc:'+6 khối lượng khi bắt đầu round, mỗi cấp',max:2,base:40,
-   fx:l=>'bắt đầu với '+(3+6*l)+' khối lượng'},
- {id:'shield',tier:2,req:'delay',em:'🛡️',name:'Chân trời sự kiện',desc:'-15% lực hút của UFO, mỗi cấp. Vô dụng khi bé... chìa khóa sống sót endgame!',max:3,base:70,
-   fx:l=>'hút của UFO -'+(15*l)+'%'},
- {id:'zap',   tier:2,req:'delay',em:'⚡',name:'Tia trọng lực',desc:'Mở kỹ năng. Chạm THÙNG: giật 5 món hút thẳng vào hố. Lúc UFO đến chạm UFO: bắn rụng nó!',max:3,base:55,
-   fx:l=>l===0?'chưa có kỹ năng':'hồi chiêu '+(15*Math.pow(.75,l-1)).toFixed(1)+'s'},
- {id:'fw',    tier:3,req:'gas', em:'🎆',name:'Thùng pháo hoa',desc:'Món bị nuốt phóng 3 quả pháo lên trời, nổ thành mưa tàn lửa rơi vào hố!',max:2,base:110,
-   fx:l=>l+' thùng pháo hoa (giá trị 4)'},
- {id:'cap',   tier:3,req:'zap', em:'🔋',name:'Tụ điện cổ',desc:'Món bị nuốt phóng SÉT DÂY CHUYỀN: giật 5 món gần nhất, hút tất cả vào hố!',max:2,base:150,
-   fx:l=>l+' tụ điện (giá trị 9)'},
- {id:'pull',  tier:3,req:'rate',em:'🌌',name:'Trường hấp dẫn',desc:'Tăng lực hút & tầm hút của hố — đồ trên đất gần hố tự trượt vào',max:3,base:110,
-   fx:l=>'lực hút ×'+(1+.4*l).toFixed(1)},
- {id:'sat',   tier:3,req:'hawk',em:'🛰️',name:'Vệ tinh đồng nát',desc:'Vệ tinh bay quanh hố — chạm món đồ nào là TÓM và ném thẳng vào hố!',max:2,base:130,
-   fx:l=>l+' vệ tinh quỹ đạo'},
- /* ===== NG+ evolutions: unlock at higher universes ===== */
- {id:'shield2',tier:3,req:'shield',uniReq:1,em:'🌑',name:'Lá chắn hư không',desc:'[Vũ Trụ #2+] Thêm -10% lực hút của UFO mỗi cấp — cộng dồn với Chân trời sự kiện',max:2,base:260,
-   fx:l=>'hút UFO thêm -'+(10*l)+'%'},
- {id:'junk3', tier:4,req:'pull',uniReq:1,em:'📦',name:'Kho đồ vô tận',desc:'[Vũ Trụ #2+] Thêm 2 thùng đồ đồng nát mỗi cấp — dây chuyền sản xuất mở rộng!',max:2,base:200,
-   fx:l=>'+'+(2*l)+' thùng đồ cũ'},
- {id:'sat2',  tier:4,req:'sat',uniReq:2,em:'🛸',name:'Trạm không gian',desc:'[Vũ Trụ #3+] +1 vệ tinh và tầm tóm của mọi vệ tinh rộng hơn',max:1,base:350,
-   fx:l=>l?'3 vệ tinh, tầm tóm +30%':'2 vệ tinh thường'},
- {id:'zap2',  tier:4,req:'cap',uniReq:2,em:'🌩️',name:'Bão sét',desc:'[Vũ Trụ #3+] Tia trọng lực giật 9 món thay vì 5 mỗi lần chạm thùng!',max:1,base:400,
-   fx:l=>'giật '+(l?9:5)+' món/lần'},
+ {id:'junk2',lane:0,tier:1,em:'📦',name:'Kho vật liệu',desc:'Thêm một nguồn vật liệu mỗi cấp.',max:4,base:85,fx:l=>(1+l)+' nguồn vật liệu'},
+ {id:'rate',lane:0,tier:1,em:'⏩',name:'Băng chuyền',desc:'Nguồn tạo vật nhanh hơn 10% mỗi cấp.',max:4,base:125,req:'junk2',fx:l=>'nhịp tạo ×'+Math.pow(.9,-l).toFixed(2)},
+ {id:'trade',lane:0,tier:2,em:'💰',name:'Trao đổi năng lượng',desc:'Tăng 12% tín dụng từ vật thể mỗi cấp.',max:5,base:175,req:'rate',fx:l=>'tín dụng +'+12*l+'%'},
+ {id:'gas',lane:0,tier:2,em:'⛽',name:'Buồng phản ứng',desc:'Mở nhiên liệu nổ; thêm một nguồn mỗi cấp.',max:3,base:230,req:'trade',fx:l=>l+' nguồn · 10 khối lượng/vật'},
+ {id:'fw',lane:0,tier:3,em:'🎆',name:'Mưa thiên thạch',desc:'Mở pháo hoa; mỗi vật phóng ba quả, tạo thêm khối lượng.',max:3,base:320,req:'gas',fx:l=>l+' nguồn · 8 khối lượng/vật'},
+ {id:'salvage',lane:0,tier:3,em:'♻️',name:'Tái chế',desc:'Thu lại 12% tín dụng của vật hết hạn mỗi cấp.',max:3,base:420,req:'fw',fx:l=>'thu hồi '+12*l+'%'},
+ {id:'junk3',lane:0,tier:4,em:'🏭',name:'Kho liên hoàn',desc:'Thêm hai nguồn vật liệu mỗi cấp, không giới hạn số ô.',max:3,base:600,req:'salvage',fx:l=>'+'+2*l+' nguồn vật liệu'},
+ {id:'research',lane:0,tier:4,em:'🔬',name:'Nghiên cứu',desc:'Giảm 4% giá nâng cấp mỗi cấp.',max:3,base:760,req:'junk3',fx:l=>'giá nâng cấp −'+4*l+'%'},
+ {id:'luck',lane:0,tier:5,em:'💎',name:'Phân tích tinh thể',desc:'Mỗi cấp thêm 5% cơ hội hấp thụ mạnh gấp 1,6 lần và tìm tinh thể.',max:3,base:950,req:'research',fx:l=>'hấp thụ vượt trội '+5*l+'%'},
+ {id:'big',lane:1,tier:1,em:'🧲',name:'Lõi đậm đặc',desc:'Tăng 18% khối lượng nhận được mỗi cấp.',max:5,base:95,fx:l=>'khối lượng ×'+(1+.18*l).toFixed(2)},
+ {id:'start',lane:1,tier:1,em:'🌑',name:'Mầm hố đen',desc:'Thêm 10 khối lượng khi bắt đầu lượt mỗi cấp.',max:4,base:130,req:'big',fx:l=>'khởi đầu '+(12+10*l)+' khối lượng'},
+ {id:'precision',lane:1,tier:2,em:'🎯',name:'Động lượng',desc:'Vật được búng nhận thêm 10% khối lượng và tín dụng mỗi cấp.',max:3,base:180,req:'start',fx:l=>'cú ném +'+10*l+'%'},
+ {id:'combo',lane:1,tier:2,em:'🔗',name:'Dòng hấp thụ',desc:'Hấp thụ liên tiếp trong 2,5 giây tăng thưởng, tối đa năm nhịp.',max:3,base:245,req:'precision',fx:l=>'mỗi nhịp +'+3*l+'% · tối đa '+15*l+'%'},
+ {id:'pull',lane:1,tier:3,em:'🌌',name:'Trường hấp dẫn',desc:'Tăng 30% lực hút và mở rộng tầm hút mỗi cấp.',max:4,base:330,req:'combo',fx:l=>'lực hút ×'+(1+.3*l).toFixed(1)},
+ {id:'carry',lane:1,tier:3,em:'🧬',name:'Ký ức khối lượng',desc:'Khởi đầu với thêm 2,5% kỷ lục mỗi cấp, tối đa 180 khối lượng.',max:3,base:450,req:'pull',fx:l=>'giữ lại '+(2.5*l)+'% kỷ lục'},
+ {id:'fusion',lane:1,tier:4,em:'☀️',name:'Nhiệt hạch',desc:'Nhiên liệu đặc biệt nhận thêm 10% khối lượng mỗi cấp.',max:3,base:650,req:'carry',fx:l=>'nhiên liệu +'+10*l+'%'},
+ {id:'core',lane:1,tier:4,em:'⚛️',name:'Lõi kỳ dị',desc:'Mỗi vật thể nhận thêm 2 khối lượng mỗi cấp.',max:3,base:900,req:'fusion',fx:l=>'+'+2*l+' khối lượng/vật'},
+ {id:'delay',lane:2,tier:1,em:'📡',name:'Nhiễu tín hiệu',desc:'Trì hoãn UFO thêm 6 giây mỗi cấp.',max:4,base:90,fx:l=>'UFO sau '+(42+6*l)+' giây'},
+ {id:'hawk',lane:2,tier:1,em:'🌀',name:'Ổn định lượng tử',desc:'Giảm 12% hao hụt khối lượng tự nhiên mỗi cấp.',max:5,base:135,req:'delay',fx:l=>'hao hụt −'+12*l+'%'},
+ {id:'shield',lane:2,tier:2,em:'🛡️',name:'Chân trời sự kiện',desc:'Giảm 10% lực hút UFO mỗi cấp.',max:4,base:190,req:'hawk',fx:l=>'lực hút UFO −'+10*l+'%'},
+ {id:'shield2',lane:2,tier:2,em:'🌒',name:'Lá chắn hư không',desc:'Giảm thêm 8% lực hút UFO mỗi cấp.',max:3,base:260,req:'shield',fx:l=>'lực hút UFO thêm −'+8*l+'%'},
+ {id:'chrono',lane:2,tier:3,em:'⏳',name:'Bẻ cong thời gian',desc:'Rút ngắn cuộc tấn công của UFO 0,8 giây mỗi cấp.',max:3,base:360,req:'shield2',fx:l=>'tấn công trong '+(12-.8*l).toFixed(1)+' giây'},
+ {id:'solar',lane:2,tier:3,em:'🌤️',name:'Lá chắn bức xạ',desc:'Giảm 12% sức đốt của Mặt Trời mỗi cấp.',max:3,base:490,req:'chrono',fx:l=>'bức xạ −'+12*l+'%'},
+ {id:'resonance',lane:2,tier:4,em:'〰️',name:'Cộng hưởng',desc:'Giảm thêm 6% lực hút còn lại của UFO mỗi cấp.',max:3,base:680,req:'solar',fx:l=>'lực hút còn lại −'+6*l+'%'},
+ {id:'breach',lane:2,tier:4,em:'⚡',name:'Xuyên giáp',desc:'Tia trọng lực gây thêm một sát thương lên UFO mỗi cấp.',max:2,base:940,req:'resonance',fx:l=>'tia gây '+(1+l)+' sát thương'},
+ {id:'zap',lane:3,tier:1,em:'⚡',name:'Tia trọng lực',desc:'Hút nhanh 5 vật từ một nguồn hoặc phá giáp UFO. Nâng cấp giảm hồi chiêu.',max:4,base:100,fx:l=>l?'hồi chiêu '+(18*Math.pow(.85,l-1)).toFixed(1)+' giây':'chưa mở kỹ năng'},
+ {id:'cap',lane:3,tier:1,em:'🔋',name:'Tụ điện',desc:'Mở nguồn tụ điện; hấp thụ tạo chuỗi hút năm vật gần nhất.',max:3,base:145,req:'zap',fx:l=>l+' nguồn · 14 khối lượng/vật'},
+ {id:'sat',lane:3,tier:2,em:'🛰️',name:'Vệ tinh thu gom',desc:'Thêm một vệ tinh bắt vật thể trên quỹ đạo mỗi cấp.',max:3,base:205,req:'cap',fx:l=>l+' vệ tinh'},
+ {id:'collector',lane:3,tier:2,em:'🧭',name:'Máy thu tự động',desc:'Tự kéo vật gần nhất vào hố đen. Nâng cấp tăng nhịp thu.',max:3,base:285,req:'sat',fx:l=>l?'thu một vật mỗi '+(5/(1+.35*l)).toFixed(1)+' giây':'chưa có máy thu'},
+ {id:'magnet',lane:3,tier:3,em:'🧲',name:'Vành hút',desc:'Mở rộng tầm hút vật nằm trên mặt đất thêm 30 mỗi cấp.',max:3,base:390,req:'collector',fx:l=>'tầm hút +'+30*l},
+ {id:'chain',lane:3,tier:3,em:'🌩️',name:'Mạng dẫn điện',desc:'Tụ điện hút thêm hai vật mỗi cấp.',max:3,base:530,req:'magnet',fx:l=>'chuỗi hút '+(5+2*l)+' vật'},
+ {id:'sat2',lane:3,tier:4,em:'🛸',name:'Trạm quỹ đạo',desc:'Thêm hai vệ tinh mỗi cấp; tăng tầm bắt của mọi vệ tinh.',max:2,base:730,req:'chain',fx:l=>'+'+2*l+' vệ tinh · tầm bắt '+(28+8*l)},
+ {id:'zap2',lane:3,tier:4,em:'💫',name:'Xung trọng lực',desc:'Tia trọng lực hút thêm ba vật mỗi cấp.',max:2,base:980,req:'sat2',fx:l=>'hút nhanh '+(5+3*l)+' vật'},
 ];
 const NODE_BY_ID={};NODES.forEach(n=>NODE_BY_ID[n.id]=n);
 
 /* ---------- Skins ---------- */
 const SKINS=[
- {id:'classic',em:'🕳️',name:'Hố Cổ Điển',price:0,desc:'Đĩa bồi tụ tím huyền bí — chuẩn mực của mọi hố đen sân vườn.'},
- {id:'donut',em:'🍩',name:'Donut Hư Không',price:10,desc:'Phủ kem hồng rắc cốm. Cảnh sát donut đang truy nã.'},
- {id:'cat',em:'😺',name:'Miệng Mèo Đói',price:10,desc:'Meo meo. Cho mèo ăn cả vũ trụ.'},
- {id:'vinyl',em:'💿',name:'Đĩa Than Vũ Trụ',price:10,desc:'Xoay 33⅓ vòng/phút. Nhạc nền: tiếng không gian bị nuốt.'},
+ {id:'classic',em:'🕳️',name:'Nguyên bản',price:0,desc:'Lõi tối, quỹ đạo tím. Nơi mọi thứ bắt đầu.'},
+ {id:'donut',em:'🍩',name:'Donut Hư Không',price:10,desc:'Một vòng ngọt ngào giữa không gian.'},
+ {id:'cat',em:'😺',name:'Miệng Mèo Đói',price:10,desc:'Nhỏ nhắn, nhưng sức ăn không có giới hạn.'},
+ {id:'vinyl',em:'💿',name:'Đĩa Than Vũ Trụ',price:10,desc:'Để cả vũ trụ xoay theo một nhịp.'},
  {id:'eye',em:'🧿',name:'Con Mắt Hư Không',price:10,desc:'Nhìn chằm chằm vào vực thẳm, và vực thẳm chớp mắt lại.'},
  {id:'toilet',em:'🚽',name:'Bồn Cầu Vũ Trụ',price:15,desc:'Xả trôi cả thiên hà. Nhớ đậy nắp.'},
  {id:'volcano',em:'🌋',name:'Miệng Núi Lửa',price:15,desc:'Nóng hổi. Nham thạch chảy ngược vào trong.'},
- {id:'rgb',em:'🌈',name:'Gamer RGB',price:20,desc:'+300% sát thương ảo giác. Đèn LED đổi màu 16.8 triệu sắc.'},
+ {id:'rgb',em:'🌈',name:'Gamer RGB',price:20,desc:'Quỹ đạo rực sáng, chuyển màu liên tục.'},
 ];
 const SKIN_BY_ID={};SKINS.forEach(k=>SKIN_BY_ID[k.id]=k);
 /* full theme per skin: items, chain-fuels, UFO, beam & hole colors */
@@ -398,13 +478,26 @@ const boxEm=type=>type==='junk'?junkPool()[0]:TH()[type];
 
 /* ---------- Save ---------- */
 const SAVE_KEY='holeGameV5';
-let save={pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin:'classic'};
-try{const s=localStorage.getItem(SAVE_KEY);if(s)save=Object.assign(save,JSON.parse(s));}catch(e){}
+const freshSave=()=>({version:6,pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin:'classic',playSeconds:0,claims:[],wins:0});
+let save=freshSave();
+try{
+  const raw=localStorage.getItem(SAVE_KEY);
+  if(raw){const data=JSON.parse(raw);if(data&&typeof data==='object'&&!Array.isArray(data))save={...freshSave(),...data};}
+}catch(e){}
+// Keep the existing save key so updating the game never resets progress.
+for(const key of ['pts','gems','best','uni','playSeconds','wins'])save[key]=Number.isFinite(save[key])?Math.max(0,save[key]):0;
+save.round=Number.isFinite(save.round)?Math.max(1,Math.floor(save.round)):1;
+for(const key of ['lv','seen','skins'])if(!save[key]||typeof save[key]!=='object'||Array.isArray(save[key]))save[key]={};
+save.claims=Array.isArray(save.claims)?save.claims:[];
+for(const n of NODES)save.lv[n.id]=Math.min(n.max,Math.max(0,Math.floor(Number(save.lv[n.id])||0)));
+if(!SKIN_BY_ID[save.skin])save.skin='classic';
+save.skins.classic=1;save.version=6;
 const persist=()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}};
 const lv=id=>save.lv[id]||0;
-const TIER_GROWTH=[1.9,2.1,2.4,2.6];   // deeper tiers scale steeper
-const cost=u=>Math.round(u.base*Math.pow(TIER_GROWTH[(u.tier||1)-1],lv(u.id)));
+const COST_GROWTH=1.85;
+const cost=u=>Math.max(1,Math.round(u.base*(1+.55*(u.tier-1))*Math.pow(COST_GROWTH,lv(u.id))*(1-.04*lv('research'))));
 function nodeState(n){
+  if(lv(n.id)>0)return'full';
   if(n.uniReq&&(save.uni||0)<n.uniReq){
     /* NG+ node: hiện dạng khóa vũ trụ nếu nhánh cha đã lộ */
     return(!n.req||nodeState(NODE_BY_ID[n.req])!=='hidden')?'unilock':'hidden';
@@ -417,7 +510,8 @@ function nodeState(n){
 /* ---------- Round state ---------- */
 let state='menu';
 let phase='grow';                        // grow | doom | sun
-let size=3,peak=3,runMoney=0,roundTime=0;
+let size=12,peak=12,runMoney=0,roundTime=0;
+let runCollected=0,runRecycled=0,comboCount=0,lastConsume=-10,collectorClock=0,saveClock=0;
 let doomAt=DOOM_BASE,doomT=0,survivedDoom=false,sunT=0;
 let drones=[];                           // {x,y,alive,wob}
 let items=[],parts=[],texts=[],rings=[],arcs=[],boxes=[];
@@ -462,19 +556,16 @@ function ring(x,y,col){rings.push({x,y,r:8,t:1,col:col||'#c7a8ff'});}
 
 /* ---------- Boxes (spawners on the ground) ---------- */
 function buildBoxes(){
-  boxes=[];
-  const owned=['junk'];
-  for(let i=0;i<lv('junk2')+lv('junk3')*2;i++)owned.push('junk');
-  for(let i=0;i<lv('gas');i++)owned.push('gas');
-  for(let i=0;i<lv('fw');i++)owned.push('fw');
-  for(let i=0;i<lv('cap');i++)owned.push('cap');
-  /* alternate sides so early boxes flank the hole */
-  const order=[2,3,1,4,0,5,6,7];
-  owned.slice(0,SLOTS.length).forEach((type,i)=>{
-    boxes.push({type,x:SLOTS[order[i]],y:GROUND-14,t:R(0,FUEL[type].itv*.6)});
-  });
+  const sources=[
+    {type:'junk',count:1+lv('junk2')+2*lv('junk3'),x:360},
+    {type:'gas',count:lv('gas'),x:600},
+    {type:'fw',count:lv('fw'),x:235},
+    {type:'cap',count:lv('cap'),x:725},
+  ];
+  boxes=sources.filter(b=>b.count>0).map(b=>({...b,y:GROUND-14,t:0}));
+  for(const b of boxes)b.t=R(0,boxItv(b)*.6);
 }
-const boxItv=b=>FUEL[b.type].itv*Math.pow(.85,lv('rate'))/(phase==='sun'?3:1);
+const boxItv=b=>Math.max(.18,FUEL[b.type].itv*Math.pow(.9,lv('rate'))/b.count/(phase==='sun'?1.8:1));
 function ejectItem(b){
   const ems=b.type==='junk'?junkPool():[TH()[b.type]];
   items.push({x:b.x+R(-6,6),y:b.y-20,vx:R(-60,60),vy:R(-240,-140),
@@ -495,7 +586,8 @@ const itemMoney=it=>it.type==='ember'?0:FUEL[it.type].money;
 
 /* ---------- Round lifecycle ---------- */
 function startRound(){
-  size=3+lv('start')*6;peak=size;runMoney=0;roundTime=0;
+  release();size=startingMass();peak=size;runMoney=0;roundTime=0;
+  runCollected=0;runRecycled=0;comboCount=0;lastConsume=-10;collectorClock=0;
   phase='grow';doomAt=DOOM_BASE+DOOM_DELAY*lv('delay');
   doomT=0;survivedDoom=false;sunT=0;sunSwallow=0;
   drones=[];items=[];parts=[];texts=[];rings=[];arcs=[];
@@ -504,31 +596,43 @@ function startRound(){
   shake=0;flash=0;roundGems=0;gemFx=[];
   buildBoxes();
   state='play';showOverlay(null);updateHud();
-  if(save.round===1)setTimeout(()=>{if(state==='play')toast('🖱️ Kéo món đồ rồi BÚNG vào hố đen!');},900);
+  if(save.round===1)setTimeout(()=>{if(state==='play')toast('Kéo để di chuyển · Thả nhanh để ném vào hố đen');},900);
+}
+function settleRun(){
+  const bonus=20+Math.min(16,save.round)+Math.round(peak*.04)+(survivedDoom?35:0);
+  let milestoneBonus=0;
+  for(const m of campaignMilestones){
+    if(peak>=m.mass&&!save.claims.includes(m.mass)){save.claims.push(m.mass);milestoneBonus+=m.reward;}
+  }
+  const earned=Math.floor(runMoney)+bonus+milestoneBonus;
+  save.pts+=earned;save.round++;save.best=Math.max(save.best,Math.round(peak));
+  return {bonus,milestoneBonus,earned};
 }
 function endRound(reason){
-  sDie();grabbed=null;
-  const bonus=Math.round(peak/4)+(survivedDoom?100:0);
-  const gained=runMoney+bonus;
-  save.pts+=gained;save.round++;save.best=Math.max(save.best,Math.round(peak));persist();
+  sDie();ptrTrail=[];release();
+  const reward=settleRun();persist();
   $('endEmoji').textContent=reason==='doom'?'🛸':(reason==='sun'?'☀️':'🌀');
-  $('endTitle').textContent=reason==='doom'?'Bị UFO hút cạn!'
-    :(reason==='sun'?'Mặt Trời quá chói!':'Hố bốc hơi (Hawking)!');
+  $('endTitle').textContent=reason==='doom'?'UFO đã hút cạn năng lượng'
+    :(reason==='sun'?'Chưa vượt qua Mặt Trời':'Năng lượng đã cạn');
   $('endStats').innerHTML=
-    `Khối lượng đỉnh: <b>${Math.round(peak)}</b> (Lv ${level(peak)})<br>`+
-    `Sống sót: <b>${Math.round(roundTime)}s</b>`+
-    (survivedDoom?` • <b style="color:#c7a8ff">ĐÃ ĐUỔI ĐƯỢC UFO!</b>`:'')+`<br>`+
-    `— — —<br>💰 Đồ đã nuốt: <b>+${runMoney} ⭐</b><br>`+
-    `🏆 Bonus: <b>+${bonus} ⭐</b><br>`+
-    `Tổng nhận: <b>+${gained} ⭐</b>`;
+    `Khối lượng đỉnh: <b>${Math.round(peak)}</b> · ${Math.round(roundTime)} giây<br>`+
+    `Vật thể hấp thụ: <b>${runCollected}</b><br>`+
+    `Tín dụng thu thập: <b>+${Math.floor(runMoney)} ⭐</b>`+
+    (runRecycled>=1?` · tái chế ${Math.floor(runRecycled)}`:'')+`<br>`+
+    `Thưởng lượt: <b>+${reward.bonus} ⭐</b><br>`+
+    (reward.milestoneBonus?`Cột mốc mới: <b>+${reward.milestoneBonus} ⭐</b><br>`:'')+
+    `Tổng nhận: <b>+${reward.earned} ⭐</b>`;
   state='roundEnd';showOverlay('roundEnd');
 }
 function winGame(){
   if(wonAlready)return;wonAlready=true;
-  const g=500+(save.uni||0)*300;save.pts+=g;persist();
+  ptrTrail=[];release();const reward=settleRun();
+  const g=600+(save.uni||0)*300;save.pts+=g;save.wins++;persist();
   $('winStats').innerHTML=
-    `Vũ trụ đã chinh phục: <b>#${(save.uni||0)+1}</b> • Round: <b>#${save.round}</b><br>`+
-    `Thưởng nuốt Mặt Trời: <b>+${g} ⭐</b>`;
+    `Vũ trụ <b>#${(save.uni||0)+1}</b> · <b>${save.round-1} lượt</b><br>`+
+    `Thời gian chơi đã ghi: <b>${Math.floor(save.playSeconds/60)} phút ${Math.floor(save.playSeconds%60)} giây</b><br>`+
+    `Tín dụng lượt cuối: <b>+${reward.earned} ⭐</b><br>`+
+    `Thưởng chinh phục: <b>+${g} ⭐</b>`;
   state='win';showOverlay('win');
 }
 
@@ -536,25 +640,31 @@ function winGame(){
 function consume(it){
   if(it.state==='eaten')return;
   it.state='eaten';it.dead=true;
-  const gain=itemVal(it)*(1+.25*lv('big'));
+  const material=it.type!=='ember';
+  if(material){comboCount=roundTime-lastConsume<=2.5?Math.min(6,comboCount+1):1;lastConsume=roundTime;runCollected++;}
+  const comboBonus=material?.03*lv('combo')*Math.max(0,comboCount-1):0;
+  const throwBonus=it.thrown?.10*lv('precision'):0;
+  const critical=material&&Math.random()<.05*lv('luck');
+  const fuelBonus=material&&it.type!=='junk'?.10*lv('fusion'):0;
+  const gain=(itemVal(it)*massMultiplier()*(1+comboBonus+throwBonus+fuelBonus)+(material?2*lv('core'):0))*(critical?1.6:1);
   const oldLv=level(size);
   size+=gain;peak=Math.max(peak,size);
-  runMoney+=itemMoney(it);
+  runMoney+=itemMoney(it)*(1+.12*lv('trade'))*(1+comboBonus+throwBonus);
   sEat(itemVal(it));
   holePulse=Math.max(holePulse,.3+itemVal(it)*.05);          // hole gulps
-  if(itemVal(it)>=6)hitstop=Math.max(hitstop,.045+itemVal(it)*.004); // hit-stop punch
+  if(itemVal(it)>=6)hitstop=Math.max(hitstop,.04); // visual pulse; never pause physics
   texts.push({x:HOLE.x+R(-30,30),y:HOLE.y-holeR()-16,
     str:'+'+Math.round(gain),col:'#c7a8ff',t:1,sz:Math.min(32,13+gain*1.1)});
   ring(HOLE.x,HOLE.y,'rgba(199,168,255,.85)');
   if(itemVal(it)>=6)ring(HOLE.x,HOLE.y,'#ffd76a');
-  shake=Math.max(shake,.15+itemVal(it)*.05);
+  shake=Math.max(shake,Math.min(.18,.06+itemVal(it)*.01));
   tryGem(it.x,it.y);
   if(level(size)>oldLv){sLvl();flash=.35;
-    addText(HOLE.x,HOLE.y-holeR()-40,'⬆ Lv '+level(size)+'!','#ffd76a');
+    addText(HOLE.x,HOLE.y-holeR()-40,'Cấp '+level(size),'#ffd76a');
     ring(HOLE.x,HOLE.y,'#ffd76a');}
   /* fuel specials */
   if(it.type==='gas'){
-    sBoom();flash=Math.max(flash,.3);shake=1;
+    sBoom();flash=Math.max(flash,.16);shake=.35;
     puff(it.x,it.y,'#ffb15e',18,180);ring(it.x,it.y,'#ffb15e');
     for(const o of items){
       if(o.dead||o.state!=='loose')continue;
@@ -570,12 +680,12 @@ function consume(it){
     const pool=items.filter(o=>!o.dead&&o.state==='loose')
       .sort((a,b)=>Math.hypot(a.x-it.x,a.y-it.y)-Math.hypot(b.x-it.x,b.y-it.y));
     for(const o of pool){
-      if(chained>=5)break;
+      if(chained>=5+2*lv('chain'))break;
       arcs.push({x1:last.x,y1:last.y,x2:o.x,y2:o.y,t:.3});
       o.state='fly';o.fly=.0001;o.rest=0;chained++;
       last={x:o.x,y:o.y};
     }
-    if(chained)flash=Math.max(flash,.25);
+    if(chained)flash=Math.max(flash,.16);
   }
   if(phase==='sun'&&size>=WIN_SIZE&&sunSwallow<=0)sunSwallow=.001;
 }
@@ -583,7 +693,7 @@ function consume(it){
 /* diamond drops: 5% per swallow, halving after each drop this round (soft pity),
    10% of drops are BIG gems worth 3 — lucky streaks possible, farming capped */
 function tryGem(x,y){
-  const p=.05*Math.pow(.5,roundGems);
+  const p=(.05+.015*lv('luck'))*Math.pow(.5,roundGems);
   if(roundGems>=4||Math.random()>=p)return;
   roundGems++;
   const big=Math.random()<.10;
@@ -605,47 +715,64 @@ function update(dt){
 
   /* phase machine */
   if(phase==='grow'){
-    size-=GROW_DECAY(size)*(1-.15*lv('hawk'))*dt;
+    size-=GROW_DECAY(size)*(1-.12*lv('hawk'))*dt;
     if(doomAt-roundTime<4&&Math.random()<dt*2)shake=Math.max(shake,.25);
     if(roundTime>=doomAt){
       phase='doom';doomT=0;
       const nU=Math.min(5,3+(save.uni||0));
       drones=Array.from({length:nU},(_,i)=>({
-        x:HOLE.x+(i-(nU-1)/2)*110,y:96,alive:true,wob:R(0,6)}));
+        x:HOLE.x+(i-(nU-1)/2)*110,y:96,alive:true,hp:3,wob:R(0,6)}));
       sDoor();flash=.9;shake=1.3;
-      toast('🛸 UFO NGOÀI HÀNH TINH!! Sống sót '+DOOM_DUR+' giây — bắn rụng UFO bằng ⚡!');
+      toast('UFO tiếp cận. Trụ vững '+doomDuration().toFixed(1)+' giây. Tia trọng lực phá giáp UFO.');
     }
   }else if(phase==='doom'){
     doomT+=dt;
     const aliveN=drones.filter(d=>d.alive).length;
     size-=DOOM_DRAIN(size)*(1+.5*(save.uni||0))*(aliveN/Math.max(1,drones.length))
-      *Math.max(.2,1-SHIELD_PCT*lv('shield')-.10*lv('shield2'))*dt;
+      *defenseMultiplier()*dt;
     /* mass streaming up to drones */
     if(aliveN&&Math.random()<.7){
       const d=drones.filter(x=>x.alive)[Math.floor(Math.random()*aliveN)];
       parts.push({x:HOLE.x+R(-holeR()*.5,holeR()*.5),y:HOLE.y-holeR()*.4,
         vx:(d.x-HOLE.x)*.35,vy:-260,t:.9,col:'rgba('+TH().beam+',.85)',r:R(2,3.5)});
     }
-    if(doomT>=DOOM_DUR){
+    if(doomT>=doomDuration()){
       phase='sun';sunT=0;survivedDoom=true;drones=[];
       sSurvive();flash=.8;
-      toast('☀️ MẶT TRỜI HẠ XUỐNG! Thùng nhả ×3 — đạt Lv 10 để NUỐT NÓ!');
+      toast('Mặt Trời xuất hiện. Đạt cấp 10 để hấp thụ.');
     }
   }else if(phase==='sun'){
     sunT+=dt;
     if(sunSwallow>0){sunSwallow+=dt;shake=.6;
       if(sunSwallow>1.6){winGame();return;}}
-    else size-=SUN_DRAIN(size)*(1+.4*(save.uni||0))*dt;
+    else{
+      size-=SUN_DRAIN(size)*solarResistance()*(1+.4*(save.uni||0))*dt;
+      if(size>=WIN_SIZE)sunSwallow=.001;
+      else if(sunT>=SUN_LIMIT){endRound('sun');return;}
+    }
   }
   if(size<=.5&&sunSwallow<=0){size=0;
     endRound(phase==='doom'?'doom':(phase==='sun'?'sun':'dry'));return;}
 
   /* spawners */
-  for(const b of boxes){b.t+=dt;if(b.t>boxItv(b)){b.t=0;ejectItem(b);}}
+  for(const b of boxes){
+    b.t+=dt;
+    if(b.t>=boxItv(b)&&items.length<160){b.t-=boxItv(b);ejectItem(b);}
+    else b.t=Math.min(b.t,boxItv(b));
+  }
+  if(lv('collector')){
+    collectorClock+=dt;
+    const interval=5/(1+.35*lv('collector'));
+    if(collectorClock>=interval){
+      collectorClock-=interval;
+      const target=items.filter(i=>!i.dead&&i.state==='loose').sort((a,b)=>Math.hypot(a.x-HOLE.x,a.y-HOLE.y)-Math.hypot(b.x-HOLE.x,b.y-HOLE.y))[0];
+      if(target){target.state='fly';target.fly=.0001;ring(target.x,target.y,'#8de5e7');}
+    }
+  }
 
   /* items physics */
   const hr=holeR(),er=eatR();
-  const pullBoost=1+.4*lv('pull');
+  const pullBoost=1+.3*lv('pull');
   for(const it of items){
     if(it.dead)continue;
     if(it.state==='fly'){                       // zapped: lerp into hole
@@ -671,7 +798,7 @@ function update(dt){
     const gScale=Math.min(1,Math.pow(d/infl,1.5));
     it.vy+=760*gScale*dt;
     const airborne=it.y<GROUND-16||Math.abs(it.vy)>40;
-    const strongR=(er+34+lv('pull')*26);
+    const strongR=(er+34+lv('pull')*26+lv('magnet')*30);
     if(airborne||d<strongR){
       const f=Math.min(1600,(6000+size*420)*pullBoost/d);
       it.vx+=dx/d*f*dt;it.vy+=dy/d*f*dt;
@@ -686,15 +813,18 @@ function update(dt){
     if(it.x<14){it.x=14;it.vx*=-.6;} if(it.x>W-14){it.x=W-14;it.vx*=-.6;}
     const capture=er+(airborne?16:0);   // near-miss forgiveness for flung items
     if(Math.hypot(it.x-HOLE.x,it.y-HOLE.y)<capture)consume(it);
-    else if(it.t>ITEM_LIFE)it.dead=true;
+    else if(it.t>ITEM_LIFE){
+      it.dead=true;const credit=itemMoney(it)*.12*lv('salvage');
+      runMoney+=credit;runRecycled+=credit;
+    }
   }
   items=items.filter(i=>!i.dead);
-  if(items.length>70)items.splice(0,items.length-70);
+
 
   /* satellites: orbit & grab loose items */
-  const nSat=lv('sat')+lv('sat2');
+  const nSat=satelliteCount();
   if(nSat){
-    const satR=lv('sat2')?36:28;
+    const satR=28+8*lv('sat2');
     for(let k=0;k<nSat;k++){
       const sp=satPos(k,roundTime);
       for(const it of items){
@@ -720,6 +850,10 @@ function update(dt){
     g.x+=(70-g.x)*3*dt+g.vx*dt*Math.max(0,1-g.t*2);
     g.y+=(20-g.y)*3*dt+g.vy*dt*Math.max(0,1-g.t*2);
     return g.t<1.2;});
+  if(parts.length>320)parts.splice(0,parts.length-320);
+  if(rings.length>32)rings.splice(0,rings.length-32);
+  if(arcs.length>48)arcs.splice(0,arcs.length-48);
+  if(texts.length>32)texts.splice(0,texts.length-32);
   parts=parts.filter(p=>{p.t-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;return p.t>0;});
   rings=rings.filter(r=>{r.t-=dt*1.6;r.r+=160*dt;return r.t>0;});
   arcs=arcs.filter(a=>{a.t-=dt;return a.t>0;});
@@ -728,51 +862,49 @@ function update(dt){
 }
 
 function satPos(k,t){
-  const n=Math.max(1,lv('sat')+lv('sat2'));
+  const n=Math.max(1,satelliteCount());
   const a=t*1.15+k*2*Math.PI/n;
   const orb=holeR()+52;
   return{x:HOLE.x+Math.cos(a)*orb,y:HOLE.y+Math.sin(a)*orb*.55};
 }
 
 /* ---------- Input: drag & fling ---------- */
-const cool=()=>15*Math.pow(.75,Math.max(0,lv('zap')-1));
+const cool=()=>18*Math.pow(.85,Math.max(0,lv('zap')-1));
 function toXY(e){const r=cv.getBoundingClientRect();
   return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};}
 
+function castGravity(x,y){
+  if(state!=='play'||!lv('zap')||skill.cd>0)return false;
+  skill.armed=false;$('skillBtn').classList.remove('armed');
+  if(phase==='doom'){
+    const d=drones.find(d=>d.alive&&Math.hypot(x-d.x,y-d.y)<44);
+    if(d){
+      d.hp=Math.max(0,d.hp-1-lv('breach'));d.alive=d.hp>0;
+      sZap();shake=.6;skill.cd=cool();
+      arcs.push({x1:HOLE.x,y1:HOLE.y-holeR(),x2:d.x,y2:d.y,t:.35});
+      puff(d.x,d.y,'#8de5e7',10,100);
+      addText(d.x,d.y-30,d.alive?'Giáp '+d.hp+'/3':'UFO đã hạ','#8de5e7');
+      updateHud();return true;
+    }
+  }
+  const b=boxes.find(b=>Math.hypot(x-b.x,y-(b.y-6))<40);
+  if(b){
+    sZap();ring(b.x,b.y-10,'#7fd3f0');
+    arcs.push({x1:b.x,y1:b.y-10,x2:HOLE.x,y2:HOLE.y,t:.3});
+    for(let i=0;i<5+3*lv('zap2');i++){
+      if(items.length>=160)break;
+      ejectItem(b);const it=items[items.length-1];it.state='fly';it.fly=.0001-i*.04;
+    }
+    skill.cd=cool();updateHud();return true;
+  }
+  toast('Chọn nguồn vật thể hoặc UFO trong tầm.');return false;
+}
+
 cv.addEventListener('pointerdown',e=>{
-  if(state!=='play')return;
+  if(state!=='play'||activePointer!==null)return;
   const{x,y}=toXY(e);
 
-  if(skill.armed){
-    skill.armed=false;$('skillBtn').classList.remove('armed');
-    /* zap a drone */
-    if(phase==='doom'){
-      for(const d of drones){
-        if(d.alive&&Math.hypot(x-d.x,y-d.y)<44){
-          d.alive=false;sZap();shake=.8;
-          arcs.push({x1:HOLE.x,y1:HOLE.y-holeR(),x2:d.x,y2:d.y,t:.35});
-          puff(d.x,d.y,'#ff9d5e',14,150);ring(d.x,d.y,'#7fd3f0');
-          addText(d.x,d.y-30,'RỤNG! 💥','#ffd76a');
-          skill.cd=cool();updateHud();return;
-        }
-      }
-    }
-    /* zap a spawner box: yank 5 items straight in */
-    for(const b of boxes){
-      if(Math.hypot(x-b.x,y-(b.y-6))<40){
-        sZap();ring(b.x,b.y-10,'#7fd3f0');
-        arcs.push({x1:b.x,y1:b.y-10,x2:HOLE.x,y2:HOLE.y,t:.3});
-        const nZap=lv('zap2')?9:5;
-        for(let i=0;i<nZap;i++){
-          ejectItem(b);
-          const it=items[items.length-1];
-          it.state='fly';it.fly=.0001-i*.04;
-        }
-        skill.cd=cool();updateHud();return;
-      }
-    }
-    toast('Tia bắn vào hư không...');skill.cd=cool()*.35;updateHud();return;
-  }
+  if(skill.armed){castGravity(x,y);return;}
 
   /* grab nearest loose item */
   let best=null,bd=1e9;
@@ -781,13 +913,20 @@ cv.addEventListener('pointerdown',e=>{
     const d=Math.hypot(x-it.x,y-it.y);
     if(d<38&&d<bd){bd=d;best=it;}
   }
-  if(best){grabbed=best;best.state='held';best.vx=0;best.vy=0;
+  if(best){activePointer=e.pointerId;cv.setPointerCapture(e.pointerId);grabbed=best;best.state='held';best.vx=0;best.vy=0;
     ptrTrail=[{x,y,t:performance.now()}];
     cv.classList.add('grabbing');}
 });
 cv.addEventListener('pointermove',e=>{
-  if(!grabbed)return;
   const{x,y}=toXY(e);
+  hovered=null;
+  if(state==='play'&&!grabbed){
+    let distance=38;
+    for(const it of items){const d=Math.hypot(x-it.x,y-it.y);
+      if(!it.dead&&it.state==='loose'&&d<distance){hovered=it;distance=d;}}
+    cv.style.cursor=hovered?'grab':skill.armed?'crosshair':'default';
+  }
+  if(!grabbed||e.pointerId!==activePointer)return;
   grabbed.x=x;grabbed.y=Math.min(y,GROUND-12);
   ptrTrail.push({x,y,t:performance.now()});
   if(ptrTrail.length>6)ptrTrail.shift();
@@ -797,7 +936,10 @@ cv.addEventListener('pointermove',e=>{
     ptrTrail=[];consume(it);
   }
 });
-function release(){
+function release(e){
+  if(e&&activePointer!==null&&e.pointerId!==activePointer)return;
+  const pointer=activePointer;activePointer=null;
+  if(pointer!==null&&cv.hasPointerCapture(pointer))cv.releasePointerCapture(pointer);
   if(!grabbed)return;
   const it=grabbed;grabbed=null;cv.classList.remove('grabbing');
   it.state='loose';it.rest=0;it.t=0;
@@ -808,13 +950,14 @@ function release(){
     it.vy=(b.y-a.y)/ms*1000*1.15;
     const sp=Math.hypot(it.vx,it.vy);
     if(sp>950){it.vx*=950/sp;it.vy*=950/sp;}
-    if(sp>120)sFling();
+    if(sp>120){it.thrown=true;sFling();}
   }
   ptrTrail=[];
 }
 cv.addEventListener('pointerup',release);
-cv.addEventListener('pointercancel',release);
-cv.addEventListener('pointerleave',release);
+cv.addEventListener('pointercancel',e=>{ptrTrail=[];release(e);});
+cv.addEventListener('lostpointercapture',e=>{if(activePointer!==null){ptrTrail=[];release(e);}});
+cv.addEventListener('pointerleave',()=>{hovered=null;});
 
 $('skillBtn').addEventListener('pointerdown',e=>{
   e.stopPropagation();
@@ -822,7 +965,7 @@ $('skillBtn').addEventListener('pointerdown',e=>{
   if(skill.cd>0){toast('Hồi chiêu... '+Math.ceil(skill.cd)+'s');return;}
   skill.armed=!skill.armed;
   $('skillBtn').classList.toggle('armed',skill.armed);
-  if(skill.armed)toast('Chạm THÙNG: giật 5 món vào hố • lúc UFO đến: chạm UFO để bắn rụng!');
+  if(skill.armed)toast('Chọn nguồn vật thể để hút nhanh hoặc UFO để phá giáp.');
 });
 
 /* ---------- HUD ---------- */
@@ -832,10 +975,10 @@ $('skillBtn').addEventListener('pointerdown',e=>{
 function updateHud(){
   const l=level(size);
   $('sizeBar').style.width=Math.max(1.5,Math.min(100,size/WIN_SIZE*100))+'%';
-  $('lvlTxt').textContent='Lv '+l;
+  $('lvlTxt').textContent='Cấp '+l;
   $('szTxt').textContent=Math.round(size);
   $('ptsTxt').textContent=save.pts;
-  $('runPtsTxt').textContent=runMoney;
+  $('runPtsTxt').textContent=Math.floor(runMoney);
   $('roundTxt').textContent=save.round;
   $('gemTxt').textContent=save.gems||0;
   const up=$('uniPill');
@@ -844,8 +987,8 @@ function updateHud(){
   const dp=$('doomTxt');
   if(state!=='play'){dp.textContent=(DOOM_BASE+DOOM_DELAY*lv('delay'))+'s';}
   else if(phase==='grow'){dp.textContent=Math.max(0,Math.ceil(doomAt-roundTime))+'s';}
-  else if(phase==='doom'){dp.textContent='SỐNG SÓT '+Math.ceil(DOOM_DUR-doomT)+'s';}
-  else{dp.textContent='NUỐT MẶT TRỜI!';}
+  else if(phase==='doom'){dp.textContent='Trụ vững '+Math.max(0,Math.ceil(doomDuration()-doomT))+'s';}
+  else{dp.textContent='☀ '+Math.max(0,Math.ceil(SUN_LIMIT-sunT))+'s';}
   $('doomPill').classList.toggle('urgent',
     state==='play'&&((phase==='grow'&&doomAt-roundTime<6)||phase==='doom'));
   const sb=$('skillBtn');
@@ -1108,20 +1251,24 @@ function drawEntity(SK,hr,t){
   }
 }
 
-function draw(){
-  ctx.save();
-  if(shake>0)ctx.translate(R(-4,4)*shake,R(-3,3)*shake);
-  const t=roundTime;
-
+function buildBackdrop(){
+  const image=document.createElement('canvas');image.width=cv.width;image.height=cv.height;
+  const ctx=image.getContext('2d'),t=0;
+  ctx.setTransform(renderScale,0,0,renderScale,0,0);
   /* sky */
   const sky=ctx.createLinearGradient(0,0,0,GROUND);
-  sky.addColorStop(0,'#141a30');sky.addColorStop(.7,'#1d1b33');sky.addColorStop(1,'#241d31');
+  sky.addColorStop(0,'#080f22');sky.addColorStop(.7,'#18223b');sky.addColorStop(1,'#24364b');
   ctx.fillStyle=sky;ctx.fillRect(-12,-12,W+24,GROUND+12);
-  /* stars */
-  ctx.fillStyle='rgba(255,255,255,.5)';
-  for(let i=0;i<24;i++){const sx=(i*197.3)%W,sy=(i*83.7)%(GROUND*.6);
-    ctx.globalAlpha=.25+Math.sin(t*1.3+i)*.2;
-    ctx.fillRect(sx,sy,1.6,1.6);}
+  /* Atmospheric light and deterministic star field. */
+  const nebula=ctx.createRadialGradient(420,180,0,420,180,460);
+  nebula.addColorStop(0,'rgba(124,91,208,.16)');nebula.addColorStop(.5,'rgba(63,112,161,.08)');nebula.addColorStop(1,'rgba(63,112,161,0)');
+  ctx.fillStyle=nebula;ctx.fillRect(0,0,W,GROUND);
+  for(let i=0;i<90;i++){
+    const sx=(i*197.3+31)%W,sy=(i*83.7+19)%(GROUND*.78);
+    ctx.fillStyle=i%4===0?'#a5dce9':'#dad5f4';
+    ctx.globalAlpha=.18+(Math.sin(t*.65+i)*.5+.5)*.45;
+    ctx.beginPath();ctx.arc(sx,sy,i%7===0?1.3:.65,0,Math.PI*2);ctx.fill();
+  }
   ctx.globalAlpha=1;
   /* moon */
   ctx.fillStyle='#e8e2d0';ctx.beginPath();ctx.arc(852,74,26,0,7);ctx.fill();
@@ -1138,19 +1285,43 @@ function draw(){
   ctx.beginPath();ctx.moveTo(0,GROUND-26);ctx.lineTo(W,GROUND-26);ctx.stroke();
   /* ground */
   const gg=ctx.createLinearGradient(0,GROUND,0,H);
-  gg.addColorStop(0,'#232b1f');gg.addColorStop(1,'#12160f');
+  gg.addColorStop(0,'#152636');gg.addColorStop(1,'#0a1424');
   ctx.fillStyle=gg;ctx.fillRect(-12,GROUND,W+24,H-GROUND+12);
-  ctx.strokeStyle='rgba(140,180,90,.3)';ctx.lineWidth=2;
+  ctx.strokeStyle='rgba(141,229,231,.22)';ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();
+
+  return image;
+}
+
+function draw(){
+  ctx.setTransform(renderScale,0,0,renderScale,0,0);
+  ctx.save();
+  if(shake>0&&!reducedMotion)ctx.translate(R(-4,4)*shake,R(-3,3)*shake);
+  const t=reducedMotion?0:performance.now()/1000;
+
+  if(!backdrop)backdrop=buildBackdrop();
+  ctx.fillStyle='#080e1c';ctx.fillRect(-12,-12,W+24,H+24);
+  ctx.drawImage(backdrop,0,0,W,H);
+  if(!reducedMotion){
+    for(let i=0;i<9;i++){
+      ctx.globalAlpha=(Math.sin(t*.65+i)*.5+.5)*.35;
+      ctx.fillStyle='#c0d9ed';ctx.beginPath();ctx.arc((i*197.3+31)%W,(i*83.7+19)%(GROUND*.78),1.2,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }
 
   /* boxes */
   for(const b of boxes){
     ctx.fillStyle='rgba(0,0,0,.3)';
     ctx.beginPath();ctx.ellipse(b.x,b.y+13,30,6,0,0,7);ctx.fill();
-    rr(b.x-27,b.y-16,54,30,7,'#6b5340');
-    rr(b.x-27,b.y-16,54,9,[7,7,0,0],'#84674e');
+    rr(b.x-27,b.y-16,54,30,7,'#253a50');
+    rr(b.x-27,b.y-16,54,9,[7,7,0,0],'#3c5870');
+    ctx.strokeStyle='#91b8cf55';ctx.lineWidth=1;ctx.stroke();
+    rr(b.x-20,b.y+9,40,2,1,'#8de5e755');
     ctx.font='20px serif';ctx.textAlign='center';
     ctx.fillText(boxEm(b.type),b.x,b.y+6);
+    ctx.font='600 10px system-ui';ctx.fillStyle='#b7cadb';
+    ctx.fillText('×'+b.count,b.x,b.y+28);
     const p=Math.min(1,b.t/boxItv(b));
     ctx.strokeStyle='rgba(255,215,106,.95)';ctx.lineWidth=3;
     ctx.beginPath();ctx.arc(b.x,b.y-26,8,-Math.PI/2,-Math.PI/2+p*2*Math.PI);ctx.stroke();
@@ -1159,18 +1330,25 @@ function draw(){
   }
 
   /* ===== THE BLACK HOLE (floating) ===== */
-  const hr=holeR()*(1+holePulse*.16);
+  const hr=holeR()*(1+holePulse*.16+hitstop*.3);
   /* ground shadow + eerie underglow beneath the hovering void */
   ctx.fillStyle='rgba(0,0,0,.4)';
   ctx.beginPath();ctx.ellipse(HOLE.x,GROUND+4,hr*.9,hr*.16,0,0,7);ctx.fill();
   ctx.fillStyle='rgba(127,90,224,.10)';
   ctx.beginPath();ctx.ellipse(HOLE.x,GROUND,hr*1.3,hr*.22,0,0,7);ctx.fill();
   const SK=save.skin||'classic';
+  const halo=ctx.createRadialGradient(HOLE.x,HOLE.y,hr*.5,HOLE.x,HOLE.y,hr*3.6);
+  halo.addColorStop(0,'rgba(157,123,255,.18)');halo.addColorStop(1,'rgba(157,123,255,0)');
+  ctx.fillStyle=halo;ctx.beginPath();ctx.arc(HOLE.x,HOLE.y,hr*3.6,0,Math.PI*2);ctx.fill();
+  ctx.save();ctx.translate(HOLE.x,HOLE.y);ctx.rotate(-.22);
+  ctx.strokeStyle=grabbed?'#a3edf3aa':'#a997ff55';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.ellipse(0,0,hr*2.1,hr*.55,0,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
   drawEntity(SK,hr,t);
   /* satellites orbiting */
-  if((lv('sat')+lv('sat2'))&&state!=='menu'){
-    for(let k=0;k<lv('sat')+lv('sat2');k++){
-      const sp=satPos(k,t);
+  if(satelliteCount()&&state!=='menu'){
+    for(let k=0;k<satelliteCount();k++){
+      const sp=satPos(k,roundTime);
       ctx.fillStyle='rgba(159,216,255,.25)';
       ctx.beginPath();ctx.arc(sp.x,sp.y,15,0,7);ctx.fill();
       ctx.font='19px serif';ctx.textAlign='center';ctx.textBaseline='middle';
@@ -1203,6 +1381,14 @@ function draw(){
     if(it.state!=='rocket'&&it.y>GROUND-40){
       ctx.fillStyle='rgba(0,0,0,.3)';
       ctx.beginPath();ctx.ellipse(it.x,GROUND-4,12,3.5,0,0,7);ctx.fill();}
+    if(it===hovered||it===grabbed){
+      ctx.strokeStyle=it===grabbed?'#bcaaff':'#8de5e7';ctx.lineWidth=1.5;
+      ctx.fillStyle='rgba(141,229,231,.08)';ctx.beginPath();ctx.arc(it.x,it.y,22,0,Math.PI*2);ctx.fill();ctx.stroke();
+    }
+    if(it.state==='loose'&&Math.hypot(it.vx,it.vy)>150){
+      ctx.strokeStyle='rgba(167,185,255,.28)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(it.x,it.y);ctx.lineTo(it.x-it.vx*.035,it.y-it.vy*.035);ctx.stroke();
+    }
     ctx.save();ctx.translate(it.x,it.y);
     ctx.rotate(it.rot+(it.state==='loose'?Math.sin(t*2+it.rot*9)*.1:t*4));
     ctx.font=(it.state==='held'?'30px':'25px')+' serif';ctx.textAlign='center';
@@ -1212,13 +1398,15 @@ function draw(){
   }
   ctx.textBaseline='alphabetic';
 
-  /* aim line while holding */
+  /* Preview uses the same velocity calculation as release. */
   if(grabbed&&ptrTrail.length>=2){
-    const a=ptrTrail[0],b=ptrTrail[ptrTrail.length-1];
-    ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;ctx.setLineDash([6,6]);
+    const a=ptrTrail[0],b=ptrTrail[ptrTrail.length-1],ms=Math.max(30,b.t-a.t);
+    let vx=(b.x-a.x)/ms*1150,vy=(b.y-a.y)/ms*1150;
+    const speed=Math.hypot(vx,vy);if(speed>950){vx*=950/speed;vy*=950/speed;}
+    ctx.strokeStyle='rgba(163,237,243,.65)';ctx.lineWidth=1.5;ctx.setLineDash([3,7]);
     ctx.beginPath();ctx.moveTo(grabbed.x,grabbed.y);
-    ctx.lineTo(grabbed.x+(b.x-a.x)*2.2,grabbed.y+(b.y-a.y)*2.2);ctx.stroke();
-    ctx.setLineDash([]);
+    for(let i=1;i<=12;i++){const dt=i*.018;ctx.lineTo(grabbed.x+vx*dt,grabbed.y+vy*dt);}
+    ctx.stroke();ctx.setLineDash([]);
   }
 
   /* alien UFOs + green tractor beams */
@@ -1243,8 +1431,8 @@ function draw(){
       /* blinking abduction light */
       ctx.fillStyle=Math.sin(t*8+d.wob)>0?'rgb('+bc+')':'rgba('+bc+',.35)';
       ctx.beginPath();ctx.arc(d.x,dy+10,3,0,7);ctx.fill();
-      ctx.font='800 10px "Baloo 2"';ctx.fillStyle='rgba('+bc+',.85)';
-      ctx.fillText(TH().ufoName,d.x,dy+28);
+      ctx.font='800 10px system-ui';ctx.fillStyle='rgba('+bc+',.85)';
+      ctx.fillText(TH().ufoName+' · '+d.hp+'/3',d.x,dy+28);
     }
     ctx.globalAlpha=.3+Math.sin(t*8)*.18;
     ctx.strokeStyle='#ff6b5e';ctx.lineWidth=6;
@@ -1253,9 +1441,9 @@ function draw(){
   }
   /* warn text */
   if(phase==='grow'&&state==='play'&&doomAt-roundTime<4){
-    ctx.font='800 17px "Baloo 2"';ctx.textAlign='center';
+    ctx.font='800 17px system-ui';ctx.textAlign='center';
     ctx.fillStyle=Math.sin(t*12)>0?'#ff6b5e':'#ff9d5e';
-    ctx.fillText('🛸 UFO NGOÀI HÀNH TINH ĐANG ĐẾN!!',W/2,54);
+    ctx.fillText('UFO ĐANG TIẾP CẬN',W/2,54);
   }
   /* the SUN */
   if(phase==='sun'){
@@ -1275,7 +1463,7 @@ function draw(){
     ctx.beginPath();ctx.arc(sx,syy+srad*.35,srad*.22,1.15*Math.PI,1.85*Math.PI);ctx.stroke();
     ctx.fillStyle='rgba(255,200,100,.06)';ctx.fillRect(-12,-12,W+24,H+24);
   }
-  if(flash>0){ctx.fillStyle='rgba(255,255,255,'+flash*.35+')';ctx.fillRect(-12,-12,W+24,H+24);}
+  if(flash>0&&!reducedMotion){ctx.fillStyle='rgba(255,255,255,'+flash*.35+')';ctx.fillRect(-12,-12,W+24,H+24);}
 
   /* gems flying to HUD */
   ctx.textBaseline='middle';
@@ -1297,7 +1485,7 @@ function draw(){
   ctx.globalAlpha=1;
   ctx.textAlign='center';
   for(const tx of texts){ctx.globalAlpha=Math.max(0,tx.t);ctx.fillStyle=tx.col;
-    ctx.font='800 '+(tx.sz||16)+'px "Baloo 2"';
+    ctx.font='800 '+(tx.sz||16)+'px system-ui';
     ctx.fillText(tx.str,tx.x,tx.y);}
   ctx.globalAlpha=1;
   ctx.restore();
@@ -1305,24 +1493,18 @@ function draw(){
 
 /* ---------- Overlays & NODE TREE (fire-game style) ---------- */
 const OVS=['menu','roundEnd','shop','win','pause','skinShop'];
-function showOverlay(id){OVS.forEach(o=>$(o).classList.toggle('show',o===id));updateHud();}
+function showOverlay(id){$('playHint').style.display=id?'none':'block';hovered=null;OVS.forEach(o=>$(o).classList.toggle('show',o===id));updateHud();}
 
-const ORIGIN=[330,26];
-const SIBLINGS=[['junk2','big'],['big','delay'],
-  ['rate','gas'],['gas','hawk'],['hawk','start'],['start','shield'],['shield','zap'],
-  ['pull','fw'],['fw','sat'],['sat','shield2'],['shield2','cap'],
-  ['junk3','sat2'],['sat2','zap2']];
-const POS={junk2:[160,110],big:[330,110],delay:[500,110],
-  rate:[70,240],gas:[210,240],hawk:[330,246],start:[430,246],shield:[510,240],zap:[600,240],
-  pull:[70,378],fw:[210,378],sat:[330,378],shield2:[470,378],cap:[600,378],
-  junk3:[70,510],sat2:[330,510],zap2:[600,510]};
+const ORIGIN=[355,25];
+const SIBLINGS=[];
+const POS={"junk2":[100,120],"rate":[100,232],"trade":[100,344],"gas":[100,456],"fw":[100,568],"salvage":[100,680],"junk3":[100,792],"research":[100,904],"luck":[100,1016],"big":[270,120],"start":[270,232],"precision":[270,344],"combo":[270,456],"pull":[270,568],"carry":[270,680],"fusion":[270,792],"core":[270,904],"delay":[440,120],"hawk":[440,232],"shield":[440,344],"shield2":[440,456],"chrono":[440,568],"solar":[440,680],"resonance":[440,792],"breach":[440,904],"zap":[610,120],"cap":[610,232],"sat":[610,344],"collector":[610,456],"magnet":[610,568],"chain":[610,680],"sat2":[610,792],"zap2":[610,904]};
 let selId=null;
 
 function svgNode(u){
   const st=nodeState(u);
   const [x,y]=POS[u.id];
   if(st==='unilock'){
-    return `<g class="nd tease" onclick="selNode('${u.id}')">
+    return `<g class="nd tease" role="button" tabindex="0" aria-label="${u.name}" onclick="selNode('${u.id}')">
       <circle class="base" cx="${x}" cy="${y}" r="27"/>
       <circle class="dash" cx="${x}" cy="${y}" r="27"/>
       <text class="em" x="${x}" y="${y+9}" text-anchor="middle">🌌</text>
@@ -1337,11 +1519,12 @@ function svgNode(u){
   if(st==='full'&&!save.seen[u.id]){save.seen[u.id]=1;persist();}
   const em=st==='teaser'?'❓':u.em;
   const badge=st==='teaser'?'':(()=>{
-    const label=maxed?'MAX':`${l}/${u.max} • <tspan class="c">${c}⭐</tspan>`;
+    const price=c>=1000?(c/1000).toFixed(1).replace('.',',')+'k':String(c);
+    const label=maxed?'MAX':`${l}/${u.max} • <tspan class="c">${price}⭐</tspan>`;
     const bw=maxed?40:64;
     return `<rect class="badgeBg" x="${x-bw/2}" y="${y+33}" width="${bw}" height="17" rx="8.5"/>
       <text class="badgeT" x="${x}" y="${y+45}" text-anchor="middle">${label}</text>`;})();
-  return `<g class="${cls}" onclick="selNode('${u.id}')">
+  return `<g class="${cls}" role="button" tabindex="0" aria-label="${u.name}" onclick="selNode('${u.id}')">
     ${afford?`<circle class="ringA" cx="${x}" cy="${y}" r="34"/>`:''}
     <circle class="base" cx="${x}" cy="${y}" r="27"/>
     ${st==='teaser'?`<circle class="dash" cx="${x}" cy="${y}" r="27"/>`:''}
@@ -1350,7 +1533,11 @@ function svgNode(u){
     ${badge}</g>`;
 }
 function renderShop(){
-  $('shopPts').textContent='⭐ '+save.pts;
+  const selectionHidden=selId&&nodeState(NODE_BY_ID[selId])==='hidden';
+  if(selectionHidden)selId=null;
+  const ranks=NODES.reduce((total,n)=>total+lv(n.id),0);
+  $('shopPts').textContent='⭐ '+Math.floor(save.pts)+' · '+ranks+' cấp nâng cấp';
+  $('shopProgress').textContent='Kỷ lục '+save.best.toLocaleString('vi-VN')+' / '+WIN_SIZE.toLocaleString('vi-VN')+' khối lượng · '+save.claims.length+'/5 cột mốc';
   const defs=`<defs>
     <radialGradient id="gBase" cx="35%" cy="30%"><stop offset="0%" stop-color="#232a44"/><stop offset="100%" stop-color="#10141f"/></radialGradient>
     <radialGradient id="gOwn" cx="35%" cy="30%"><stop offset="0%" stop-color="#5a44a8"/><stop offset="100%" stop-color="#231a4a"/></radialGradient>
@@ -1363,7 +1550,10 @@ function renderShop(){
   let edges='',nodes='';
   /* origin: the black hole itself — every branch grows out of it */
   const [ox,oy]=ORIGIN;
-  for(const rid of ['junk2','big','delay']){
+  ['VẬT LIỆU','KHỐI LƯỢNG','PHÒNG VỆ','TỰ ĐỘNG'].forEach((name,lane)=>{
+    nodes+=`<text x="${100+lane*170}" y="74" text-anchor="middle" fill="#9eafd0" font-size="12" font-weight="650">${name}</text>`;
+  });
+  for(const rid of ['junk2','big','delay','zap']){
     const [x2,y2]=POS[rid];
     const my=(oy+y2)/2;
     edges+=`<path class="nEdge ${lv(rid)>0?'on':''}"
@@ -1395,8 +1585,10 @@ function renderShop(){
     }
     nodes+=svgNode(u);
   }
+  const treeHeight=Math.max(...NODES.filter(n=>nodeState(n)!=='hidden').map(n=>POS[n.id][1]))+85;
   $('treeBox').innerHTML=
-    `<svg viewBox="0 0 660 568" xmlns="http://www.w3.org/2000/svg">${defs}${edges}${nodes}</svg>`;
+    `<svg viewBox="0 0 710 ${treeHeight}" xmlns="http://www.w3.org/2000/svg">${defs}${edges}${nodes}</svg>`;
+  if(selectionHidden)$('treeBox').scrollTop=0;
   renderDetail();
 }
 function selNode(id){
@@ -1408,8 +1600,8 @@ function selNode(id){
 function renderDetail(){
   const u=selId?NODE_BY_ID[selId]:null;
   const bb=$('buyBtn');
-  if(!u){$('ndName').textContent='Chọn một nút trên cây';
-    $('ndFrom').textContent='';$('ndDesc').textContent='Nhấp vào các vòng tròn để xem chi tiết và mua tiến hóa.';
+  if(!u){$('ndName').textContent='Chọn nâng cấp';
+    $('ndFrom').textContent='';$('ndDesc').textContent='Chọn một nút để xem và nâng cấp.';
     $('ndFx').textContent='';
     $('ndPips').innerHTML='';bb.disabled=true;bb.textContent='Mua';return;}
   const st=nodeState(u);
@@ -1421,9 +1613,9 @@ function renderDetail(){
     $('ndPips').innerHTML='';bb.disabled=true;bb.textContent='🌌 Vũ Trụ #'+(u.uniReq+1);return;}
   if(st==='teaser'){
     const p=NODE_BY_ID[u.req];
-    $('ndName').textContent='❓ Tiến hóa bí ẩn';
+    $('ndName').textContent='❓ Nâng cấp chưa mở';
     $('ndFrom').textContent='⤷ mở khóa bằng cách mua: '+p.em+' '+p.name;
-    $('ndDesc').textContent='Mua nút cha để hé lộ sức mạnh này...';
+    $('ndDesc').textContent='Mở nâng cấp trước đó để xem chi tiết.';
     $('ndFx').textContent='';
     $('ndPips').innerHTML='';bb.disabled=true;bb.textContent='🔒 Khóa';return;}
   const l=lv(u.id),maxed=l>=u.max,c=cost(u);
@@ -1435,7 +1627,7 @@ function renderDetail(){
     :'📈 '+u.fx(l)+'  ➜  '+u.fx(l+1)):'';
   $('ndPips').innerHTML=Array.from({length:u.max},(_,i)=>`<i class="${i<l?'on':''}"></i>`).join('');
   bb.disabled=maxed||save.pts<c;
-  bb.textContent=maxed?'TỐI ĐA':'Mua • '+c+' ⭐';
+  bb.textContent=maxed?'TỐI ĐA':'Nâng cấp · '+c.toLocaleString('vi-VN')+' ⭐';
 }
 function buyNode(id){
   const u=NODE_BY_ID[id];if(!u)return false;
@@ -1444,6 +1636,11 @@ function buyNode(id){
   save.pts-=c;save.lv[u.id]=l+1;persist();sBuy();renderShop();return true;
 }
 $('buyBtn').onclick=()=>{if(selId)buyNode(selId);};
+$('treeBox').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('.nd[role="button"]')){
+    e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+  }
+});
 try{window.selNode=selNode;window.buyNode=buyNode;}catch(e){}
 
 /* ---------- Skin shop ---------- */
@@ -1489,26 +1686,31 @@ try{window.buySkin=buySkin;window.equipSkin=equipSkin;}catch(e){}
 
 /* ---------- Buttons ---------- */
 $('startBtn').onclick=()=>{beep(440,.08,'triangle',.12);startRound();};
-$('resetBtn').onclick=()=>{if(confirm('Xóa toàn bộ tiến trình?')){
-  save={pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin:'classic'};persist();wonAlready=false;
-  toast('Đã reset!');updateHud();}};
+$('resetBtn').onclick=()=>{if(confirm('Đặt lại toàn bộ tiến trình? Thao tác này không thể hoàn tác.')){
+  save=freshSave();persist();wonAlready=false;
+  toast('Đã đặt lại tiến trình.');updateHud();}};
 $('toShopBtn').onclick=()=>{state='shop';renderShop();showOverlay('shop');};
 $('nextRoundBtn').onclick=()=>startRound();
 $('winBtn').onclick=()=>{
   save.uni=(save.uni||0)+1;wonAlready=false;persist();
-  const msgs=['🌌 VŨ TRỤ #2: đồ đồng nát hóa HÀNH TINH!',
-    '🧊 VŨ TRỤ #3: khoan... đây là đồ trong TỦ LẠNH?!',
-    '👾 VŨ TRỤ #'+(save.uni+1)+': dị thường vũ trụ xuất hiện!'];
-  toast(msgs[Math.min(save.uni-1,2)]);
+  toast('Vũ trụ '+(save.uni+1)+' đã mở. Nâng cấp của bạn được giữ lại.');
   state='shop';renderShop();showOverlay('shop');};
-$('winResetBtn').onclick=()=>{save={pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin:'classic'};persist();
+$('winResetBtn').onclick=()=>{save=freshSave();persist();
   wonAlready=false;showOverlay('menu');state='menu';};
-$('menuBtn').onclick=()=>{if(state==='play'){state='pause';showOverlay('pause');}};
+function pauseGame(){if(state==='play'){ptrTrail=[];release();state='pause';persist();showOverlay('pause');}}
+$('menuBtn').onclick=pauseGame;
+window.addEventListener('blur',pauseGame);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseGame();});
+window.addEventListener('keydown',e=>{
+  if(e.key!=='Escape'||e.repeat)return;
+  if(state==='play'){e.preventDefault();pauseGame();}
+  else if(state==='pause'){e.preventDefault();$('resumeBtn').click();}
+});
 $('resumeBtn').onclick=()=>{state='play';showOverlay(null);};
-$('quitBtn').onclick=()=>{state='menu';showOverlay('menu');};
-$('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent=muted?'🔇':'🔊';
+$('quitBtn').onclick=()=>{state='menu';persist();showOverlay('menu');};
+$('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent=muted?'🔇':'🔊';$('muteBtn').setAttribute('aria-pressed',String(muted));
   try{localStorage.setItem('holeMute',muted?'1':'0');}catch(e){}};
-$('muteBtn').textContent=muted?'🔇':'🔊';
+$('muteBtn').textContent=muted?'🔇':'🔊';$('muteBtn').setAttribute('aria-pressed',String(muted));
 
 /* rotate hint on portrait touch devices */
 function checkRotate(){
@@ -1518,13 +1720,20 @@ function checkRotate(){
 window.addEventListener('resize',checkRotate);checkRotate();
 
 /* ---------- Loop ---------- */
+function tickGame(dt){
+  if(state!=='play')return;
+  save.playSeconds+=dt;saveClock+=dt;
+  if(hitstop>0)hitstop=Math.max(0,hitstop-dt);
+  update(dt);
+  if(saveClock>=10){saveClock=0;persist();}
+}
+window.addEventListener('pagehide',persist);
 let last=performance.now();
 let __lastErr=null;
 function loop(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
   try{
-    if(hitstop>0){hitstop-=dt;}          // freeze-frame punch on big gulps
-    else if(state==='play')update(dt);
+    tickGame(dt);
     draw();
   }catch(err){__lastErr=err;console.error('Frame error:',err);}
   requestAnimationFrame(loop);
