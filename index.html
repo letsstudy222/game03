@@ -215,6 +215,15 @@
   .nEdge{stroke:#a993ff38;}
   .nd:focus-visible .base{stroke:#8de5e7;stroke-width:3;}
   @media(max-height:440px){#shop{padding:10px;gap:4px}#shop .title{font-size:19px}#nodeDetail{min-height:72px;gap:2px}#nodeDetail .from{display:none}#nodeDetail p{font-size:10px}#shopProgress{font-size:9px}#shop .bigBtn{padding:8px 24px}#treeBox{min-height:75px}}
+
+  #skillBtn .skillLabel{font-size:9px;line-height:1.4;padding:0 5px;}
+  #skillBtn.locked{border-color:#5e708c;background:#172337;box-shadow:none;color:#99a9be;}
+  #branchNav{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;width:100%;max-width:780px;flex-shrink:0;}
+  #branchNav button{font-family:inherit;font-size:11px;padding:7px 6px;background:#19243c;border:1px solid #a993ff30;border-radius:8px;color:#bdc9e0;cursor:pointer;}
+  #branchNav button:hover{background:#2c3151;border-color:#a993ff80;}
+  #treeBox svg{min-width:1340px;}
+  #treeBox{touch-action:pan-x pan-y;overflow-anchor:none;}
+  @media(max-height:440px){#shop>.title,#shopProgress{display:none}#branchNav button{padding:6px;font-size:10px}}
 </style>
 </head>
 <body>
@@ -222,7 +231,7 @@
 <div id="stage">
   <div id="wrap">
     <canvas id="cv" width="960" height="540" aria-label="Sân chơi trọng lực: kéo và thả vật thể vào hố đen"></canvas>
-    <div id="playHint">KÉO & THẢ · BÚNG ĐỂ NÉM · ESC TẠM DỪNG</div>
+    <div id="playHint">KÉO & THẢ · Q THU GOM · ESC TẠM DỪNG</div>
 
     <div id="hud">
       <div class="pill">⭐ <span id="ptsTxt">0</span></div>
@@ -239,7 +248,7 @@
       <button class="iconBtn" id="menuBtn" aria-label="Tạm dừng" title="Tạm dừng (Esc)">⏸</button>
     </div>
 
-    <button id="skillBtn"><span class="em">⚡</span>TIA<br>TRỌNG LỰC</button>
+    <button id="skillBtn" type="button" title="Tia trọng lực (Q)"><span class="em">⚡</span><span class="skillLabel">THU GOM · Q</span></button>
     <div id="toast"></div>
 
     <!-- MENU -->
@@ -252,7 +261,7 @@
       <div class="guideCards">
         <div><b>01 / Thu hút</b><p>Kéo vật vào hố đen hoặc búng để ném. Mỗi vật giúp bạn lớn hơn.</p></div>
         <div><b>02 / Vượt giới hạn</b><p>Thu tín dụng sau mỗi lượt. Chọn trong 33 tiến hóa để xây lối chơi riêng.</p></div>
-        <div><b>03 / Chạm tới Mặt Trời</b><p>Đạt 6.500 khối lượng, vượt UFO và hấp thụ Mặt Trời.</p></div>
+        <div><b>03 / Chạm tới Mặt Trời</b><p>Đạt 5.000 khối lượng, vượt UFO và hấp thụ Mặt Trời.</p></div>
       </div>
       <button class="bigBtn" id="startBtn">Bắt đầu <span aria-hidden="true">›</span></button>
       <div class="menuLinks"><button class="ghostBtn" id="menuSkinBtn">Bộ sưu tập</button>
@@ -275,6 +284,10 @@
       <div class="title">NÂNG CẤP</div>
       <div id="shopPts">⭐ 0</div>
       <div id="shopProgress"></div>
+      <div id="branchNav" aria-label="Đến nhánh nâng cấp">
+        <button data-branch="junk2">Vật liệu</button><button data-branch="big">Khối lượng</button>
+        <button data-branch="delay">Phòng vệ</button><button data-branch="zap">Tự động ⚡</button>
+      </div>
       <div id="treeBox"></div>
       <div id="nodeDetail">
         <h4 id="ndName">Chọn nâng cấp</h4>
@@ -360,20 +373,20 @@ const eatR=()=>holeR()*.8;
 const SLOTS=[110,235,360,600,725,850,42,918];
 
 /* ---------- Campaign balance ---------- */
-const LV=[1,45,100,250,500,950,1600,2700,4300,6500];
-const WIN_SIZE=6500;
+const LV=[1,35,80,180,350,650,1100,1900,3200,5000];
+const WIN_SIZE=5000;
 const GROW_DECAY=s=>Math.max(.12,s*.006);
-const DOOM_BASE=42, DOOM_DELAY=6, DOOM_DUR=12;
+const DOOM_BASE=24, DOOM_DELAY=3, DOOM_DUR=8;
 const DOOM_DRAIN=s=>24+s*.095;
 const SHIELD_PCT=.10;
 const SUN_DRAIN=s=>18+s*.026;
-const SUN_LIMIT=48;
+const SUN_LIMIT=22;
 const ITEM_LIFE=16;
 const campaignMilestones=[
   {mass:100,reward:60},{mass:400,reward:100},{mass:1000,reward:160},
-  {mass:2400,reward:240},{mass:6500,reward:360},
+  {mass:2400,reward:240},{mass:5000,reward:360},
 ];
-const doomDuration=()=>DOOM_DUR-.8*lv('chrono');
+const doomDuration=()=>DOOM_DUR-.5*lv('chrono');
 const satelliteCount=()=>lv('sat')+2*lv('sat2');
 const massMultiplier=()=>1+.18*lv('big');
 const startingMass=()=>12+10*lv('start')+Math.min(180,save.best*.025*lv('carry'));
@@ -388,47 +401,47 @@ const JUNK_SKINS=[
 ];
 const getJunkEms=()=>JUNK_SKINS[Math.min(save.uni||0,JUNK_SKINS.length-1)];
 const FUEL={
-  junk:{ems:['🧸','🥫','👟','📻','🧦'],val:4,money:3,itv:1.6},
-  gas:{ems:['⛽'],val:10,money:6,itv:3.8,blast:true},
-  fw:{ems:['🎆'],val:8,money:5,itv:4.5,rocket:true},
-  cap:{ems:['🔋'],val:14,money:8,itv:5.5,zapChain:true},
+  junk:{ems:['🧸','🥫','👟','📻','🧦'],val:4,money:3,itv:1.2},
+  gas:{ems:['⛽'],val:10,money:6,itv:3.0,blast:true},
+  fw:{ems:['🎆'],val:8,money:5,itv:3.6,rocket:true},
+  cap:{ems:['🔋'],val:14,money:8,itv:4.4,zapChain:true},
 };
 
 /* ---------- Evolution tree ---------- */
 const NODES=[
- {id:'junk2',lane:0,tier:1,em:'📦',name:'Kho vật liệu',desc:'Thêm một nguồn vật liệu mỗi cấp.',max:4,base:85,fx:l=>(1+l)+' nguồn vật liệu'},
+ {id:'junk2',lane:0,tier:1,em:'📦',name:'Kho vật liệu',desc:'Thêm một nguồn vật liệu mỗi cấp.',max:4,base:55,fx:l=>(1+l)+' nguồn vật liệu'},
  {id:'rate',lane:0,tier:1,em:'⏩',name:'Băng chuyền',desc:'Nguồn tạo vật nhanh hơn 10% mỗi cấp.',max:4,base:125,req:'junk2',fx:l=>'nhịp tạo ×'+Math.pow(.9,-l).toFixed(2)},
  {id:'trade',lane:0,tier:2,em:'💰',name:'Trao đổi năng lượng',desc:'Tăng 12% tín dụng từ vật thể mỗi cấp.',max:5,base:175,req:'rate',fx:l=>'tín dụng +'+12*l+'%'},
- {id:'gas',lane:0,tier:2,em:'⛽',name:'Buồng phản ứng',desc:'Mở nhiên liệu nổ; thêm một nguồn mỗi cấp.',max:3,base:230,req:'trade',fx:l=>l+' nguồn · 10 khối lượng/vật'},
+ {id:'gas',lane:0,tier:2,em:'⛽',name:'Buồng phản ứng',desc:'Mở nhiên liệu nổ; thêm một nguồn mỗi cấp.',max:3,base:230,req:'junk2',fx:l=>l+' nguồn · 10 khối lượng/vật'},
  {id:'fw',lane:0,tier:3,em:'🎆',name:'Mưa thiên thạch',desc:'Mở pháo hoa; mỗi vật phóng ba quả, tạo thêm khối lượng.',max:3,base:320,req:'gas',fx:l=>l+' nguồn · 8 khối lượng/vật'},
- {id:'salvage',lane:0,tier:3,em:'♻️',name:'Tái chế',desc:'Thu lại 12% tín dụng của vật hết hạn mỗi cấp.',max:3,base:420,req:'fw',fx:l=>'thu hồi '+12*l+'%'},
- {id:'junk3',lane:0,tier:4,em:'🏭',name:'Kho liên hoàn',desc:'Thêm hai nguồn vật liệu mỗi cấp, không giới hạn số ô.',max:3,base:600,req:'salvage',fx:l=>'+'+2*l+' nguồn vật liệu'},
- {id:'research',lane:0,tier:4,em:'🔬',name:'Nghiên cứu',desc:'Giảm 4% giá nâng cấp mỗi cấp.',max:3,base:760,req:'junk3',fx:l=>'giá nâng cấp −'+4*l+'%'},
- {id:'luck',lane:0,tier:5,em:'💎',name:'Phân tích tinh thể',desc:'Mỗi cấp thêm 5% cơ hội hấp thụ mạnh gấp 1,6 lần và tìm tinh thể.',max:3,base:950,req:'research',fx:l=>'hấp thụ vượt trội '+5*l+'%'},
- {id:'big',lane:1,tier:1,em:'🧲',name:'Lõi đậm đặc',desc:'Tăng 18% khối lượng nhận được mỗi cấp.',max:5,base:95,fx:l=>'khối lượng ×'+(1+.18*l).toFixed(2)},
+ {id:'salvage',lane:0,tier:3,em:'♻️',name:'Tái chế',desc:'Thu lại 12% tín dụng của vật hết hạn mỗi cấp.',max:3,base:420,req:'rate',fx:l=>'thu hồi '+12*l+'%'},
+ {id:'junk3',lane:0,tier:4,em:'🏭',name:'Kho liên hoàn',desc:'Thêm hai nguồn vật liệu mỗi cấp, không giới hạn số ô.',max:3,base:600,req:'gas',fx:l=>'+'+2*l+' nguồn vật liệu'},
+ {id:'research',lane:0,tier:4,em:'🔬',name:'Nghiên cứu',desc:'Giảm 4% giá nâng cấp mỗi cấp.',max:3,base:760,req:'trade',fx:l=>'giá nâng cấp −'+4*l+'%'},
+ {id:'luck',lane:0,tier:5,em:'💎',name:'Phân tích tinh thể',desc:'Mỗi cấp thêm 5% cơ hội hấp thụ mạnh gấp 1,6 lần và tìm tinh thể.',max:3,base:950,req:'trade',fx:l=>'hấp thụ vượt trội '+5*l+'%'},
+ {id:'big',lane:1,tier:1,em:'🧲',name:'Lõi đậm đặc',desc:'Tăng 18% khối lượng nhận được mỗi cấp.',max:5,base:60,fx:l=>'khối lượng ×'+(1+.18*l).toFixed(2)},
  {id:'start',lane:1,tier:1,em:'🌑',name:'Mầm hố đen',desc:'Thêm 10 khối lượng khi bắt đầu lượt mỗi cấp.',max:4,base:130,req:'big',fx:l=>'khởi đầu '+(12+10*l)+' khối lượng'},
- {id:'precision',lane:1,tier:2,em:'🎯',name:'Động lượng',desc:'Vật được búng nhận thêm 10% khối lượng và tín dụng mỗi cấp.',max:3,base:180,req:'start',fx:l=>'cú ném +'+10*l+'%'},
+ {id:'precision',lane:1,tier:2,em:'🎯',name:'Động lượng',desc:'Vật được búng nhận thêm 10% khối lượng và tín dụng mỗi cấp.',max:3,base:180,req:'big',fx:l=>'cú ném +'+10*l+'%'},
  {id:'combo',lane:1,tier:2,em:'🔗',name:'Dòng hấp thụ',desc:'Hấp thụ liên tiếp trong 2,5 giây tăng thưởng, tối đa năm nhịp.',max:3,base:245,req:'precision',fx:l=>'mỗi nhịp +'+3*l+'% · tối đa '+15*l+'%'},
- {id:'pull',lane:1,tier:3,em:'🌌',name:'Trường hấp dẫn',desc:'Tăng 30% lực hút và mở rộng tầm hút mỗi cấp.',max:4,base:330,req:'combo',fx:l=>'lực hút ×'+(1+.3*l).toFixed(1)},
- {id:'carry',lane:1,tier:3,em:'🧬',name:'Ký ức khối lượng',desc:'Khởi đầu với thêm 2,5% kỷ lục mỗi cấp, tối đa 180 khối lượng.',max:3,base:450,req:'pull',fx:l=>'giữ lại '+(2.5*l)+'% kỷ lục'},
- {id:'fusion',lane:1,tier:4,em:'☀️',name:'Nhiệt hạch',desc:'Nhiên liệu đặc biệt nhận thêm 10% khối lượng mỗi cấp.',max:3,base:650,req:'carry',fx:l=>'nhiên liệu +'+10*l+'%'},
- {id:'core',lane:1,tier:4,em:'⚛️',name:'Lõi kỳ dị',desc:'Mỗi vật thể nhận thêm 2 khối lượng mỗi cấp.',max:3,base:900,req:'fusion',fx:l=>'+'+2*l+' khối lượng/vật'},
- {id:'delay',lane:2,tier:1,em:'📡',name:'Nhiễu tín hiệu',desc:'Trì hoãn UFO thêm 6 giây mỗi cấp.',max:4,base:90,fx:l=>'UFO sau '+(42+6*l)+' giây'},
+ {id:'pull',lane:1,tier:3,em:'🌌',name:'Trường hấp dẫn',desc:'Tăng 30% lực hút và mở rộng tầm hút mỗi cấp.',max:4,base:330,req:'big',fx:l=>'lực hút ×'+(1+.3*l).toFixed(1)},
+ {id:'carry',lane:1,tier:3,em:'🧬',name:'Ký ức khối lượng',desc:'Khởi đầu với thêm 2,5% kỷ lục mỗi cấp, tối đa 180 khối lượng.',max:3,base:450,req:'start',fx:l=>'giữ lại '+(2.5*l)+'% kỷ lục'},
+ {id:'fusion',lane:1,tier:4,em:'☀️',name:'Nhiệt hạch',desc:'Nhiên liệu đặc biệt nhận thêm 10% khối lượng mỗi cấp.',max:3,base:650,req:'pull',fx:l=>'nhiên liệu +'+10*l+'%'},
+ {id:'core',lane:1,tier:4,em:'⚛️',name:'Lõi kỳ dị',desc:'Mỗi vật thể nhận thêm 2 khối lượng mỗi cấp.',max:3,base:900,req:'combo',fx:l=>'+'+2*l+' khối lượng/vật'},
+ {id:'delay',lane:2,tier:1,em:'📡',name:'Nhiễu tín hiệu',desc:'Trì hoãn UFO thêm 3 giây mỗi cấp.',max:4,base:55,fx:l=>'UFO sau '+(24+3*l)+' giây'},
  {id:'hawk',lane:2,tier:1,em:'🌀',name:'Ổn định lượng tử',desc:'Giảm 12% hao hụt khối lượng tự nhiên mỗi cấp.',max:5,base:135,req:'delay',fx:l=>'hao hụt −'+12*l+'%'},
- {id:'shield',lane:2,tier:2,em:'🛡️',name:'Chân trời sự kiện',desc:'Giảm 10% lực hút UFO mỗi cấp.',max:4,base:190,req:'hawk',fx:l=>'lực hút UFO −'+10*l+'%'},
+ {id:'shield',lane:2,tier:2,em:'🛡️',name:'Chân trời sự kiện',desc:'Giảm 10% lực hút UFO mỗi cấp.',max:4,base:190,req:'delay',fx:l=>'lực hút UFO −'+10*l+'%'},
  {id:'shield2',lane:2,tier:2,em:'🌒',name:'Lá chắn hư không',desc:'Giảm thêm 8% lực hút UFO mỗi cấp.',max:3,base:260,req:'shield',fx:l=>'lực hút UFO thêm −'+8*l+'%'},
- {id:'chrono',lane:2,tier:3,em:'⏳',name:'Bẻ cong thời gian',desc:'Rút ngắn cuộc tấn công của UFO 0,8 giây mỗi cấp.',max:3,base:360,req:'shield2',fx:l=>'tấn công trong '+(12-.8*l).toFixed(1)+' giây'},
+ {id:'chrono',lane:2,tier:3,em:'⏳',name:'Bẻ cong thời gian',desc:'Rút ngắn cuộc tấn công của UFO 0,5 giây mỗi cấp.',max:3,base:360,req:'hawk',fx:l=>'tấn công trong '+(8-.5*l).toFixed(1)+' giây'},
  {id:'solar',lane:2,tier:3,em:'🌤️',name:'Lá chắn bức xạ',desc:'Giảm 12% sức đốt của Mặt Trời mỗi cấp.',max:3,base:490,req:'chrono',fx:l=>'bức xạ −'+12*l+'%'},
- {id:'resonance',lane:2,tier:4,em:'〰️',name:'Cộng hưởng',desc:'Giảm thêm 6% lực hút còn lại của UFO mỗi cấp.',max:3,base:680,req:'solar',fx:l=>'lực hút còn lại −'+6*l+'%'},
- {id:'breach',lane:2,tier:4,em:'⚡',name:'Xuyên giáp',desc:'Tia trọng lực gây thêm một sát thương lên UFO mỗi cấp.',max:2,base:940,req:'resonance',fx:l=>'tia gây '+(1+l)+' sát thương'},
- {id:'zap',lane:3,tier:1,em:'⚡',name:'Tia trọng lực',desc:'Hút nhanh 5 vật từ một nguồn hoặc phá giáp UFO. Nâng cấp giảm hồi chiêu.',max:4,base:100,fx:l=>l?'hồi chiêu '+(18*Math.pow(.85,l-1)).toFixed(1)+' giây':'chưa mở kỹ năng'},
+ {id:'resonance',lane:2,tier:4,em:'〰️',name:'Cộng hưởng',desc:'Giảm thêm 6% lực hút còn lại của UFO mỗi cấp.',max:3,base:680,req:'shield2',fx:l=>'lực hút còn lại −'+6*l+'%'},
+ {id:'breach',lane:2,tier:4,em:'⚡',name:'Xuyên giáp',desc:'Tia trọng lực gây thêm một sát thương lên UFO mỗi cấp.',max:2,base:940,req:'shield',fx:l=>'tia gây '+(1+l)+' sát thương'},
+ {id:'zap',lane:3,tier:1,em:'⚡',name:'Tia trọng lực',desc:'Bấm nút ⚡ hoặc Q để hút ngay 5 vật. Khi UFO xuất hiện, tia tự phá giáp và giảm lực hút.',max:4,base:45,fx:l=>l?'hồi chiêu '+(6*Math.pow(.85,l-1)).toFixed(1)+' giây':'chưa mở kỹ năng'},
  {id:'cap',lane:3,tier:1,em:'🔋',name:'Tụ điện',desc:'Mở nguồn tụ điện; hấp thụ tạo chuỗi hút năm vật gần nhất.',max:3,base:145,req:'zap',fx:l=>l+' nguồn · 14 khối lượng/vật'},
- {id:'sat',lane:3,tier:2,em:'🛰️',name:'Vệ tinh thu gom',desc:'Thêm một vệ tinh bắt vật thể trên quỹ đạo mỗi cấp.',max:3,base:205,req:'cap',fx:l=>l+' vệ tinh'},
+ {id:'sat',lane:3,tier:2,em:'🛰️',name:'Vệ tinh thu gom',desc:'Thêm một vệ tinh bắt vật thể trên quỹ đạo mỗi cấp.',max:3,base:205,req:'zap',fx:l=>l+' vệ tinh'},
  {id:'collector',lane:3,tier:2,em:'🧭',name:'Máy thu tự động',desc:'Tự kéo vật gần nhất vào hố đen. Nâng cấp tăng nhịp thu.',max:3,base:285,req:'sat',fx:l=>l?'thu một vật mỗi '+(5/(1+.35*l)).toFixed(1)+' giây':'chưa có máy thu'},
  {id:'magnet',lane:3,tier:3,em:'🧲',name:'Vành hút',desc:'Mở rộng tầm hút vật nằm trên mặt đất thêm 30 mỗi cấp.',max:3,base:390,req:'collector',fx:l=>'tầm hút +'+30*l},
- {id:'chain',lane:3,tier:3,em:'🌩️',name:'Mạng dẫn điện',desc:'Tụ điện hút thêm hai vật mỗi cấp.',max:3,base:530,req:'magnet',fx:l=>'chuỗi hút '+(5+2*l)+' vật'},
- {id:'sat2',lane:3,tier:4,em:'🛸',name:'Trạm quỹ đạo',desc:'Thêm hai vệ tinh mỗi cấp; tăng tầm bắt của mọi vệ tinh.',max:2,base:730,req:'chain',fx:l=>'+'+2*l+' vệ tinh · tầm bắt '+(28+8*l)},
- {id:'zap2',lane:3,tier:4,em:'💫',name:'Xung trọng lực',desc:'Tia trọng lực hút thêm ba vật mỗi cấp.',max:2,base:980,req:'sat2',fx:l=>'hút nhanh '+(5+3*l)+' vật'},
+ {id:'chain',lane:3,tier:3,em:'🌩️',name:'Mạng dẫn điện',desc:'Tụ điện hút thêm hai vật mỗi cấp.',max:3,base:530,req:'cap',fx:l=>'chuỗi hút '+(5+2*l)+' vật'},
+ {id:'sat2',lane:3,tier:4,em:'🛸',name:'Trạm quỹ đạo',desc:'Thêm hai vệ tinh mỗi cấp; tăng tầm bắt của mọi vệ tinh.',max:2,base:730,req:'sat',fx:l=>'+'+2*l+' vệ tinh · tầm bắt '+(28+8*l)},
+ {id:'zap2',lane:3,tier:4,em:'💫',name:'Xung trọng lực',desc:'Tia trọng lực hút thêm ba vật mỗi cấp.',max:2,base:980,req:'cap',fx:l=>'hút nhanh '+(5+3*l)+' vật'},
 ];
 const NODE_BY_ID={};NODES.forEach(n=>NODE_BY_ID[n.id]=n);
 
@@ -488,7 +501,7 @@ try{
 for(const key of ['pts','gems','best','uni','playSeconds','wins'])save[key]=Number.isFinite(save[key])?Math.max(0,save[key]):0;
 save.round=Number.isFinite(save.round)?Math.max(1,Math.floor(save.round)):1;
 for(const key of ['lv','seen','skins'])if(!save[key]||typeof save[key]!=='object'||Array.isArray(save[key]))save[key]={};
-save.claims=Array.isArray(save.claims)?save.claims:[];
+save.claims=Array.isArray(save.claims)?[...new Set(save.claims.filter(Number.isFinite).map(m=>m>=WIN_SIZE?WIN_SIZE:m))]:[];
 for(const n of NODES)save.lv[n.id]=Math.min(n.max,Math.max(0,Math.floor(Number(save.lv[n.id])||0)));
 if(!SKIN_BY_ID[save.skin])save.skin='classic';
 save.skins.classic=1;save.version=6;
@@ -718,7 +731,7 @@ function update(dt){
     size-=GROW_DECAY(size)*(1-.12*lv('hawk'))*dt;
     if(doomAt-roundTime<4&&Math.random()<dt*2)shake=Math.max(shake,.25);
     if(roundTime>=doomAt){
-      phase='doom';doomT=0;
+      phase='doom';doomT=0;skill.cd=Math.min(skill.cd,1);
       const nU=Math.min(5,3+(save.uni||0));
       drones=Array.from({length:nU},(_,i)=>({
         x:HOLE.x+(i-(nU-1)/2)*110,y:96,alive:true,hp:3,wob:R(0,6)}));
@@ -728,7 +741,7 @@ function update(dt){
   }else if(phase==='doom'){
     doomT+=dt;
     const aliveN=drones.filter(d=>d.alive).length;
-    size-=DOOM_DRAIN(size)*(1+.5*(save.uni||0))*(aliveN/Math.max(1,drones.length))
+    size-=DOOM_DRAIN(size)*(1+.5*(save.uni||0))*(drones.reduce((total,d)=>total+(d.alive?d.hp/3:0),0)/Math.max(1,drones.length))
       *defenseMultiplier()*dt;
     /* mass streaming up to drones */
     if(aliveN&&Math.random()<.7){
@@ -869,7 +882,7 @@ function satPos(k,t){
 }
 
 /* ---------- Input: drag & fling ---------- */
-const cool=()=>18*Math.pow(.85,Math.max(0,lv('zap')-1));
+const cool=()=>6*Math.pow(.85,Math.max(0,lv('zap')-1));
 function toXY(e){const r=cv.getBoundingClientRect();
   return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};}
 
@@ -959,13 +972,18 @@ cv.addEventListener('pointercancel',e=>{ptrTrail=[];release(e);});
 cv.addEventListener('lostpointercapture',e=>{if(activePointer!==null){ptrTrail=[];release(e);}});
 cv.addEventListener('pointerleave',()=>{hovered=null;});
 
-$('skillBtn').addEventListener('pointerdown',e=>{
-  e.stopPropagation();
-  if(state!=='play'||lv('zap')<1)return;
-  if(skill.cd>0){toast('Hồi chiêu... '+Math.ceil(skill.cd)+'s');return;}
-  skill.armed=!skill.armed;
-  $('skillBtn').classList.toggle('armed',skill.armed);
-  if(skill.armed)toast('Chọn nguồn vật thể để hút nhanh hoặc UFO để phá giáp.');
+function useGravity(){
+  if(state!=='play')return false;
+  if(!lv('zap')){toast('Mở Tia trọng lực trong nhánh Tự động để dùng nút này.');return false;}
+  if(skill.cd>0){toast('Tia đang hồi · '+Math.ceil(skill.cd)+' giây');return false;}
+  const drone=phase==='doom'?drones.filter(d=>d.alive).sort((a,b)=>a.hp-b.hp)[0]:null;
+  if(drone)return castGravity(drone.x,drone.y);
+  const source=boxes.slice().sort((a,b)=>FUEL[b.type].val-FUEL[a.type].val)[0];
+  return source?castGravity(source.x,source.y-6):false;
+}
+$('skillBtn').addEventListener('click',useGravity);
+window.addEventListener('keydown',e=>{
+  if(e.code==='KeyQ'&&!e.repeat&&state==='play'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();useGravity();}
 });
 
 /* ---------- HUD ---------- */
@@ -992,9 +1010,12 @@ function updateHud(){
   $('doomPill').classList.toggle('urgent',
     state==='play'&&((phase==='grow'&&doomAt-roundTime<6)||phase==='doom'));
   const sb=$('skillBtn');
-  sb.style.display=lv('zap')>=1&&state==='play'?'flex':'none';
+  sb.style.display=state==='play'?'flex':'none';
+  sb.classList.toggle('locked',!lv('zap'));
+  sb.querySelector('.skillLabel').textContent=!lv('zap')?'CHƯA MỞ':skill.cd>0?'ĐANG HỒI':phase==='doom'&&drones.some(d=>d.alive)?'PHÁ GIÁP · Q':'THU GOM · Q';
+  sb.setAttribute('aria-label',!lv('zap')?'Chưa mở Tia trọng lực':skill.cd>0?'Tia hồi sau '+Math.ceil(skill.cd)+' giây':'Dùng Tia trọng lực (Q)');
   sb.classList.toggle('cool',skill.cd>0);
-  sb.querySelector('.em').textContent=skill.cd>0?Math.ceil(skill.cd):'⚡';
+  sb.querySelector('.em').textContent=!lv('zap')?'🔒':skill.cd>0?Math.ceil(skill.cd):'⚡';
 }
 
 /* ---------- Render ---------- */
@@ -1495,10 +1516,26 @@ function draw(){
 const OVS=['menu','roundEnd','shop','win','pause','skinShop'];
 function showOverlay(id){$('playHint').style.display=id?'none':'block';hovered=null;OVS.forEach(o=>$(o).classList.toggle('show',o===id));updateHud();}
 
-const ORIGIN=[355,25];
+const ROOTS=['junk2','big','delay','zap'];
 const SIBLINGS=[];
-const POS={"junk2":[100,120],"rate":[100,232],"trade":[100,344],"gas":[100,456],"fw":[100,568],"salvage":[100,680],"junk3":[100,792],"research":[100,904],"luck":[100,1016],"big":[270,120],"start":[270,232],"precision":[270,344],"combo":[270,456],"pull":[270,568],"carry":[270,680],"fusion":[270,792],"core":[270,904],"delay":[440,120],"hawk":[440,232],"shield":[440,344],"shield2":[440,456],"chrono":[440,568],"solar":[440,680],"resonance":[440,792],"breach":[440,904],"zap":[610,120],"cap":[610,232],"sat":[610,344],"collector":[610,456],"magnet":[610,568],"chain":[610,680],"sat2":[610,792],"zap2":[610,904]};
+const CHILDREN=Object.fromEntries(NODES.map(n=>[n.id,NODES.filter(child=>child.req===n.id)]));
+const leafCount=id=>CHILDREN[id].length?CHILDREN[id].reduce((sum,n)=>sum+leafCount(n.id),0):1;
+const POS={};let treeCursor=40;
+function placeBranch(id,left,width,depth){
+  POS[id]=[left+width/2,120+depth*112];
+  let next=left;
+  for(const child of CHILDREN[id]){const span=leafCount(child.id)*90;placeBranch(child.id,next,span,depth+1);next+=span;}
+}
+for(const root of ROOTS){const span=leafCount(root)*90;placeBranch(root,treeCursor,span,0);treeCursor+=span;}
+const TREE_WIDTH=treeCursor+40;
+const ORIGIN=[TREE_WIDTH/2,25];
 let selId=null;
+function focusBranch(id){
+  const box=$('treeBox'),svg=box.querySelector('svg');if(!svg||!POS[id])return;
+  box.scrollLeft=Math.max(0,POS[id][0]*svg.getBoundingClientRect().width/TREE_WIDTH-box.clientWidth/2);
+  box.scrollTop=0;
+}
+$('branchNav').addEventListener('click',e=>{const button=e.target.closest('[data-branch]');if(button)focusBranch(button.dataset.branch);});
 
 function svgNode(u){
   const st=nodeState(u);
@@ -1536,8 +1573,9 @@ function renderShop(){
   const selectionHidden=selId&&nodeState(NODE_BY_ID[selId])==='hidden';
   if(selectionHidden)selId=null;
   const ranks=NODES.reduce((total,n)=>total+lv(n.id),0);
-  $('shopPts').textContent='⭐ '+Math.floor(save.pts)+' · '+ranks+' cấp nâng cấp';
-  $('shopProgress').textContent='Kỷ lục '+save.best.toLocaleString('vi-VN')+' / '+WIN_SIZE.toLocaleString('vi-VN')+' khối lượng · '+save.claims.length+'/5 cột mốc';
+  const affordable=NODES.filter(n=>nodeState(n)==='full'&&lv(n.id)<n.max&&save.pts>=cost(n)).length;
+  $('shopPts').textContent='⭐ '+Math.floor(save.pts)+' · '+(affordable?affordable+' nâng cấp có thể mua':'Tích thêm cho lượt tới');
+  $('shopProgress').textContent='Kỷ lục '+save.best.toLocaleString('vi-VN')+' / '+WIN_SIZE.toLocaleString('vi-VN')+' khối lượng · '+campaignMilestones.filter(m=>save.claims.includes(m.mass)).length+'/5 cột mốc';
   const defs=`<defs>
     <radialGradient id="gBase" cx="35%" cy="30%"><stop offset="0%" stop-color="#232a44"/><stop offset="100%" stop-color="#10141f"/></radialGradient>
     <radialGradient id="gOwn" cx="35%" cy="30%"><stop offset="0%" stop-color="#5a44a8"/><stop offset="100%" stop-color="#231a4a"/></radialGradient>
@@ -1551,7 +1589,7 @@ function renderShop(){
   /* origin: the black hole itself — every branch grows out of it */
   const [ox,oy]=ORIGIN;
   ['VẬT LIỆU','KHỐI LƯỢNG','PHÒNG VỆ','TỰ ĐỘNG'].forEach((name,lane)=>{
-    nodes+=`<text x="${100+lane*170}" y="74" text-anchor="middle" fill="#9eafd0" font-size="12" font-weight="650">${name}</text>`;
+    nodes+=`<text x="${POS[ROOTS[lane]][0]}" y="74" text-anchor="middle" fill="#9eafd0" font-size="12" font-weight="650">${name}</text>`;
   });
   for(const rid of ['junk2','big','delay','zap']){
     const [x2,y2]=POS[rid];
@@ -1587,7 +1625,7 @@ function renderShop(){
   }
   const treeHeight=Math.max(...NODES.filter(n=>nodeState(n)!=='hidden').map(n=>POS[n.id][1]))+85;
   $('treeBox').innerHTML=
-    `<svg viewBox="0 0 710 ${treeHeight}" xmlns="http://www.w3.org/2000/svg">${defs}${edges}${nodes}</svg>`;
+    `<svg viewBox="0 0 ${TREE_WIDTH} ${treeHeight}" xmlns="http://www.w3.org/2000/svg">${defs}${edges}${nodes}</svg>`;
   if(selectionHidden)$('treeBox').scrollTop=0;
   renderDetail();
 }
@@ -1689,7 +1727,9 @@ $('startBtn').onclick=()=>{beep(440,.08,'triangle',.12);startRound();};
 $('resetBtn').onclick=()=>{if(confirm('Đặt lại toàn bộ tiến trình? Thao tác này không thể hoàn tác.')){
   save=freshSave();persist();wonAlready=false;
   toast('Đã đặt lại tiến trình.');updateHud();}};
-$('toShopBtn').onclick=()=>{state='shop';renderShop();showOverlay('shop');};
+$('toShopBtn').onclick=()=>{state='shop';renderShop();showOverlay('shop');
+  const candidate=NODES.find(n=>nodeState(n)==='full'&&lv(n.id)<n.max&&save.pts>=cost(n));
+  focusBranch(candidate?ROOTS[candidate.lane]:'junk2');};
 $('nextRoundBtn').onclick=()=>startRound();
 $('winBtn').onclick=()=>{
   save.uni=(save.uni||0)+1;wonAlready=false;persist();

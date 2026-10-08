@@ -84,14 +84,14 @@ test('final round banks earnings, milestones pay only once and win settlement ca
   const g=createGame();
   g.evaluate('startRound();runMoney=123.7;peak=WIN_SIZE;survivedDoom=true;winGame()');
   const pts=g.evaluate('save.pts');
-  assert.equal(pts,123+21+260+35+60+100+160+240+360+600);
+  assert.equal(pts,123+21+200+35+60+100+160+240+360+600);
   assert.equal(g.evaluate('save.claims.length'),5);
   assert.equal(g.evaluate('save.wins'),1);
   g.evaluate('winGame()');
   assert.equal(g.evaluate('save.pts'),pts);
   g.evaluate('peak=WIN_SIZE;runMoney=0;settleRun()');
   assert.equal(g.evaluate('save.claims.length'),5);
-  assert.equal(g.evaluate('save.pts')-pts,22+260+35);
+  assert.equal(g.evaluate('save.pts')-pts,22+200+35);
 });
 
 test('solar phase has a time limit and crossing the goal without another item still wins', () => {
@@ -135,4 +135,53 @@ test('a hidden selection is cleared after progress is reset', () => {
   assert.equal(g.evaluate('selId'),null);
   assert.equal(g.evaluate("$('ndName').textContent"),'Chọn nâng cấp');
   assert.equal(g.evaluate("$('treeBox').scrollTop"),0);
+});
+
+
+test('evolution parents genuinely fork rather than forming four chains', () => {
+  const g=createGame();
+  assert.ok(g.evaluate('Object.values(CHILDREN).filter(children=>children.length>=2).length')>=8);
+  assert.equal(g.evaluate('NODE_BY_ID.gas.req'),'junk2');
+  assert.equal(g.evaluate('NODE_BY_ID.sat.req'),'zap');
+  assert.equal(g.evaluate('NODE_BY_ID.breach.req'),'shield');
+});
+
+test('one button use auto-collects, Q shares this action, and locked skill explains why', () => {
+  const g=createGame();
+  g.evaluate('startRound()');
+  assert.equal(g.evaluate('useGravity()'),false);
+  assert.ok(g.evaluate("$('toast').textContent.includes('Mở Tia trọng lực')"));
+  assert.equal(g.evaluate("$('skillBtn').style.display"),'flex');
+  g.evaluate('save.lv.zap=1;updateHud()');
+  assert.equal(g.evaluate('useGravity()'),true);
+  assert.equal(g.evaluate("items.filter(i=>i.state==='fly').length"),5);
+  assert.equal(g.evaluate('useGravity()'),false);
+  g.evaluate("skill.cd=0;phase='doom';drones=[{x:480,y:96,hp:3,alive:true}]");
+  assert.equal(g.evaluate('useGravity()'),true);
+  assert.equal(g.evaluate('drones[0].hp'),2);
+});
+
+test('damaging UFO armor immediately weakens its drain', () => {
+  const healthy=createGame(), damaged=createGame();
+  for(const game of [healthy,damaged])game.evaluate("startRound();phase='doom';size=200;boxes=[];items=[];drones=[{x:480,y:96,hp:3,alive:true}]");
+  damaged.evaluate('drones[0].hp=2');
+  healthy.evaluate('update(.05)');damaged.evaluate('update(.05)');
+  assert.ok(damaged.evaluate('size')>healthy.evaluate('size'));
+});
+
+test('rounds are short and active first-round collection buys an early upgrade', () => {
+  const g=createGame();
+  assert.equal(g.evaluate('DOOM_BASE'),24);
+  assert.ok(g.evaluate('DOOM_BASE+DOOM_DELAY*NODE_BY_ID.delay.max+DOOM_DUR+SUN_LIMIT')<=66);
+  g.evaluate("startRound();for(let i=0;i<12;i++)consume({state:'loose',type:'junk',x:480,y:322});endRound('doom')");
+  assert.equal(g.evaluate('buyNode("zap")'),true);
+});
+
+
+test('completed legacy goal remains claimed when campaign target changes', () => {
+  const g=createGame(1,{claims:[100,400,1000,2400,6500],best:6500,pts:100});
+  assert.equal(g.evaluate('save.claims.length'),5);
+  assert.ok(g.evaluate('save.claims.includes(WIN_SIZE)'));
+  g.evaluate('peak=WIN_SIZE;runMoney=0;survivedDoom=false');
+  assert.equal(g.evaluate('settleRun().milestoneBonus'),0);
 });

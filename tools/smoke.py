@@ -59,8 +59,9 @@ try:
         assert page.evaluate("JSON.parse(localStorage.getItem('holeGameV5')).round === 2")
         page.click('#toShopBtn')
         page.clock.run_for(400)
-        assert page.locator('#treeBox .nd[role=button]').count() == 8
+        assert page.locator('#treeBox .nd[role=button]').count() >= 12
         page.evaluate('save.pts=1000;renderShop()')
+        page.locator('#branchNav [data-branch=junk2]').click()
         page.locator('#treeBox .nd[role=button]').first.focus()
         page.keyboard.press('Enter')
         assert page.locator('#ndName').inner_text() != 'Chọn nâng cấp'
@@ -68,17 +69,25 @@ try:
         page.click('#buyBtn')
         assert page.evaluate('save.pts') < credits
         assert page.evaluate('lv("junk2")') == 1
-        assert page.locator('#treeBox .nd[role=button]').count() == 9
+        assert page.locator('#treeBox .nd[role=button]').count() > 12
         page.click('#nextRoundBtn')
         assert page.evaluate("state === 'play'")
 
         # A completed tree must render and remain navigable in a small landscape viewport.
+        page.evaluate('pauseGame();save.lv.zap=1;startRound()')
+        page.click('#skillBtn')
+        assert page.evaluate('skill.cd>0 && items.some(i=>i.state==="fly")')
+        page.evaluate('skill.cd=0')
+        page.keyboard.press('q')
+        assert page.evaluate('skill.cd>0')
         page.evaluate("pauseGame();NODES.forEach(n=>save.lv[n.id]=n.max);state='shop';renderShop();showOverlay('shop')")
         page.set_viewport_size({'width':844,'height':390})
         page.clock.run_for(400)
         assert page.locator('#treeBox .nd[role=button]').count() == 33
         assert page.locator('#nextRoundBtn').bounding_box()['y'] < 390
         assert page.evaluate("document.getElementById('treeBox').scrollHeight > document.getElementById('treeBox').clientHeight")
+        assert page.evaluate("document.getElementById('treeBox').scrollWidth>document.getElementById('treeBox').clientWidth")
+        page.locator('#branchNav [data-branch=zap]').click()
         assert page.locator('#treeBox').evaluate("e=>{e.scrollTop=e.scrollHeight;return e.scrollTop>0}")
         page.locator('#treeBox .nd[role=button]').last.click()
         assert page.locator('#ndName').inner_text() != 'Chọn nâng cấp'
