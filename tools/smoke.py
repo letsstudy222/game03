@@ -62,14 +62,18 @@ try:
         assert page.locator('#treeBox .nd[role=button]').count() >= 12
         page.evaluate('save.pts=1000;renderShop()')
         page.locator('#branchNav [data-branch=junk2]').click()
+        assert page.locator('.upgradeCard').count()==9
+        assert page.locator('.cardBuy[data-buy=junk2]').is_enabled()
+        credits=page.evaluate('save.pts')
+        page.locator('.cardBuy[data-buy=junk2]').click()
+        assert page.evaluate('save.pts')<credits
+        assert page.evaluate('lv("junk2")')==1
+        page.click('#viewToggle')
         page.locator('#treeBox .nd[role=button]').first.focus()
         page.keyboard.press('Enter')
-        assert page.locator('#ndName').inner_text() != 'Chọn nâng cấp'
-        credits = page.evaluate('save.pts')
-        page.click('#buyBtn')
-        assert page.evaluate('save.pts') < credits
-        assert page.evaluate('lv("junk2")') == 1
-        assert page.locator('#treeBox .nd[role=button]').count() > 12
+        assert page.locator('#ndName').inner_text()!='Chọn nâng cấp'
+        page.click('#viewToggle')
+        page.screenshot(path='/tmp/game03-smart-shop.png',animations='disabled')
         page.click('#nextRoundBtn')
         assert page.evaluate("state === 'play'")
 
@@ -83,6 +87,7 @@ try:
         page.evaluate("pauseGame();NODES.forEach(n=>save.lv[n.id]=n.max);state='shop';renderShop();showOverlay('shop')")
         page.set_viewport_size({'width':844,'height':390})
         page.clock.run_for(400)
+        page.click('#viewToggle')
         assert page.locator('#treeBox .nd[role=button]').count() == 33
         assert page.locator('#nextRoundBtn').bounding_box()['y'] < 390
         assert page.evaluate("document.getElementById('treeBox').scrollHeight > document.getElementById('treeBox').clientHeight")
@@ -115,6 +120,18 @@ try:
         page.evaluate("pauseGame();state='shop';renderShop();showOverlay('shop')")
         page.clock.run_for(400)
         page.screenshot(path='/tmp/game03-campaign-shop.png', animations='disabled')
+        page.set_viewport_size({'width':960,'height':540})
+        for stage in range(3):
+            page.evaluate(f"save.stage={stage};startRound();muted=true")
+            page.clock.run_for(500)
+            assert page.evaluate('runStage')==stage
+            page.screenshot(path=f'/tmp/game03-map-{stage}.png',animations='disabled')
+        page.evaluate("phase='sun';size=5000;burstFirework(260,170,330);burstFirework(700,180,150);updateHud()")
+        page.clock.run_for(200)
+        assert page.locator('#solarHint').is_visible()
+        assert 'Mặt Trời rút' in page.locator('#solarHint').inner_text()
+        assert page.evaluate('fireworks.length')>0
+        page.screenshot(path='/tmp/game03-solar-fireworks.png',animations='disabled')
         page.set_viewport_size({'width':390,'height':844})
         page.clock.run_for(100)
         assert page.locator('#rotate').is_visible()

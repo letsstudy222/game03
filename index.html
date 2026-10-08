@@ -224,6 +224,28 @@
   #treeBox svg{min-width:1340px;}
   #treeBox{touch-action:pan-x pan-y;overflow-anchor:none;}
   @media(max-height:440px){#shop>.title,#shopProgress{display:none}#branchNav button{padding:6px;font-size:10px}}
+
+ :root{--line:#8dace842;--panel:#102546ed;--gold:#ffe06f;--zap:#55edff;}
+ .overlay{background:linear-gradient(135deg,#071a35f5,#1b1641f2);}
+ .sub,.guideCards p{color:#b9cce8;}.guideCards b{color:#e7dcff;}
+ #missionHud{position:absolute;top:62px;left:20px;color:#e6f6ff;font-size:11px;font-weight:650;pointer-events:none;}
+ #solarHint{position:absolute;top:85px;left:50%;transform:translateX(-50%);background:#4b2515ec;border:1px solid #ffba58;padding:8px 12px;border-radius:9px;font-size:11px;color:#fff1ce;text-align:center;max-width:80%;display:none;pointer-events:none;}
+ #shopTools{width:100%;max-width:780px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;font-size:11px;color:#adc8ed;}
+ #shopTools .ghostBtn{margin:0;padding:4px 8px;color:#b6ecff;white-space:nowrap;}
+ #branchNav button.active{background:#3a3580;border-color:#ab94ff;color:#fff;}
+ #upgradeCards{width:100%;max-width:780px;flex:1;min-height:90px;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start;padding:3px;scrollbar-width:thin;}
+ .upgradeCard{background:linear-gradient(130deg,#173252,#202450);border:1px solid #95b8ef4d;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;}
+ .upgradeCard.suggested{border-color:#65e8e6;box-shadow:inset 3px 0 #65e8e6;}
+ .upgradeCard.isLocked{background:#101e36;border-color:#5b759735;}
+ .cardSelect{display:flex;gap:10px;align-items:center;border:0;background:none;text-align:left;color:#f3f6ff;font-family:inherit;cursor:pointer;padding:0;}
+ .cardIcon{font-size:27px;}.cardSelect b{display:block;font-size:13px;}.cardSelect small{display:block;font-size:10px;color:#a7c5df;margin-top:4px;}
+ .upgradeCard p{font-size:11px;line-height:1.5;color:#c1cde4;}
+ .cardEffect{font-size:10px;color:#96edcf;line-height:1.4;}
+ .cardBuy{margin-top:auto;border:0;border-radius:8px;padding:9px;background:linear-gradient(100deg,#77ece9,#ae91ff);color:#0c1a31;font:650 11px system-ui;cursor:pointer;}
+ .cardBuy:disabled{background:#2a3d59;color:#9cb2cf;cursor:default;}
+ #nodeDetail{min-height:70px;}#nodeDetail .from{display:none;}
+ @media(max-height:440px){#shopTools{font-size:9px}#shopTip{max-width:65%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#nodeDetail{display:none}#missionHud{top:48px;font-size:9px}#solarHint{top:65px;font-size:9px;padding:5px 8px}.upgradeCard{padding:9px;gap:5px}.cardSelect b{font-size:11px}}
+#shop[data-view="cards"] #nodeDetail{display:none}.upgradeCard.selected{border-color:#d5cbff;}
 </style>
 </head>
 <body>
@@ -231,7 +253,7 @@
 <div id="stage">
   <div id="wrap">
     <canvas id="cv" width="960" height="540" aria-label="Sân chơi trọng lực: kéo và thả vật thể vào hố đen"></canvas>
-    <div id="playHint">KÉO & THẢ · Q THU GOM · ESC TẠM DỪNG</div>
+    <div id="missionHud"></div><div id="solarHint" role="status"></div><div id="playHint">KÉO & THẢ · Q THU GOM · ESC TẠM DỪNG</div>
 
     <div id="hud">
       <div class="pill">⭐ <span id="ptsTxt">0</span></div>
@@ -261,7 +283,7 @@
       <div class="guideCards">
         <div><b>01 / Thu hút</b><p>Kéo vật vào hố đen hoặc búng để ném. Mỗi vật giúp bạn lớn hơn.</p></div>
         <div><b>02 / Vượt giới hạn</b><p>Thu tín dụng sau mỗi lượt. Chọn trong 33 tiến hóa để xây lối chơi riêng.</p></div>
-        <div><b>03 / Chạm tới Mặt Trời</b><p>Đạt 5.000 khối lượng, vượt UFO và hấp thụ Mặt Trời.</p></div>
+        <div><b>03 / Chạm tới Mặt Trời</b><p>Rời Trái Đất, vượt vành đai thiên thạch và chinh phục Mặt Trời.</p></div>
       </div>
       <button class="bigBtn" id="startBtn">Bắt đầu <span aria-hidden="true">›</span></button>
       <div class="menuLinks"><button class="ghostBtn" id="menuSkinBtn">Bộ sưu tập</button>
@@ -288,7 +310,8 @@
         <button data-branch="junk2">Vật liệu</button><button data-branch="big">Khối lượng</button>
         <button data-branch="delay">Phòng vệ</button><button data-branch="zap">Tự động ⚡</button>
       </div>
-      <div id="treeBox"></div>
+      <div id="shopTools"><span id="shopTip"></span><button id="viewToggle" class="ghostBtn">Xem sơ đồ</button></div>
+      <div id="upgradeCards"></div><div id="treeBox"></div>
       <div id="nodeDetail">
         <h4 id="ndName">Chọn nâng cấp</h4>
         <div class="from" id="ndFrom"></div>
@@ -368,23 +391,23 @@ let hovered=null,activePointer=null;
 /* ---------- World ---------- */
 const GROUND=468;
 const HOLE={x:480,by:322,y:322};                    // floating above the yard
-const holeR=()=>Math.min(140,16+size*.25);
+const holeR=()=>18+86*Math.pow(Math.min(1,Math.max(0,size)/currentGoal()),.58);
 const eatR=()=>holeR()*.8;
 const SLOTS=[110,235,360,600,725,850,42,918];
 
 /* ---------- Campaign balance ---------- */
-const LV=[1,35,80,180,350,650,1100,1900,3200,5000];
-const WIN_SIZE=5000;
+const LV=[1,50,120,280,600,1200,2300,4200,7500,11500];
+const WIN_SIZE=11500;
 const GROW_DECAY=s=>Math.max(.12,s*.006);
 const DOOM_BASE=24, DOOM_DELAY=3, DOOM_DUR=8;
-const DOOM_DRAIN=s=>24+s*.095;
+const DOOM_DRAIN=s=>48+s*.18;
 const SHIELD_PCT=.10;
 const SUN_DRAIN=s=>18+s*.026;
 const SUN_LIMIT=22;
 const ITEM_LIFE=16;
 const campaignMilestones=[
   {mass:100,reward:60},{mass:400,reward:100},{mass:1000,reward:160},
-  {mass:2400,reward:240},{mass:5000,reward:360},
+  {mass:2400,reward:240},{mass:11500,reward:360},
 ];
 const doomDuration=()=>DOOM_DUR-.5*lv('chrono');
 const satelliteCount=()=>lv('sat')+2*lv('sat2');
@@ -393,6 +416,14 @@ const startingMass=()=>12+10*lv('start')+Math.min(180,save.best*.025*lv('carry')
 const solarResistance=()=>1-.12*lv('solar');
 const defenseMultiplier=()=>Math.max(.22,1-SHIELD_PCT*lv('shield')-.08*lv('shield2'))*(1-.06*lv('resonance'));
 
+const MAPS=[
+  {name:'Trái Đất',goal:900,enemy:1,sky:['#102350','#294869'],ground:['#285249','#0d292d'],accent:'#53f0ca',intro:'Vượt đợt thu hồi của UFO để mở quỹ đạo.'},
+  {name:'Vành đai thiên thạch',goal:3500,enemy:1.2,sky:['#160d3c','#3a2469'],ground:['#493574','#1a1236'],accent:'#b197ff',intro:'Thu đủ 3.500 khối lượng sau UFO để mở đường tới ngôi sao.'},
+  {name:'Nhật quyển',goal:WIN_SIZE,enemy:1.4,sky:['#26113b','#713239'],ground:['#67334d','#271327'],accent:'#ffba58',intro:'Vượt UFO, chống lực hút Mặt Trời và đạt 11.500 khối lượng.'},
+];
+const currentMap=()=>MAPS[runStage];
+const currentGoal=()=>currentMap().goal;
+const solarDrain=()=>SUN_DRAIN(size)*solarResistance()*(1+.4*(save.uni||0));
 const JUNK_SKINS=[
   ['🧸','🥫','👟','📻','🧦'],            // Vũ trụ #1: đồ đồng nát
   ['🪐','🌍','🌕','☄️','⭐'],            // Vũ trụ #2: hành tinh & sao chổi
@@ -409,7 +440,7 @@ const FUEL={
 
 /* ---------- Evolution tree ---------- */
 const NODES=[
- {id:'junk2',lane:0,tier:1,em:'📦',name:'Kho vật liệu',desc:'Thêm một nguồn vật liệu mỗi cấp.',max:4,base:55,fx:l=>(1+l)+' nguồn vật liệu'},
+ {id:'junk2',lane:0,tier:1,em:'📦',name:'Kho vật liệu',desc:'Thêm một nguồn vật liệu mỗi cấp.',max:4,base:95,fx:l=>(1+l)+' nguồn vật liệu'},
  {id:'rate',lane:0,tier:1,em:'⏩',name:'Băng chuyền',desc:'Nguồn tạo vật nhanh hơn 10% mỗi cấp.',max:4,base:125,req:'junk2',fx:l=>'nhịp tạo ×'+Math.pow(.9,-l).toFixed(2)},
  {id:'trade',lane:0,tier:2,em:'💰',name:'Trao đổi năng lượng',desc:'Tăng 12% tín dụng từ vật thể mỗi cấp.',max:5,base:175,req:'rate',fx:l=>'tín dụng +'+12*l+'%'},
  {id:'gas',lane:0,tier:2,em:'⛽',name:'Buồng phản ứng',desc:'Mở nhiên liệu nổ; thêm một nguồn mỗi cấp.',max:3,base:230,req:'junk2',fx:l=>l+' nguồn · 10 khối lượng/vật'},
@@ -418,7 +449,7 @@ const NODES=[
  {id:'junk3',lane:0,tier:4,em:'🏭',name:'Kho liên hoàn',desc:'Thêm hai nguồn vật liệu mỗi cấp, không giới hạn số ô.',max:3,base:600,req:'gas',fx:l=>'+'+2*l+' nguồn vật liệu'},
  {id:'research',lane:0,tier:4,em:'🔬',name:'Nghiên cứu',desc:'Giảm 4% giá nâng cấp mỗi cấp.',max:3,base:760,req:'trade',fx:l=>'giá nâng cấp −'+4*l+'%'},
  {id:'luck',lane:0,tier:5,em:'💎',name:'Phân tích tinh thể',desc:'Mỗi cấp thêm 5% cơ hội hấp thụ mạnh gấp 1,6 lần và tìm tinh thể.',max:3,base:950,req:'trade',fx:l=>'hấp thụ vượt trội '+5*l+'%'},
- {id:'big',lane:1,tier:1,em:'🧲',name:'Lõi đậm đặc',desc:'Tăng 18% khối lượng nhận được mỗi cấp.',max:5,base:60,fx:l=>'khối lượng ×'+(1+.18*l).toFixed(2)},
+ {id:'big',lane:1,tier:1,em:'🧲',name:'Lõi đậm đặc',desc:'Tăng 18% khối lượng nhận được mỗi cấp.',max:5,base:105,fx:l=>'khối lượng ×'+(1+.18*l).toFixed(2)},
  {id:'start',lane:1,tier:1,em:'🌑',name:'Mầm hố đen',desc:'Thêm 10 khối lượng khi bắt đầu lượt mỗi cấp.',max:4,base:130,req:'big',fx:l=>'khởi đầu '+(12+10*l)+' khối lượng'},
  {id:'precision',lane:1,tier:2,em:'🎯',name:'Động lượng',desc:'Vật được búng nhận thêm 10% khối lượng và tín dụng mỗi cấp.',max:3,base:180,req:'big',fx:l=>'cú ném +'+10*l+'%'},
  {id:'combo',lane:1,tier:2,em:'🔗',name:'Dòng hấp thụ',desc:'Hấp thụ liên tiếp trong 2,5 giây tăng thưởng, tối đa năm nhịp.',max:3,base:245,req:'precision',fx:l=>'mỗi nhịp +'+3*l+'% · tối đa '+15*l+'%'},
@@ -426,7 +457,7 @@ const NODES=[
  {id:'carry',lane:1,tier:3,em:'🧬',name:'Ký ức khối lượng',desc:'Khởi đầu với thêm 2,5% kỷ lục mỗi cấp, tối đa 180 khối lượng.',max:3,base:450,req:'start',fx:l=>'giữ lại '+(2.5*l)+'% kỷ lục'},
  {id:'fusion',lane:1,tier:4,em:'☀️',name:'Nhiệt hạch',desc:'Nhiên liệu đặc biệt nhận thêm 10% khối lượng mỗi cấp.',max:3,base:650,req:'pull',fx:l=>'nhiên liệu +'+10*l+'%'},
  {id:'core',lane:1,tier:4,em:'⚛️',name:'Lõi kỳ dị',desc:'Mỗi vật thể nhận thêm 2 khối lượng mỗi cấp.',max:3,base:900,req:'combo',fx:l=>'+'+2*l+' khối lượng/vật'},
- {id:'delay',lane:2,tier:1,em:'📡',name:'Nhiễu tín hiệu',desc:'Trì hoãn UFO thêm 3 giây mỗi cấp.',max:4,base:55,fx:l=>'UFO sau '+(24+3*l)+' giây'},
+ {id:'delay',lane:2,tier:1,em:'📡',name:'Nhiễu tín hiệu',desc:'Trì hoãn UFO thêm 3 giây mỗi cấp.',max:4,base:95,fx:l=>'UFO sau '+(24+3*l)+' giây'},
  {id:'hawk',lane:2,tier:1,em:'🌀',name:'Ổn định lượng tử',desc:'Giảm 12% hao hụt khối lượng tự nhiên mỗi cấp.',max:5,base:135,req:'delay',fx:l=>'hao hụt −'+12*l+'%'},
  {id:'shield',lane:2,tier:2,em:'🛡️',name:'Chân trời sự kiện',desc:'Giảm 10% lực hút UFO mỗi cấp.',max:4,base:190,req:'delay',fx:l=>'lực hút UFO −'+10*l+'%'},
  {id:'shield2',lane:2,tier:2,em:'🌒',name:'Lá chắn hư không',desc:'Giảm thêm 8% lực hút UFO mỗi cấp.',max:3,base:260,req:'shield',fx:l=>'lực hút UFO thêm −'+8*l+'%'},
@@ -434,7 +465,7 @@ const NODES=[
  {id:'solar',lane:2,tier:3,em:'🌤️',name:'Lá chắn bức xạ',desc:'Giảm 12% sức đốt của Mặt Trời mỗi cấp.',max:3,base:490,req:'chrono',fx:l=>'bức xạ −'+12*l+'%'},
  {id:'resonance',lane:2,tier:4,em:'〰️',name:'Cộng hưởng',desc:'Giảm thêm 6% lực hút còn lại của UFO mỗi cấp.',max:3,base:680,req:'shield2',fx:l=>'lực hút còn lại −'+6*l+'%'},
  {id:'breach',lane:2,tier:4,em:'⚡',name:'Xuyên giáp',desc:'Tia trọng lực gây thêm một sát thương lên UFO mỗi cấp.',max:2,base:940,req:'shield',fx:l=>'tia gây '+(1+l)+' sát thương'},
- {id:'zap',lane:3,tier:1,em:'⚡',name:'Tia trọng lực',desc:'Bấm nút ⚡ hoặc Q để hút ngay 5 vật. Khi UFO xuất hiện, tia tự phá giáp và giảm lực hút.',max:4,base:45,fx:l=>l?'hồi chiêu '+(6*Math.pow(.85,l-1)).toFixed(1)+' giây':'chưa mở kỹ năng'},
+ {id:'zap',lane:3,tier:1,em:'⚡',name:'Tia trọng lực',desc:'Bấm nút ⚡ hoặc Q để hút ngay 5 vật. Khi UFO xuất hiện, tia tự phá giáp và giảm lực hút.',max:4,base:90,fx:l=>l?'hồi chiêu '+(6*Math.pow(.85,l-1)).toFixed(1)+' giây':'chưa mở kỹ năng'},
  {id:'cap',lane:3,tier:1,em:'🔋',name:'Tụ điện',desc:'Mở nguồn tụ điện; hấp thụ tạo chuỗi hút năm vật gần nhất.',max:3,base:145,req:'zap',fx:l=>l+' nguồn · 14 khối lượng/vật'},
  {id:'sat',lane:3,tier:2,em:'🛰️',name:'Vệ tinh thu gom',desc:'Thêm một vệ tinh bắt vật thể trên quỹ đạo mỗi cấp.',max:3,base:205,req:'zap',fx:l=>l+' vệ tinh'},
  {id:'collector',lane:3,tier:2,em:'🧭',name:'Máy thu tự động',desc:'Tự kéo vật gần nhất vào hố đen. Nâng cấp tăng nhịp thu.',max:3,base:285,req:'sat',fx:l=>l?'thu một vật mỗi '+(5/(1+.35*l)).toFixed(1)+' giây':'chưa có máy thu'},
@@ -486,29 +517,32 @@ const THEMES={
 };
 const TH=()=>THEMES[save.skin]||THEMES.classic;
 /* junk pool: skin theme overrides; classic skin keeps NG+ universe skins */
-const junkPool=()=>save.skin&&save.skin!=='classic'?TH().junk:getJunkEms();
+const junkPool=()=>save.skin&&save.skin!=='classic'?TH().junk:runStage===1?['☄️','🪨','🛰️','🧊','💎']:runStage===2?['☄️','🌑','🪐','⭐','💠']:getJunkEms();
 const boxEm=type=>type==='junk'?junkPool()[0]:TH()[type];
 
 /* ---------- Save ---------- */
 const SAVE_KEY='holeGameV5';
-const freshSave=()=>({version:6,pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin:'classic',playSeconds:0,claims:[],wins:0});
+const freshSave=()=>({version:7,pts:0,round:1,lv:{},best:0,seen:{},uni:0,gems:0,skins:{classic:1},skin:'classic',playSeconds:0,claims:[],wins:0,stage:0,lastFailure:'',mapClaims:[]});
 let save=freshSave();
 try{
   const raw=localStorage.getItem(SAVE_KEY);
-  if(raw){const data=JSON.parse(raw);if(data&&typeof data==='object'&&!Array.isArray(data))save={...freshSave(),...data};}
+  if(raw){const data=JSON.parse(raw);if(data&&typeof data==='object'&&!Array.isArray(data))save={...freshSave(),...data,stage:Number.isFinite(data.stage)?data.stage:(data.wins>0||data.uni>0?2:0)};}
 }catch(e){}
 // Keep the existing save key so updating the game never resets progress.
 for(const key of ['pts','gems','best','uni','playSeconds','wins'])save[key]=Number.isFinite(save[key])?Math.max(0,save[key]):0;
 save.round=Number.isFinite(save.round)?Math.max(1,Math.floor(save.round)):1;
 for(const key of ['lv','seen','skins'])if(!save[key]||typeof save[key]!=='object'||Array.isArray(save[key]))save[key]={};
-save.claims=Array.isArray(save.claims)?[...new Set(save.claims.filter(Number.isFinite).map(m=>m>=WIN_SIZE?WIN_SIZE:m))]:[];
+save.claims=Array.isArray(save.claims)?[...new Set(save.claims.filter(Number.isFinite).map(m=>m>=5000?WIN_SIZE:m))]:[];
 for(const n of NODES)save.lv[n.id]=Math.min(n.max,Math.max(0,Math.floor(Number(save.lv[n.id])||0)));
 if(!SKIN_BY_ID[save.skin])save.skin='classic';
-save.skins.classic=1;save.version=6;
+save.skins.classic=1;save.version=7;
+if(!Number.isFinite(save.stage))save.stage=save.wins>0?2:0;
+save.stage=Math.max(0,Math.min(2,Math.floor(save.stage)));
+save.mapClaims=Array.isArray(save.mapClaims)?save.mapClaims:[];
 const persist=()=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}};
 const lv=id=>save.lv[id]||0;
-const COST_GROWTH=1.85;
-const cost=u=>Math.max(1,Math.round(u.base*(1+.55*(u.tier-1))*Math.pow(COST_GROWTH,lv(u.id))*(1-.04*lv('research'))));
+const COST_GROWTH=3.00;
+const cost=u=>Math.max(1,Math.round(u.base*(1+.75*(u.tier-1))*Math.pow(COST_GROWTH,lv(u.id))*(1-.04*lv('research'))));
 function nodeState(n){
   if(lv(n.id)>0)return'full';
   if(n.uniReq&&(save.uni||0)<n.uniReq){
@@ -522,6 +556,7 @@ function nodeState(n){
 
 /* ---------- Round state ---------- */
 let state='menu';
+let runStage=save.stage,fireworks=[],shopLane=0,shopView='cards';
 let phase='grow';                        // grow | doom | sun
 let size=12,peak=12,runMoney=0,roundTime=0;
 let runCollected=0,runRecycled=0,comboCount=0,lastConsume=-10,collectorClock=0,saveClock=0;
@@ -589,9 +624,18 @@ function spawnEmber(x,y){
   items.push({x,y,vx:R(-140,140),vy:R(-60,40),type:'ember',em:TH().ember,
     t:0,rest:0,state:'loose',fly:0,rot:0});
 }
+function burstFirework(x,y,hue){
+  const count=reducedMotion?14:32;
+  const room=Math.max(0,420-fireworks.length);
+  for(let i=0;i<Math.min(count,room);i++){
+    const angle=i/count*Math.PI*2,speed=R(65,210),life=R(.65,1.25);
+    fireworks.push({x,y,px:x,py:y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,t:life,life,hue:hue+(i%3)*14});
+  }
+
+}
 function spawnRocket(x,y){
   items.push({x,y,vx:R(-120,120),vy:R(-460,-380),type:'rocket',em:TH().rocket,
-    t:0,rest:0,state:'rocket',fly:0,rot:0,fuse:R(.7,.95)});
+    t:0,rest:0,state:'rocket',fly:0,rot:0,fuse:R(.55,.8),hue:R(0,360)});
   sRocket();
 }
 const itemVal=it=>it.type==='ember'?1:FUEL[it.type].val;
@@ -599,7 +643,7 @@ const itemMoney=it=>it.type==='ember'?0:FUEL[it.type].money;
 
 /* ---------- Round lifecycle ---------- */
 function startRound(){
-  release();size=startingMass();peak=size;runMoney=0;roundTime=0;
+  release();runStage=save.stage;backdrop=null;fireworks=[];size=startingMass();peak=size;runMoney=0;roundTime=0;
   runCollected=0;runRecycled=0;comboCount=0;lastConsume=-10;collectorClock=0;
   phase='grow';doomAt=DOOM_BASE+DOOM_DELAY*lv('delay');
   doomT=0;survivedDoom=false;sunT=0;sunSwallow=0;
@@ -607,7 +651,7 @@ function startRound(){
   grabbed=null;ptrTrail=[];
   skill={cd:0,armed:false};$('skillBtn').classList.remove('armed');
   shake=0;flash=0;roundGems=0;gemFx=[];
-  buildBoxes();
+  buildBoxes();renderNotches();
   state='play';showOverlay(null);updateHud();
   if(save.round===1)setTimeout(()=>{if(state==='play')toast('Kéo để di chuyển · Thả nhanh để ném vào hố đen');},900);
 }
@@ -622,11 +666,11 @@ function settleRun(){
   return {bonus,milestoneBonus,earned};
 }
 function endRound(reason){
-  sDie();ptrTrail=[];release();
+  sDie();save.lastFailure=reason;ptrTrail=[];release();
   const reward=settleRun();persist();
   $('endEmoji').textContent=reason==='doom'?'🛸':(reason==='sun'?'☀️':'🌀');
   $('endTitle').textContent=reason==='doom'?'UFO đã hút cạn năng lượng'
-    :(reason==='sun'?'Chưa vượt qua Mặt Trời':'Năng lượng đã cạn');
+    :(reason==='sun'?'Chưa vượt qua Mặt Trời':reason==='route'?'Quỹ đạo chưa đủ mạnh':'Năng lượng đã cạn');
   $('endStats').innerHTML=
     `Khối lượng đỉnh: <b>${Math.round(peak)}</b> · ${Math.round(roundTime)} giây<br>`+
     `Vật thể hấp thụ: <b>${runCollected}</b><br>`+
@@ -637,6 +681,19 @@ function endRound(reason){
     `Tổng nhận: <b>+${reward.earned} ⭐</b>`;
   state='roundEnd';showOverlay('roundEnd');
 }
+function finishMap(){
+  if(state!=='play'||runStage>=2)return false;
+  const completed=runStage;
+  endRound('route');
+  save.stage=Math.min(2,completed+1);
+  let reward=0;
+  if(!save.mapClaims.includes(completed)){save.mapClaims.push(completed);reward=completed===0?300:700;save.pts+=reward;}
+  $('endEmoji').textContent=completed===0?'🌍':'🪐';
+  $('endTitle').textContent=completed===0?'Quỹ đạo đã mở':'Đường tới Mặt Trời';
+  $('endStats').innerHTML+=`<br><b>Chặng mới: ${MAPS[save.stage].name}</b><br>Thưởng khám phá: +${reward} ⭐`;
+  save.lastFailure='';persist();
+}
+
 function winGame(){
   if(wonAlready)return;wonAlready=true;
   ptrTrail=[];release();const reward=settleRun();
@@ -741,7 +798,7 @@ function update(dt){
   }else if(phase==='doom'){
     doomT+=dt;
     const aliveN=drones.filter(d=>d.alive).length;
-    size-=DOOM_DRAIN(size)*(1+.5*(save.uni||0))*(drones.reduce((total,d)=>total+(d.alive?d.hp/3:0),0)/Math.max(1,drones.length))
+    size-=DOOM_DRAIN(size)*currentMap().enemy*(1+.5*(save.uni||0))*(drones.reduce((total,d)=>total+(d.alive?d.hp/3:0),0)/Math.max(1,drones.length))
       *defenseMultiplier()*dt;
     /* mass streaming up to drones */
     if(aliveN&&Math.random()<.7){
@@ -750,16 +807,22 @@ function update(dt){
         vx:(d.x-HOLE.x)*.35,vy:-260,t:.9,col:'rgba('+TH().beam+',.85)',r:R(2,3.5)});
     }
     if(doomT>=doomDuration()){
-      phase='sun';sunT=0;survivedDoom=true;drones=[];
-      sSurvive();flash=.8;
-      toast('Mặt Trời xuất hiện. Đạt cấp 10 để hấp thụ.');
+      survivedDoom=true;drones=[];sSurvive();flash=.35;
+      if(runStage===0){finishMap();return;}
+      sunT=0;
+      if(runStage===1){phase='crossing';toast('Quỹ đạo đã an toàn. Thu đủ 3.500 khối lượng để vượt vành đai.');}
+      else{phase='sun';toast('Mặt Trời đang hút khối lượng. Cần 11.500 để đảo ngược lực hút; nâng Lá chắn bức xạ để trụ lâu hơn.');}
     }
+  }else if(phase==='crossing'){
+    sunT+=dt;size-=GROW_DECAY(size)*dt;
+    if(size>=currentGoal()){finishMap();return;}
+    if(sunT>=SUN_LIMIT){endRound('route');return;}
   }else if(phase==='sun'){
     sunT+=dt;
     if(sunSwallow>0){sunSwallow+=dt;shake=.6;
       if(sunSwallow>1.6){winGame();return;}}
     else{
-      size-=SUN_DRAIN(size)*solarResistance()*(1+.4*(save.uni||0))*dt;
+      size-=solarDrain()*dt;
       if(size>=WIN_SIZE)sunSwallow=.001;
       else if(sunT>=SUN_LIMIT){endRound('sun');return;}
     }
@@ -801,7 +864,7 @@ function update(dt){
       it.fuse-=dt;it.vy+=300*dt;it.x+=it.vx*dt;it.y+=it.vy*dt;
       parts.push({x:it.x,y:it.y+8,vx:R(-15,15),vy:R(40,90),t:.35,col:'#ffd76a',r:2});
       if(it.fuse<=0){it.dead=true;sBoom();
-        puff(it.x,it.y,'#ff9d5e',12,140);ring(it.x,it.y,'#ffd76a');
+        burstFirework(it.x,it.y,it.hue);
         for(let i=0;i<4;i++)spawnEmber(it.x,it.y);}
       continue;
     }
@@ -858,6 +921,10 @@ function update(dt){
       vx:-Math.sin(a)*60,vy:Math.cos(a)*30,t:R(.5,1),col:'rgba(199,168,255,.55)',r:R(1.2,2.4)});
   }
 
+  fireworks=fireworks.filter(p=>{
+    p.px=p.x;p.py=p.y;p.t-=dt;p.vx*=Math.exp(-1.3*dt);p.vy=p.vy*Math.exp(-1.3*dt)+105*dt;
+    p.x+=p.vx*dt;p.y+=p.vy*dt;return p.t>0;
+  });
   if(skill.cd>0)skill.cd-=dt;
   gemFx=gemFx.filter(g=>{g.t+=dt;
     g.x+=(70-g.x)*3*dt+g.vx*dt*Math.max(0,1-g.t*2);
@@ -987,12 +1054,17 @@ window.addEventListener('keydown',e=>{
 });
 
 /* ---------- HUD ---------- */
-(function(){const n=$('notches');let h='';
-  for(let i=1;i<LV.length;i++)h+=`<i style="left:${(LV[i]/WIN_SIZE*100).toFixed(1)}%"></i>`;
-  n.innerHTML=h;})();
+function renderNotches(){
+  $('notches').innerHTML=LV.filter(v=>v>1&&v<currentGoal()).map(v=>`<i style="left:${(v/currentGoal()*100).toFixed(1)}%"></i>`).join('');
+}
+renderNotches();
 function updateHud(){
   const l=level(size);
-  $('sizeBar').style.width=Math.max(1.5,Math.min(100,size/WIN_SIZE*100))+'%';
+  $('missionHud').textContent=(runStage+1)+'/3 · '+currentMap().name+' · '+(runStage===0?'Vượt UFO':currentGoal().toLocaleString('vi-VN')+' khối lượng');
+  const solar=$('solarHint');solar.style.display=state==='play'&&phase==='sun'?'block':'none';
+  if(phase==='sun')solar.textContent=sunSwallow>0?'Đã đảo ngược lực hút — đang hấp thụ Mặt Trời':
+    '☀ Mặt Trời rút '+Math.ceil(solarDrain())+'/giây · Còn '+Math.max(0,Math.ceil(WIN_SIZE-size)).toLocaleString('vi-VN')+' khối lượng · Nâng Lá chắn bức xạ';
+  $('sizeBar').style.width=Math.max(1.5,Math.min(100,size/currentGoal()*100))+'%';
   $('lvlTxt').textContent='Cấp '+l;
   $('szTxt').textContent=Math.round(size);
   $('ptsTxt').textContent=save.pts;
@@ -1006,7 +1078,7 @@ function updateHud(){
   if(state!=='play'){dp.textContent=(DOOM_BASE+DOOM_DELAY*lv('delay'))+'s';}
   else if(phase==='grow'){dp.textContent=Math.max(0,Math.ceil(doomAt-roundTime))+'s';}
   else if(phase==='doom'){dp.textContent='Trụ vững '+Math.max(0,Math.ceil(doomDuration()-doomT))+'s';}
-  else{dp.textContent='☀ '+Math.max(0,Math.ceil(SUN_LIMIT-sunT))+'s';}
+  else{dp.textContent=(phase==='crossing'?'Vượt vành đai ':'☀ ')+Math.max(0,Math.ceil(SUN_LIMIT-sunT))+'s';}
   $('doomPill').classList.toggle('urgent',
     state==='play'&&((phase==='grow'&&doomAt-roundTime<6)||phase==='doom'));
   const sb=$('skillBtn');
@@ -1278,7 +1350,7 @@ function buildBackdrop(){
   ctx.setTransform(renderScale,0,0,renderScale,0,0);
   /* sky */
   const sky=ctx.createLinearGradient(0,0,0,GROUND);
-  sky.addColorStop(0,'#080f22');sky.addColorStop(.7,'#18223b');sky.addColorStop(1,'#24364b');
+  sky.addColorStop(0,currentMap().sky[0]);sky.addColorStop(.7,currentMap().sky[1]);sky.addColorStop(1,currentMap().sky[1]);
   ctx.fillStyle=sky;ctx.fillRect(-12,-12,W+24,GROUND+12);
   /* Atmospheric light and deterministic star field. */
   const nebula=ctx.createRadialGradient(420,180,0,420,180,460);
@@ -1291,26 +1363,47 @@ function buildBackdrop(){
     ctx.beginPath();ctx.arc(sx,sy,i%7===0?1.3:.65,0,Math.PI*2);ctx.fill();
   }
   ctx.globalAlpha=1;
-  /* moon */
-  ctx.fillStyle='#e8e2d0';ctx.beginPath();ctx.arc(852,74,26,0,7);ctx.fill();
-  ctx.fillStyle='#141a30';ctx.beginPath();ctx.arc(862,66,22,0,7);ctx.fill();
+  if(runStage===0){
+    ctx.fillStyle='#eff9ff';ctx.beginPath();ctx.arc(852,88,24,0,7);ctx.fill();
+    ctx.fillStyle=currentMap().sky[0];ctx.beginPath();ctx.arc(862,81,21,0,7);ctx.fill();
+  }else if(runStage===1){
+    ctx.fillStyle='#3655c9';ctx.beginPath();ctx.arc(820,190,78,0,7);ctx.fill();
+    ctx.strokeStyle='#9d8bff';ctx.lineWidth=7;ctx.beginPath();ctx.ellipse(820,190,123,27,-.3,0,7);ctx.stroke();
+    for(let i=0;i<15;i++){ctx.fillStyle=['#a997cc','#e0ac91','#767fae'][i%3];ctx.beginPath();ctx.ellipse((i*173+34)%W,90+(i*93)%240,6+i%9,4+i%6,i,0,7);ctx.fill();}
+  }else{
+    const glow=ctx.createRadialGradient(480,90,5,480,90,280);
+    glow.addColorStop(0,'#ffaf4c66');glow.addColorStop(1,'#ff6b3500');ctx.fillStyle=glow;ctx.fillRect(0,0,W,GROUND);
+  }
+  if(runStage===0){
   /* hills */
   ctx.fillStyle='#161226';
   ctx.beginPath();ctx.moveTo(-12,GROUND);
   ctx.quadraticCurveTo(180,GROUND-90,420,GROUND-30);
   ctx.quadraticCurveTo(680,GROUND-110,W+12,GROUND-40);
   ctx.lineTo(W+12,GROUND);ctx.closePath();ctx.fill();
-  /* fence */
+  /* fence / orbital dock */
   ctx.strokeStyle='rgba(120,100,140,.35)';ctx.lineWidth=3;
-  for(let fx=30;fx<W;fx+=48){ctx.beginPath();ctx.moveTo(fx,GROUND-2);ctx.lineTo(fx,GROUND-34);ctx.stroke();}
+  for(let fx=30;fx<W;fx+=runStage===0?48:120){ctx.beginPath();ctx.moveTo(fx,GROUND-2);ctx.lineTo(fx,GROUND-34);ctx.stroke();}
   ctx.beginPath();ctx.moveTo(0,GROUND-26);ctx.lineTo(W,GROUND-26);ctx.stroke();
   /* ground */
   const gg=ctx.createLinearGradient(0,GROUND,0,H);
-  gg.addColorStop(0,'#152636');gg.addColorStop(1,'#0a1424');
+  gg.addColorStop(0,currentMap().ground[0]);gg.addColorStop(1,currentMap().ground[1]);
   ctx.fillStyle=gg;ctx.fillRect(-12,GROUND,W+24,H-GROUND+12);
   ctx.strokeStyle='rgba(141,229,231,.22)';ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();
 
+
+  }else{
+    const lower=ctx.createLinearGradient(0,GROUND,0,H);lower.addColorStop(0,currentMap().sky[1]);lower.addColorStop(1,currentMap().sky[0]);
+    ctx.fillStyle=lower;ctx.fillRect(0,GROUND,W,H-GROUND);
+    for(const x of [235,360,600,725]){
+      const glow=ctx.createRadialGradient(x,GROUND+10,2,x,GROUND+10,65);
+      glow.addColorStop(0,currentMap().accent+'44');glow.addColorStop(1,currentMap().accent+'00');
+      ctx.fillStyle=glow;ctx.fillRect(x-65,GROUND-35,130,85);
+      ctx.fillStyle='#182345';ctx.strokeStyle=currentMap().accent;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(x-42,GROUND+4);ctx.lineTo(x+42,GROUND+4);ctx.lineTo(x+34,GROUND+17);ctx.lineTo(x-34,GROUND+17);ctx.closePath();ctx.fill();ctx.stroke();
+    }
+  }
   return image;
 }
 
@@ -1412,8 +1505,10 @@ function draw(){
     }
     ctx.save();ctx.translate(it.x,it.y);
     ctx.rotate(it.rot+(it.state==='loose'?Math.sin(t*2+it.rot*9)*.1:t*4));
-    ctx.font=(it.state==='held'?'30px':'25px')+' serif';ctx.textAlign='center';
-    ctx.fillText(it.em,0,0);
+    if(it.state==='rocket'){
+      ctx.rotate(-it.rot);ctx.strokeStyle=`hsl(${it.hue},100%,72%)`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-it.vx*.06,-it.vy*.06);ctx.stroke();
+      ctx.fillStyle='#fff4ae';ctx.beginPath();ctx.arc(0,0,2.5,0,7);ctx.fill();
+    }else{ctx.font=(it.state==='held'?'30px':'25px')+' serif';ctx.textAlign='center';ctx.fillText(it.em,0,0);}
     ctx.restore();
     ctx.globalAlpha=1;
   }
@@ -1466,24 +1561,29 @@ function draw(){
     ctx.fillStyle=Math.sin(t*12)>0?'#ff6b5e':'#ff9d5e';
     ctx.fillText('UFO ĐANG TIẾP CẬN',W/2,54);
   }
-  /* the SUN */
+  /* Solar field: larger than an underpowered black hole, with visible outward transfer. */
   if(phase==='sun'){
-    const sy=90+Math.min(1,sunT*.4)*40;
     const pull=sunSwallow>0?Math.min(1,sunSwallow/1.4):0;
-    const sx=W/2,syy=sy+(HOLE.y-sy)*pull;
-    const srad=54*(1-pull*.85);
-    const sg=ctx.createRadialGradient(sx,syy,srad*.3,sx,syy,srad*1.9);
-    sg.addColorStop(0,'rgba(255,220,120,.95)');sg.addColorStop(1,'rgba(255,160,60,0)');
-    ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx,syy,srad*1.9,0,7);ctx.fill();
-    ctx.fillStyle='#ffd76a';ctx.beginPath();ctx.arc(sx,syy,srad,0,7);ctx.fill();
-    /* angry face */
-    ctx.fillStyle='#7a4a00';
-    ctx.beginPath();ctx.arc(sx-srad*.3,syy-srad*.1,srad*.09,0,7);
-    ctx.arc(sx+srad*.3,syy-srad*.1,srad*.09,0,7);ctx.fill();
-    ctx.strokeStyle='#7a4a00';ctx.lineWidth=3;
-    ctx.beginPath();ctx.arc(sx,syy+srad*.35,srad*.22,1.15*Math.PI,1.85*Math.PI);ctx.stroke();
-    ctx.fillStyle='rgba(255,200,100,.06)';ctx.fillRect(-12,-12,W+24,H+24);
+    const sx=480,sy=128+(HOLE.y-128)*pull,srad=82*(1-pull*.88);
+    const glow=ctx.createRadialGradient(sx,sy,srad*.4,sx,sy,srad*1.8);
+    glow.addColorStop(0,'#fff2a9');glow.addColorStop(.5,'#ffb52c88');glow.addColorStop(1,'#ff572200');
+    ctx.fillStyle=glow;ctx.beginPath();ctx.arc(sx,sy,srad*1.8,0,7);ctx.fill();
+    const surface=ctx.createRadialGradient(sx-srad*.3,sy-srad*.3,2,sx,sy,srad);
+    surface.addColorStop(0,'#fff6b3');surface.addColorStop(.55,'#ffcf35');surface.addColorStop(1,'#fb7023');
+    ctx.fillStyle=surface;ctx.beginPath();ctx.arc(sx,sy,srad,0,7);ctx.fill();
+    ctx.strokeStyle='#ffe36b';ctx.lineWidth=2;
+    for(let i=0;i<12;i++){const a=i*Math.PI/6+t*.12;ctx.beginPath();ctx.arc(sx+Math.cos(a)*srad,sy+Math.sin(a)*srad,8+Math.sin(t+i)*3,a,a+Math.PI);ctx.stroke();}
+    if(!pull){
+      for(let i=0;i<12;i++){const f=(t*.65+i/12)%1;ctx.fillStyle='#ffd659';ctx.beginPath();ctx.arc(HOLE.x+Math.sin(i)*18*(1-f),HOLE.y+(sy-HOLE.y)*f,1.5+f*1.5,0,7);ctx.fill();}
+    }
   }
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  for(const p of fireworks){
+    ctx.globalAlpha=Math.min(1,p.t/p.life*1.6);ctx.strokeStyle=`hsl(${p.hue},100%,65%)`;ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.moveTo(p.px-p.vx*.028,p.py-p.vy*.028);ctx.lineTo(p.x,p.y);ctx.stroke();
+    ctx.fillStyle='#fff6da';ctx.beginPath();ctx.arc(p.x,p.y,1.1,0,7);ctx.fill();
+  }
+  ctx.restore();
   if(flash>0&&!reducedMotion){ctx.fillStyle='rgba(255,255,255,'+flash*.35+')';ctx.fillRect(-12,-12,W+24,H+24);}
 
   /* gems flying to HUD */
@@ -1514,7 +1614,7 @@ function draw(){
 
 /* ---------- Overlays & NODE TREE (fire-game style) ---------- */
 const OVS=['menu','roundEnd','shop','win','pause','skinShop'];
-function showOverlay(id){$('playHint').style.display=id?'none':'block';hovered=null;OVS.forEach(o=>$(o).classList.toggle('show',o===id));updateHud();}
+function showOverlay(id){if(id){clearTimeout($('toast')._h);$('toast').style.opacity=0;}$('playHint').style.display=id?'none':'block';hovered=null;OVS.forEach(o=>$(o).classList.toggle('show',o===id));updateHud();}
 
 const ROOTS=['junk2','big','delay','zap'];
 const SIBLINGS=[];
@@ -1531,11 +1631,47 @@ const TREE_WIDTH=treeCursor+40;
 const ORIGIN=[TREE_WIDTH/2,25];
 let selId=null;
 function focusBranch(id){
-  const box=$('treeBox'),svg=box.querySelector('svg');if(!svg||!POS[id])return;
-  box.scrollLeft=Math.max(0,POS[id][0]*svg.getBoundingClientRect().width/TREE_WIDTH-box.clientWidth/2);
-  box.scrollTop=0;
+  shopLane=ROOTS.indexOf(id);if(shopLane<0)shopLane=0;renderCards();
+  if(shopView==='graph'){
+    const box=$('treeBox'),svg=box.querySelector('svg');if(!svg)return;
+    box.scrollLeft=Math.max(0,POS[id][0]*svg.getBoundingClientRect().width/TREE_WIDTH-box.clientWidth/2);box.scrollTop=0;
+  }
 }
 $('branchNav').addEventListener('click',e=>{const button=e.target.closest('[data-branch]');if(button)focusBranch(button.dataset.branch);});
+$('viewToggle').addEventListener('click',()=>{
+  shopView=shopView==='cards'?'graph':'cards';renderCards();focusBranch(ROOTS[shopLane]);
+});
+function recommendedUpgrade(){
+  const priorities=save.lastFailure==='doom'?['shield','zap','breach','shield2','hawk','delay']:
+    save.lastFailure==='sun'?['solar','big','core','fusion','pull']:['junk2','rate','big','gas','cap','collector','trade'];
+  return priorities.map(id=>NODE_BY_ID[id]).find(n=>nodeState(n)==='full'&&lv(n.id)<n.max&&save.pts>=cost(n));
+}
+function renderCards(){
+  $('shop').setAttribute('data-view',shopView);
+  const recommended=recommendedUpgrade();
+  $('shopTip').textContent=recommended?'Gợi ý: '+recommended.name:MAPS[save.stage].intro;
+  $('upgradeCards').style.display=shopView==='cards'?'grid':'none';
+  $('treeBox').style.display=shopView==='graph'?'block':'none';
+  $('viewToggle').textContent=shopView==='cards'?'Xem sơ đồ':'Xem thẻ';
+  for(const button of $('branchNav').querySelectorAll('button')){
+    const lane=ROOTS.indexOf(button.dataset.branch),count=NODES.filter(n=>n.lane===lane&&nodeState(n)==='full'&&lv(n.id)<n.max&&save.pts>=cost(n)).length;
+    button.classList.toggle('active',lane===shopLane);button.setAttribute('aria-pressed',String(lane===shopLane));
+    button.textContent=['Vật liệu','Khối lượng','Phòng vệ','Tự động ⚡'][lane]+(count?' · '+count:'');
+  }
+  $('upgradeCards').innerHTML=NODES.filter(n=>n.lane===shopLane).map(n=>{
+    const unlocked=nodeState(n)==='full',maxed=lv(n.id)>=n.max,afford=unlocked&&!maxed&&save.pts>=cost(n);
+    const text=unlocked?n.desc:'Mở '+NODE_BY_ID[n.req].name+' để nghiên cứu.';
+    const status=!unlocked?'Chưa mở':maxed?'Hoàn tất':afford?'Có thể mua':'Còn thiếu '+Math.ceil(cost(n)-save.pts).toLocaleString('vi-VN')+' ⭐';
+    return `<article class="upgradeCard ${!unlocked?'isLocked':''} ${recommended?.id===n.id?'suggested':''} ${selId===n.id?'selected':''}">
+      <button class="cardSelect" data-select="${n.id}"><span class="cardIcon">${n.em}</span><span><b>${n.name}</b><small>Cấp ${lv(n.id)}/${n.max} · ${status}</small></span></button>
+      <p>${text}</p><div class="cardEffect">${n.fx(lv(n.id))}${unlocked&&!maxed?' → '+n.fx(lv(n.id)+1):''}</div>
+      <button class="cardBuy" data-buy="${n.id}" ${!afford?'disabled':''}>${maxed?'Đã tối đa':!unlocked?'Khóa':(lv(n.id)?'Nâng cấp':'Mở khóa')+' · '+cost(n).toLocaleString('vi-VN')+' ⭐'}</button></article>`;
+  }).join('');
+}
+$('upgradeCards').addEventListener('click',e=>{
+  const buy=e.target.closest('[data-buy]'),select=e.target.closest('[data-select]');
+  if(buy){buyNode(buy.dataset.buy);return;}if(select)selNode(select.dataset.select);
+});
 
 function svgNode(u){
   const st=nodeState(u);
@@ -1572,10 +1708,10 @@ function svgNode(u){
 function renderShop(){
   const selectionHidden=selId&&nodeState(NODE_BY_ID[selId])==='hidden';
   if(selectionHidden)selId=null;
-  const ranks=NODES.reduce((total,n)=>total+lv(n.id),0);
+
   const affordable=NODES.filter(n=>nodeState(n)==='full'&&lv(n.id)<n.max&&save.pts>=cost(n)).length;
   $('shopPts').textContent='⭐ '+Math.floor(save.pts)+' · '+(affordable?affordable+' nâng cấp có thể mua':'Tích thêm cho lượt tới');
-  $('shopProgress').textContent='Kỷ lục '+save.best.toLocaleString('vi-VN')+' / '+WIN_SIZE.toLocaleString('vi-VN')+' khối lượng · '+campaignMilestones.filter(m=>save.claims.includes(m.mass)).length+'/5 cột mốc';
+  $('shopProgress').textContent='CHẶNG '+(save.stage+1)+'/3 · '+MAPS[save.stage].name+' · '+MAPS[save.stage].intro;
   const defs=`<defs>
     <radialGradient id="gBase" cx="35%" cy="30%"><stop offset="0%" stop-color="#232a44"/><stop offset="100%" stop-color="#10141f"/></radialGradient>
     <radialGradient id="gOwn" cx="35%" cy="30%"><stop offset="0%" stop-color="#5a44a8"/><stop offset="100%" stop-color="#231a4a"/></radialGradient>
@@ -1627,12 +1763,12 @@ function renderShop(){
   $('treeBox').innerHTML=
     `<svg viewBox="0 0 ${TREE_WIDTH} ${treeHeight}" xmlns="http://www.w3.org/2000/svg">${defs}${edges}${nodes}</svg>`;
   if(selectionHidden)$('treeBox').scrollTop=0;
-  renderDetail();
+  renderCards();renderDetail();
 }
 function selNode(id){
   const u=NODE_BY_ID[id];
-  if(!u||nodeState(u)==='hidden')return;
-  selId=id;renderShop();
+  if(!u)return;
+  selId=id;if(nodeState(u)==='hidden'){renderCards();renderDetail();return;}renderShop();
 }
 /* buyNode chỉ cho phép khi 'full' — unilock/teaser tự chặn qua nodeState */
 function renderDetail(){
@@ -1649,7 +1785,7 @@ function renderDetail(){
     $('ndDesc').textContent='Nuốt Mặt Trời và bước sang Vũ Trụ #'+(u.uniReq+1)+' để mở khóa sức mạnh này — độ khó tăng thì sức mạnh mới cũng xuất hiện!';
     $('ndFx').textContent='';
     $('ndPips').innerHTML='';bb.disabled=true;bb.textContent='🌌 Vũ Trụ #'+(u.uniReq+1);return;}
-  if(st==='teaser'){
+  if(st==='teaser'||st==='hidden'){
     const p=NODE_BY_ID[u.req];
     $('ndName').textContent='❓ Nâng cấp chưa mở';
     $('ndFrom').textContent='⤷ mở khóa bằng cách mua: '+p.em+' '+p.name;
@@ -1725,14 +1861,14 @@ try{window.buySkin=buySkin;window.equipSkin=equipSkin;}catch(e){}
 /* ---------- Buttons ---------- */
 $('startBtn').onclick=()=>{beep(440,.08,'triangle',.12);startRound();};
 $('resetBtn').onclick=()=>{if(confirm('Đặt lại toàn bộ tiến trình? Thao tác này không thể hoàn tác.')){
-  save=freshSave();persist();wonAlready=false;
+  save=freshSave();runStage=0;backdrop=null;persist();wonAlready=false;
   toast('Đã đặt lại tiến trình.');updateHud();}};
 $('toShopBtn').onclick=()=>{state='shop';renderShop();showOverlay('shop');
-  const candidate=NODES.find(n=>nodeState(n)==='full'&&lv(n.id)<n.max&&save.pts>=cost(n));
+  const candidate=recommendedUpgrade()||NODES.find(n=>nodeState(n)==='full'&&lv(n.id)<n.max&&save.pts>=cost(n));
   focusBranch(candidate?ROOTS[candidate.lane]:'junk2');};
 $('nextRoundBtn').onclick=()=>startRound();
 $('winBtn').onclick=()=>{
-  save.uni=(save.uni||0)+1;wonAlready=false;persist();
+  save.uni=(save.uni||0)+1;save.stage=0;runStage=0;backdrop=null;wonAlready=false;persist();
   toast('Vũ trụ '+(save.uni+1)+' đã mở. Nâng cấp của bạn được giữ lại.');
   state='shop';renderShop();showOverlay('shop');};
 $('winResetBtn').onclick=()=>{save=freshSave();persist();

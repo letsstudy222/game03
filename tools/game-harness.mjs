@@ -13,7 +13,7 @@ export function createGame(seed = 1, initialSave = null) {
         toggle(c, value) { if (value ?? !classes.has(c)) classes.add(c); else classes.delete(c); },
         contains: c => classes.has(c) },
       addEventListener(name, fn) { this.listeners[name] = fn; },
-      setAttribute() {}, appendChild() {},
+      setAttribute() {}, appendChild() {}, querySelectorAll:()=>[],
       querySelector(key) { if (!children.has(key)) children.set(key, element()); return children.get(key); },
       getBoundingClientRect: () => ({ left: 0, top: 0, width: 960, height: 540 }),
       getContext: () => ({}), setPointerCapture() {}, hasPointerCapture: () => false, releasePointerCapture() {},

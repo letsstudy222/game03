@@ -1,53 +1,64 @@
-# Điểm Kỳ Dị: campaign balance
+# Điểm Kỳ Dị: three-map campaign
 
-The current campaign targets roughly 15–20 minutes for an active player, including choosing upgrades. Short runs prioritize frequent rewards and new purchases. Existing `holeGameV5` saves retain currency, owned ranks, skins, and records; historical play time cannot be reconstructed.
+The campaign targets about one hour for an active player, including selecting upgrades. Each run remains short; progression comes from repeated purchases and permanent map unlocks. Timing is a tuning estimate, not a mandatory wait.
 
-## Progression
+## Maps
 
-- 33 evolutions, four branches, all accessible in the first universe. Parents split into multiple independent children. For example, material storage opens conveyors and reactor fuel; gravity beams open capacitors and satellites. Branch buttons navigate the scrollable forest. Already owned nodes remain accessible when an old save is loaded.
-- First UFO after 24 seconds; signal upgrades extend this to 36 seconds. Early runs end around 25–30 seconds; later runs are bounded at about 66 seconds.
-- UFO attack lasts 8 seconds, reducible to 6.5 seconds. Each UFO has three armor points. Basic gravity beams deal one damage; penetration upgrades increase that to three. Remaining armor scales UFO drain, so each hit immediately helps.
-- The solar stage lasts at most 22 seconds. Reach 5,000 mass and survive the UFO attack to absorb the Sun.
-- Material stations aggregate all purchased sources; there is no eight-slot truncation.
-- Mass milestones at 100, 400, 1,000, 2,400, and 5,000 grant one-time credit rewards of 60, 100, 160, 240, and 360.
+| Map | Objective | Encounter |
+| --- | --- | --- |
+| Earth | Survive the recovery fleet | UFO arrives after 24–36 s; survival permanently opens orbit |
+| Asteroid belt | Survive UFO and gather 3,500 mass | Stronger fleet, followed by up to 22 s to charge the next journey |
+| Heliosphere | Survive UFO and absorb the Sun at 11,500 mass | Strongest fleet; solar gravity drains mass for up to 22 s |
 
-| Material | Mass | Credits | Base interval per source |
+UFO drain is `(48 + mass × 0.18) × map multiplier × armor fraction × defense multiplier`. Map multipliers are 1, 1.2, and 1.4. Basic beams remove one of three armor points; every hit lowers the drain. Radiation shields reduce the Sun's separate drain `(18 + mass × 0.026)`. The HUD reports the actual solar drain and missing mass.
+
+Map-unlock rewards are 300 and 700 credits and are paid once. A transition banks the current run and opens the next map before the next run starts. Defeat never locks a previously opened map. Earth, the belt, and the solar area have distinct cached backgrounds, materials, and docks. The Sun appears only in the final area.
+
+The black-hole radius is `18 + 86 × min(1, mass/mapGoal)^0.58`. It no longer saturates at low mass. In the final area, an underpowered hole remains smaller than the Sun; at the target it grows larger and the absorption animation starts.
+
+## Economy and upgrades
+
+33 evolutions split into independent branches. Purchases require their parent; already owned legacy nodes remain accessible. The default shop uses branch-specific cards with current/next effects, required parents, missing money, and direct purchase buttons. Recommendations favor defenses after UFO defeat and radiation protection after solar defeat. An optional graph preserves the overall tree.
+
+Upgrade price is `round(base × (1 + 0.75 × (tier − 1)) × 3 ^ currentRank × (1 − 0.04 × researchRank))`. Roots cost 90–105 credits; subsequent ranks cost three times the previous base amount. For example, a gravity beam costs 90, 270, 810, and 2,430 credits before research discounts.
+
+| Material | Mass | Credits | Interval/source |
 | --- | ---: | ---: | ---: |
 | Salvage | 4 | 3 | 1.2 s |
 | Reactor fuel | 10 | 6 | 3.0 s |
 | Fireworks | 8 | 5 | 3.6 s |
 | Capacitor | 14 | 8 | 4.4 s |
 
-Source intervals scale by `0.9 ^ conveyor rank / source count`; solar generation is 1.8 times faster. Each station has a minimum 0.18-second interval. External generation stops temporarily at 160 active objects rather than deleting player-held objects. Firework secondary objects are processed separately.
+Intervals scale by `0.9 ^ conveyorRank / sourceCount`, with a minimum of 0.18 s. Solar generation is 1.8 times faster. External generation pauses at 160 active objects rather than deleting held items. All purchased sources contribute.
 
-Upgrade price is `round(base × (1 + 0.55 × (tier − 1)) × 1.85 ^ currentRank × (1 − 0.04 × researchRank))`. Early roots cost 45–60 credits, allowing an active first run to buy an upgrade. Collection, recycling, round rewards, milestones, and victory rewards use the same wallet. The final winning round banks its earnings, too.
+Run reward: `floor(collectionCredits) + 20 + min(16, round) + round(peakMass × 0.04) + 35 if UFO survived`. Milestones at 100, 400, 1,000, 2,400, and 11,500 mass grant one-time rewards of 60, 100, 160, 240, and 360. The winning run also banks earnings. Cosmetics use separate crystals.
 
-Round rewards are `20 + min(16, round) + round(peakMass × 0.04) + 35 if UFO survived`. One-time milestones are added separately. Money is rounded down only at settlement; fractional collection/recycling is retained during a run.
+Click the gravity button or press Q to cast immediately; no targeting click is needed. Base cooldown is six seconds and improves with ranks. Entering the UFO phase caps remaining cooldown at one second.
 
-Pressing the gravity button or Q immediately casts: it targets the best available material station, or the weakest UFO during an attack. No second targeting click is required. Before purchase, the visible locked button explains where to unlock it. Base cooldown is six seconds and falls with ranks; entering the UFO phase caps the remaining cooldown at one second.
+## Graphics and persistence
 
-Later branches add automatic collection, wider ground attraction, satellites, longer capacitor chains, radiation resistance, persistent starting mass, and fusion. Throw and combo bonuses reward active play. Cosmetics use a separate crystal currency.
+Firework rockets have bright launch trails; their bursts use colored radial sparks, white cores, drag, gravity, fading, and a bounded 420-spark budget. Decorative sparks are separate from collectible embers, so cosmetic density does not create extra money or fuel. Particle/ring/arc/text budgets and cached backgrounds limit rendering work. Hit pulses never stop physics or the game clock. Reduced-motion preferences suppress shake, flashes, and reduce burst density.
 
-Visual hit pulses do not pause physics or timers. Pause, loss of window focus, and hidden tabs pause active play. Cosmetic effect arrays have bounded sizes for busy late-game scenes.
+`holeGameV5` remains the storage key. Schema 7 adds the highest opened map and one-time exploration rewards. Old currency, ranks, skins, records, and time are preserved; completed legacy universes start in the solar area. Old final milestone claims migrate by category to avoid duplicate payout. Historical elapsed play time cannot be reconstructed.
 
-## Reproducing validation
+## Validation
 
 ```sh
 node --test tools/game.test.mjs
-node tools/balance.mjs 3
+node tools/balance.mjs 2
 python3 tools/smoke.py
 ```
 
-The browser check needs Python Playwright and `/usr/bin/chromium`. It serves the repository on a temporary local port and shuts down only its own server.
+The browser check needs Python Playwright and `/usr/bin/chromium`. It starts and stops its own temporary HTTP server. Checks cover pointer/touch input, pause, settlement, card purchases, optional graph navigation, small screens, all three backgrounds, solar guidance, and fireworks.
 
-The balance harness executes the game's actual inline JavaScript, with a mock DOM and seeded randomness. It keeps real spawning, physics, skills, upgrade transactions, rewards, and damage. Bots substitute bounded manual collection: one object every 1.7, 1.1, or 0.7 seconds, with different throw rates and branch preferences. They choose affordable upgrades between runs. Collection gestures are instantaneous at each interval, so this is a favorable approximation rather than a human playtest.
+The seeded harness runs the actual inline game logic at 60 steps/s, including damage, spawning, physics, map transitions, skills, rewards, and prices. Bots manually collect at 1.7, 1.1, or 0.7-second intervals, with different throw rates and branch preferences. Their collection gestures are instantaneous; they allow 25, 20, or 14 seconds of shopping per run, respectively.
 
-Validation at 60 simulation steps per second, three seeds per profile:
+Final tuning, two seeds per profile:
 
-| Profile | First victory | Rounds | Rank purchases |
+| Profile | Victory | Runs | Rank purchases |
 | --- | ---: | ---: | ---: |
-| Casual | 17.7–17.8 min | 14 | 51 |
-| Steady | 15.5–16.8 min | 13–14 | 45–48 |
-| Skilled | 14.3–15.5 min | 13–14 | 45–47 |
+| Casual | 56.6–56.7 min | 42 | 84–85 |
+| Steady | 48.9–50.2 min | 39–40 | 80 |
+| Skilled | 45.6–46.1 min | 40 | 79 |
 
-These times include 25, 20, and 14 seconds of shopping per round respectively. Reading the expanded tree, slower gestures, different purchases, and abandoned runs can lengthen the campaign; an optimized build can shorten it. Validate actual player sessions before treating these estimates as measured completion times.
+Actual reading, planning, missed throws, and different builds can extend those estimates toward an hour or beyond; optimized play can be faster. These are simulations, not measured human completion times.

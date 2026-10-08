@@ -23,7 +23,7 @@ test('old saves retain currency, skins, owned upgrades and remain usable after b
   assert.equal(g.evaluate('nodeState(NODE_BY_ID.junk3)'), 'full');
   assert.equal(g.evaluate('save.skin'), 'cat');
   assert.equal(g.evaluate('save.playSeconds'),0);
-  assert.equal(g.evaluate('save.version'),6);
+  assert.equal(g.evaluate('save.version'),7);
   g.evaluate('persist()');
   assert.equal(JSON.parse(g.storage.get('holeGameV5')).pts,321);
 });
@@ -84,14 +84,14 @@ test('final round banks earnings, milestones pay only once and win settlement ca
   const g=createGame();
   g.evaluate('startRound();runMoney=123.7;peak=WIN_SIZE;survivedDoom=true;winGame()');
   const pts=g.evaluate('save.pts');
-  assert.equal(pts,123+21+200+35+60+100+160+240+360+600);
+  assert.equal(pts,123+21+460+35+60+100+160+240+360+600);
   assert.equal(g.evaluate('save.claims.length'),5);
   assert.equal(g.evaluate('save.wins'),1);
   g.evaluate('winGame()');
   assert.equal(g.evaluate('save.pts'),pts);
   g.evaluate('peak=WIN_SIZE;runMoney=0;settleRun()');
   assert.equal(g.evaluate('save.claims.length'),5);
-  assert.equal(g.evaluate('save.pts')-pts,22+200+35);
+  assert.equal(g.evaluate('save.pts')-pts,22+460+35);
 });
 
 test('solar phase has a time limit and crossing the goal without another item still wins', () => {
@@ -169,12 +169,14 @@ test('damaging UFO armor immediately weakens its drain', () => {
   assert.ok(damaged.evaluate('size')>healthy.evaluate('size'));
 });
 
-test('rounds are short and active first-round collection buys an early upgrade', () => {
+test('rounds remain short while repeated early purchases get more expensive', () => {
   const g=createGame();
   assert.equal(g.evaluate('DOOM_BASE'),24);
   assert.ok(g.evaluate('DOOM_BASE+DOOM_DELAY*NODE_BY_ID.delay.max+DOOM_DUR+SUN_LIMIT')<=66);
   g.evaluate("startRound();for(let i=0;i<12;i++)consume({state:'loose',type:'junk',x:480,y:322});endRound('doom')");
-  assert.equal(g.evaluate('buyNode("zap")'),true);
+  assert.equal(g.evaluate('buyNode("zap")'),false);
+  g.evaluate('save.pts=1000;buyNode("zap")');
+  assert.ok(g.evaluate('cost(NODE_BY_ID.zap)')>=230);
 });
 
 
@@ -184,4 +186,50 @@ test('completed legacy goal remains claimed when campaign target changes', () =>
   assert.ok(g.evaluate('save.claims.includes(WIN_SIZE)'));
   g.evaluate('peak=WIN_SIZE;runMoney=0;survivedDoom=false');
   assert.equal(g.evaluate('settleRun().milestoneBonus'),0);
+});
+
+
+test('surviving Earth unlocks orbit once, and orbital travel requires enough mass', () => {
+ const g=createGame();
+ g.evaluate("startRound();phase='doom';doomT=doomDuration();size=500;drones=[];update(.01)");
+ assert.equal(g.evaluate('save.stage'),1);assert.equal(g.evaluate('state'),'roundEnd');
+ const before=g.evaluate('save.pts');g.evaluate('finishMap()');
+ assert.ok(g.evaluate('save.pts')-before<300);
+ g.evaluate("startRound();phase='doom';doomT=doomDuration();size=1000;drones=[];update(.01)");
+ assert.equal(g.evaluate('phase'),'crossing');assert.equal(g.evaluate('save.stage'),1);
+ g.evaluate('size=4000;update(.01)');assert.equal(g.evaluate('save.stage'),2);
+});
+
+test('black-hole radius reflects progress instead of saturating at low mass', () => {
+ const g=createGame();g.evaluate('save.stage=2;startRound();size=500');const small=g.evaluate('holeR()');
+ g.evaluate('size=5000');const medium=g.evaluate('holeR()');g.evaluate('size=WIN_SIZE');const ready=g.evaluate('holeR()');
+ assert.ok(small<medium&&medium<ready);assert.ok(medium<82&&ready>82);assert.ok(ready<=104);
+});
+
+test('fireworks have bounded colored trails, drag, gravity and finite lifetime', () => {
+ const g=createGame();g.evaluate('startRound();boxes=[];items=[];burstFirework(200,200,120)');
+ assert.equal(g.evaluate('fireworks.length'),32);assert.equal(g.evaluate('fireworks[0].hue'),120);
+ const vx=g.evaluate('fireworks[0].vx');g.evaluate('update(.1)');assert.ok(g.evaluate('fireworks[0].vx')<vx);
+ g.evaluate('for(let i=0;i<50;i++)burstFirework(200,200,i*20)');assert.ok(g.evaluate('fireworks.length')<=420);
+ g.evaluate('for(let i=0;i<90;i++)update(.02)');assert.equal(g.evaluate('fireworks.length'),0);
+});
+
+test('solar warning reports real drain and upgrades reduce it', () => {
+ const g=createGame();g.evaluate("save.stage=2;startRound();phase='sun';size=2000;updateHud()");
+ assert.ok(g.evaluate("$('solarHint').textContent.includes('Mặt Trời rút')"));
+ const before=g.evaluate('solarDrain()');g.evaluate('save.lv.solar=3');assert.ok(g.evaluate('solarDrain()')<before);
+});
+
+
+test('shop recommends defenses after UFO and radiation resistance after solar failure', () => {
+ const g=createGame();g.evaluate("save.pts=5000;save.lastFailure='doom';save.lv.delay=1");
+ assert.equal(g.evaluate('recommendedUpgrade().id'),'shield');
+ g.evaluate("save.lastFailure='sun';save.lv.chrono=1");assert.equal(g.evaluate('recommendedUpgrade().id'),'solar');
+});
+
+test('locked future cards explain their prerequisite without spending credits', () => {
+ const g=createGame();g.evaluate("save.pts=5000;selNode('core')");
+ assert.equal(g.evaluate('selId'),'core');assert.equal(g.evaluate("$('buyBtn').disabled"),true);
+ assert.ok(g.evaluate("$('ndFrom').textContent.includes(NODE_BY_ID[NODE_BY_ID.core.req].name)"));
+ assert.equal(g.evaluate('save.pts'),5000);
 });

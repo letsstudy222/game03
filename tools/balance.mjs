@@ -13,7 +13,7 @@ const baseWeight = {
   delay: 1.35, hawk: 1, shield: 1.25, shield2: 1.1, chrono: 1, solar: 1.25, resonance: .85, breach: .75,
   zap: 1.6, cap: 1.55, sat: 1.3, collector: 1.3, magnet: 1.25, chain: 1, sat2: 1.05, zap2: .95,
 };
-export function simulate(profileName, seed = 1, maxRounds = 100) {
+export function simulate(profileName, seed = 1, maxRounds = 180) {
   const game = createGame(seed);
   const profile = profiles[profileName];
   const weights = Object.fromEntries(Object.entries(baseWeight).map(([k,v]) => [k,v]));
@@ -38,7 +38,7 @@ export function simulate(profileName, seed = 1, maxRounds = 100) {
         tickGame(dt);
       }
       seconds+=elapsed;
-      history.push({round,seconds:Math.round(seconds),peak:Math.round(peak),credits:Math.floor(save.pts),collected:runCollected,phase,state});
+      history.push({round,seconds:Math.round(seconds),peak:Math.round(peak),credits:Math.floor(save.pts),collected:runCollected,stage:save.stage,phase,state});
       if(state==='win')return {profile:${JSON.stringify(profileName)},seed:${seed},won:true,rounds:round,minutes:+(seconds/60).toFixed(1),purchases,upgrades:{...save.lv},history};
       if(state==='play')throw Error('Round did not terminate');
       seconds+=botProfile.shopping;
